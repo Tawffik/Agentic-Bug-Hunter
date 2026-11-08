@@ -1,0 +1,14 @@
+=== RUN   TestPoC_FixedBinding
+    poc_fix_test.go:40: FIXED check: attacker pubkey B does NOT match victim address A -> rejected
+--- PASS: TestPoC_FixedBinding (0.01s)
+=== RUN   TestPoC_UnrelatedKeyAccepted
+    poc_test.go:35: victim address A         : addr1q8nrdx6sukqwatkv7x8y0csl0x2l0rek9cmc04n5z35anxphyemygs8dxvfe432u6xcrt89d968u478w6s0cu8x7thrsng2ztx
+    poc_test.go:36: attacker address B       : addr1qy8ac7qqy0vtulyl7wntmsxc6wex80gvcyjy33qffrhm7sh927ysx5sftuw0dlft05dz3c7revpf7jx0xnlcjz3g69mq4afdhv
+    poc_test.go:50: attacker pubkey (B)      : 7ea09a34aebb13c9841c71397b1cabfec5ddf950405293dee496cac2f437480a
+    poc_test.go:54: VerifyMessageNoAddr(B)   : true (expected true — sig is genuinely B's)
+    poc_test.go:58: VerifyMessage(B -> A)    : true, err=<nil>
+    poc_test.go:61: VULNERABLE: unrelated key B accepted for address A (addr1q8nrdx6sukqwatkv7x8y0csl0x2l0rek9cmc04n5z35anxphyemygs8dxvfe432u6xcrt89d968u478w6s0cu8x7thrsng2ztx)
+--- FAIL: TestPoC_UnrelatedKeyAccepted (0.01s)
+FAIL
+exit status 1
+FAIL	github.com/okx/go-wallet-sdk/coins/cardano	0.033s
