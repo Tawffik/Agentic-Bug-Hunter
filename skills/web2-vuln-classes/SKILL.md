@@ -29,6 +29,7 @@ Root cause, pattern, bypass table, chaining opportunity, real paid examples.
 | Parser differential / routing auth bypass / 403 | [references/parser-differential-bypass.md](references/parser-differential-bypass.md) |
 | CVE/advisory-derived reusable patterns | [references/framework-advisory-patterns.md](references/framework-advisory-patterns.md) |
 | SSRF validator/requester desync, inner parsers, evidence ladder | [references/ssrf-validator-desync.md](references/ssrf-validator-desync.md) |
+| WebSocket/Socket.IO/MQTT authz + postMessage/cross-origin messaging | [references/websocket-postmessage.md](references/websocket-postmessage.md) |
 | Exposure/info-disclosure validation | `skills/web2-exposure/SKILL.md` |
 | Per-verb authz, status siblings, no-hallucination gate | `skills/johnwick/references/authz-idor.md` |
 
@@ -235,6 +236,9 @@ Listener present + origin check has substring/regex bypass            = same sev
 Listener present + strict equality on origin (=== exact match)        = N/A
 Listener exists but only logs / no DOM mutation                       = Low/Info
 ```
+
+WebSocket/Socket.IO/MQTT authorization and the full postMessage test matrix:
+[references/websocket-postmessage.md](references/websocket-postmessage.md).
 
 ---
 

@@ -37,6 +37,7 @@ bash bughunter/tools/external_arsenal.sh                     # what's installed 
 | `cve_scan.sh` | Focused nuclei CVE sweep (high/critical) + optional log4j-scan |
 | `bypass_403.sh` | Header · method · encoding tricks against 403/401 (soft-block aware) |
 | `secrets_hunter.sh` | trufflehog · noseyparker · gitleaks across FS/git/JS/GitHub org |
+| `exposure_probe.py` | Bounded GET-only exposure-artifact probe (SSRF/scope-guarded, content-marker classifier, LEAD-only) |
 | `cicd_scanner.sh` | GitHub Actions workflow scanner (sisakulint + remote scan) |
 | `graphql_audit.sh` | 7-phase GraphQL audit: introspection, batching, IDOR, injection, alias bomb |
 | `eol_check.py` | End-of-life / lifecycle intel from endoflife.date for fingerprint pairs |
@@ -51,6 +52,13 @@ bash bughunter/tools/external_arsenal.sh                     # what's installed 
 | `waf_response_analyzer.py` | Score WAF block vs soft-challenge vs real app response |
 | `multipart_mutator.py` | Parser-confusion multipart upload variants |
 | `sneaky_bits.py` | Invisible Unicode prompt-injection encode/decode (U+2062/U+2064) |
+
+## Client-side & XML
+
+| Tool | Purpose |
+|:---|:---|
+| `csrf_poc.py` | CSRF PoC generator (form/multipart/text-plain JSON/method-override/GraphQL) + SameSite/Secure/HttpOnly analyzer (offline) |
+| `xxe_probe.py` | XXE payload builder (file/SSRF/OOB-DTD/XInclude/SVG/PHP-filter/UTF-7) + bounded scope-guarded sender |
 
 ## Fuzzing & Deep Probes
 

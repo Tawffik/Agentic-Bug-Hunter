@@ -65,6 +65,8 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `/param-discover` | `/param-discover <url>` — find hidden HTTP parameters (Arjun/x8) |
 | `/bypass-403` | `/bypass-403 <url>` — try header/method/encoding tricks against a 403/401 |
 | `/exposure` | `/exposure <url> [--in-scope target.com]` — bounded artifact probe + visibility validation (LEAD-only) |
+| `/csrf` | `/csrf <url> -p k=v [--json ...]` — generate CSRF PoCs + SameSite analysis |
+| `/xxe` | `/xxe --kind file\|ssrf\|oob\|xinclude\|svg\|php-filter\|utf7` — build/send bounded XXE payloads |
 | `/dork` | `/dork target.com [--category ...]` — scoped Google/Bing/GitHub/Shodan query generation + attribution gate |
 | `/arsenal` | `/arsenal [tool]` — list installed external tools or get an install hint |
 | `/scan-cves` | `/scan-cves <host>` — focused nuclei CVE sweep (high/critical) + optional log4j-scan |
@@ -103,6 +105,7 @@ See **`bughunter/tools/README.md`** for the full ~50-tool catalogue. Highlights:
 - `bughunter/tools/external_arsenal.sh` — installed-tool registry (~50 tools); `_have <tool>` gate
 - `bughunter/tools/secrets_hunter.sh` · `takeover_scanner.sh` · `cloud_recon.sh` · `param_discovery.sh`
 - `bughunter/tools/exposure_probe.py` — bounded GET-only exposure-artifact probe (SSRF/scope-guarded, LEAD-only classifier)
+- `bughunter/tools/csrf_poc.py` · `xxe_probe.py` — offline CSRF PoC/SameSite analyzer · XXE payload builder + scope-guarded sender
 - Credential attack (opt-in): `wordlist_engine.sh` · `osint_employees.sh` · `breach_checker.py` · `spray_orchestrator.sh`
 - Web3: `token_scanner.py`
 

@@ -1,6 +1,6 @@
 # Commands
 
-35 slash commands installed into `~/.claude/commands/` by `install.sh`.
+37 slash commands installed into `~/.claude/commands/` by `install.sh`.
 
 ## Core Workflow
 | Command | What It Does |
@@ -15,7 +15,7 @@
 `/surface` `/scope-aggregate` `/cloud-recon` `/param-discover` `/secrets-hunt` `/takeover` `/scan-cves` `/bypass-403` `/exposure` `/dork`
 
 ## Vulnerability Scanners
-`/graphql-audit` `/cors` `/crlf` `/nosqli` `/jwt-scan` `/oob` `/llm-redteam`
+`/graphql-audit` `/cors` `/crlf` `/nosqli` `/jwt-scan` `/oob` `/llm-redteam` `/csrf` `/xxe`
 
 | Command | What It Does |
 |:---|:---|
