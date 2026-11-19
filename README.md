@@ -275,6 +275,8 @@ bughunter report
 git clone https://github.com/Awarexone/Agentic-Bug-Hunter.git
 cd Agentic-Bug-Hunter
 chmod +x install_tools.sh && ./install_tools.sh   # subfinder · httpx · nuclei · katana · ffuf
+# optional Web3 stack (Foundry · Slither · Aderyn · Medusa · Halmos · Solana/Anchor):
+# ./install_tools.sh --with-web3
 chmod +x install.sh      && ./install.sh          # skills + commands → ~/.claude/
 ```
 

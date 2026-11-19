@@ -121,6 +121,28 @@ ARSENAL_TOOLS=(
   "qsreplace|filter|GOBIN=\$HOME/go/bin go install github.com/tomnomnom/qsreplace@latest|github.com/tomnomnom/qsreplace"
   "anew|filter|GOBIN=\$HOME/go/bin go install github.com/tomnomnom/anew@latest|github.com/tomnomnom/anew"
   "interactsh-client|oob|GOBIN=\$HOME/go/bin go install github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest|github.com/projectdiscovery/interactsh"
+  # ── Web3 / smart contracts ──────────────────────────────────────────────
+  "forge|web3|curl -L https://foundry.paradigm.xyz | bash && ~/.foundry/bin/foundryup|github.com/foundry-rs/foundry"
+  "cast|web3|curl -L https://foundry.paradigm.xyz | bash && ~/.foundry/bin/foundryup|github.com/foundry-rs/foundry"
+  "anvil|web3|curl -L https://foundry.paradigm.xyz | bash && ~/.foundry/bin/foundryup|github.com/foundry-rs/foundry"
+  "slither|web3|pipx install slither-analyzer|github.com/crytic/slither"
+  "solc-select|web3|pipx install solc-select|github.com/crytic/solc-select"
+  "crytic-compile|web3|pipx install crytic-compile|github.com/crytic/crytic-compile"
+  "aderyn|web3|RETIRED upstream (2026) — existing installs only; use slither/medusa/halmos|github.com/Cyfrin/aderyn"
+  "echidna|web3|brew install echidna  # or download a release binary|github.com/crytic/echidna"
+  "medusa|web3|GOBIN=\$HOME/go/bin go install github.com/crytic/medusa@latest|github.com/crytic/medusa"
+  "halmos|web3|pipx install halmos|github.com/a16z/halmos"
+  "myth|web3|pipx install --python python3.12 mythril  # 3.14 cffi build fails|github.com/ConsenSys/mythril"
+  "surya|web3|pipx install --python python3.8 surya  # legacy; no modern-Python wheel; prefer slither/aderyn|github.com/ConsenSys/surya"
+  "heimdall|web3|cargo install heimdall-rs  # Rust; release binaries also available|github.com/Jon-Becker/heimdall-rs"
+  "wake|web3|pipx install eth-wake|github.com/Ackee-Blockchain/wake"
+  "solhint|web3|npm install -g solhint|github.com/protofire/solhint"
+  "solana|web3|sh -c \"\$(curl -sSfL https://release.anza.xyz/stable/install)\"|github.com/anza-xyz/agave"
+  "anchor|web3|cargo install --git https://github.com/coral-xyz/anchor avm --locked && avm install latest|github.com/coral-xyz/anchor"
+  "surfpool|web3|cargo install surfpool|github.com/txtx/surfpool"
+  "foundry-mcp|web3|npm install -g foundry-mcp  # published bin lacks a shebang; run: node $(npm root -g)/foundry-mcp/dist/index.js|github.com/alexbakers/foundry-mcp"
+  # solidity-audit-mcp: npm name is a RESERVED PLACEHOLDER ("No functionality").
+  # Build from upstream instead: git clone github.com/mariano-aguero/solidity-audit-mcp
   # ── AI Coding Assistants ────────────────────────────────────────────────
   "kimchi|ai|curl -fsSL https://kimchi.dev/install.sh -o kimchi_install.sh && sh kimchi_install.sh|kimchi.dev"
   "freebuff|ai|npm install -g freebuff|freebuff.com"

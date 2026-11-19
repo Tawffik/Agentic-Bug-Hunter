@@ -292,3 +292,44 @@ For deep dives into specific areas:
 - `web3/10-meme-coin-bugs.md` — All 8 bug classes with full code examples and variants
 - `web3/11-solana-token-audit.md` — Solana-specific: SPL authorities, Token-2022, pump.fun, Raydium, Jupiter
 - `web3/12-dex-lp-attacks.md` — DEX & LP manipulation patterns (sandwich, pool sniping, CL position attacks)
+
+---
+
+## LIVE TOKEN INTELLIGENCE (cross-check, don't trust blindly)
+
+Use multiple sources; each can lag, miss a custom program, or flag a legitimate token.
+
+| Source | Use |
+|---|---|
+| **RugCheck** (rugcheck.xyz) | Solana mint/freeze authority, LP lock, top holders, risk score |
+| **GoPlus** (gopluslabs.io) | EVM honeypot, tax/fee, mintable, proxy, holder concentration |
+| **Solsniffer / DexScreener / Birdeye / Solscan** | Liquidity, holders, first transactions, creator wallets |
+| **Etherscan/Polygonscan token read** | `owner()`, `mint()`, `paused()`, `blacklist()`, proxy admin |
+| **Dune / Flipside** | Historical holder/creator clustering when available |
+
+Rules:
+
+- A "safe" score is not proof. Confirm the authority fields and the LP destination yourself.
+- A "danger" score can be a false positive on a custom program. Read the mint/extension state.
+- Never buy/sell real funds to test a honeypot. Use a fork/simulator or a tiny authorized amount only
+  if the program explicitly allows it.
+- For EVM, simulate `buy`/`sell` with a fork (Foundry `vm.createSelectFork`) before any on-chain action.
+
+## TOOLCHAIN
+
+```bash
+# Repo scanner (EVM + Solana static red flags)
+python3 bughunter/tools/token_scanner.py <mint-or-contract> --chain solana|evm
+
+# Solana authority checks
+solana account <MINT> --output json | jq '{mint_authority, freeze_authority}'
+spl-token display <MINT>
+
+# EVM read-only checks (cast)
+cast call <TOKEN> "owner()(address)"
+cast call <TOKEN> "mintable()(bool)" 2>/dev/null
+cast storage <TOKEN> <slot>           # proxy admin slots (EIP-1967)
+```
+
+Deep references: `web3/10-meme-coin-bugs.md`, `web3/11-solana-token-audit.md`,
+`web3/12-dex-lp-attacks.md`, and `skills/web3-audit/references/resources.md`.

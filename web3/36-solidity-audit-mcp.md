@@ -5,6 +5,11 @@ description: MCP server integrating Slither + Aderyn + SWC patterns into Claude 
 
 # SKILL 36 — SOLIDITY AUDIT MCP: CLAUDE-NATIVE SMART CONTRACT SCANNER
 > From: github.com/mariano-aguero/solidity-audit-mcp — MCP server plugging Slither + Aderyn + SWC patterns into Claude Code
+>
+> **Status note (2026-11):** Aderyn was retired upstream. Existing `aderyn` binaries still work, but
+> do not plan new installs around it — use Slither + Medusa/Halmos for new work, and keep Aderyn only
+> if it is already present. The npm name `solidity-audit-mcp` is a **reserved placeholder**; build
+> the server from the upstream GitHub repo.
 > 10 tools. 19 built-in finding explainers. 86 SWC detectors. DeFi + Web3 preset detector packs. CI/CD ready.
 
 ---
@@ -37,26 +42,32 @@ pip install slither-analyzer solc-select
 solc-select install 0.8.20 && solc-select use 0.8.20
 curl -L https://foundry.paradigm.xyz | bash && foundryup
 
-# Aderyn (Rust)
-cargo install aderyn
-# or: curl -L https://raw.githubusercontent.com/Cyfrin/aderyn/dev/cyfrinup/install | bash
+# Aderyn — RETIRED upstream (2026). Skip on new machines; use Slither/Medusa/Halmos.
+# If an existing aderyn binary is present, the MCP can still call it.
 
-# MCP server
-npm install -g solidity-audit-mcp
-# or: npx solidity-audit-mcp
+# MCP server — DO NOT install the npm package named "solidity-audit-mcp".
+# Verified 2026-11-19: that npm name is a reserved placeholder
+# ("Reserved name placeholder. No functionality.") — installing it is a
+# supply-chain risk. Use the upstream GitHub repo instead:
+git clone https://github.com/mariano-aguero/solidity-audit-mcp
+cd solidity-audit-mcp
+npm install
+npm run build
+# then point the MCP client at dist/index.js (see config below)
 
 # Optional fuzzers
 brew install echidna    # macOS
 pip install halmos      # symbolic execution
 ```
 
-**Wire into Claude Code** — add to `~/.claude/mcp.json`:
+**Wire into Claude Code** — add to `~/.claude/mcp.json` (use the local build path;
+do **not** run the placeholder npm name via `npx`):
 ```json
 {
   "mcpServers": {
-    "audit": {
-      "command": "npx",
-      "args": ["solidity-audit-mcp"]
+    "solidity-audit": {
+      "command": "node",
+      "args": ["/absolute/path/to/solidity-audit-mcp/dist/index.js"]
     }
   }
 }
@@ -66,7 +77,7 @@ pip install halmos      # symbolic execution
 ```json
 {
   "mcpServers": {
-    "audit": {
+    "solidity-audit": {
       "command": "node",
       "args": ["/path/to/solidity-audit-mcp/dist/index.js"]
     }
@@ -283,10 +294,11 @@ jobs:
         run: |
           pip install slither-analyzer solc-select
           solc-select install 0.8.28 && solc-select use 0.8.28
-          ADERYN_VER=$(curl -sf https://api.github.com/repos/Cyfrin/aderyn/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
-          curl -fL "https://github.com/Cyfrin/aderyn/releases/download/${ADERYN_VER}/aderyn-x86_64-unknown-linux-gnu.tar.xz" | tar -xJf - -C /tmp
-          sudo install -m 755 /tmp/aderyn /usr/local/bin/aderyn
-          npm install -g solidity-audit-mcp
+          # Aderyn retired upstream (2026) — omit on new CI; use slither/medusa/halmos.
+          # If you have a pinned existing release, install it here.
+          # Build the MCP from upstream (npm name "solidity-audit-mcp" is a placeholder)
+          git clone --depth 1 https://github.com/mariano-aguero/solidity-audit-mcp /tmp/solidity-audit-mcp
+          cd /tmp/solidity-audit-mcp && npm install && npm run build
 
       - name: Audit changed contracts
         run: |
@@ -311,6 +323,15 @@ jobs:
 ---
 
 ## CLI USAGE (Outside Claude Code)
+
+After building from upstream, either run the CLI directly or expose the bins:
+
+```bash
+cd /path/to/solidity-audit-mcp
+npm run build
+npm link          # optional: exposes solidity-audit-cli / solidity-audit-mcp
+# or use: node dist/cli.js audit ...
+```
 
 ```bash
 # Full audit

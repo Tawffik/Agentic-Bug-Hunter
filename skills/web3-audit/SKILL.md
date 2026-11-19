@@ -39,6 +39,30 @@ This single rule explains 19% of all Critical findings.
 
 ---
 
+## TOOLCHAIN & BEST RESOURCES
+
+Full curated list and commands: [references/resources.md](references/resources.md).
+
+```bash
+# Install the Web3 stack (Foundry, Slither, Aderyn, Medusa, Halmos, Mythril,
+# solc-select, surya, Wake, Solana/Anchor, solhint) — optional, best-effort
+./install_tools.sh --with-web3
+
+# See what is actually installed vs missing
+bash bughunter/tools/external_arsenal.sh | grep -A40 -i web3
+```
+
+MCP servers (opt-in): `bughunter/mcp/web3-mcp/` — `foundry-mcp` (real npm package) and
+`solidity-audit-mcp` (**build from GitHub; the npm name is a reserved placeholder**).
+
+High-signal sources: **Solodit** (paid-finding precedent), **DeFiHackLabs** (runnable PoCs),
+**SWC Registry** (report mapping), **Immunefi** (severity), **Rekt** (postmortems),
+**Trail of Bits Building Secure Contracts**, **ConsenSys best practices**, **Foundry Book**,
+**Solana Sealevel Attacks**. Treat every detector hit / past exploit as a LEAD until you reproduce
+the missing check in the current code with a Foundry PoC.
+
+---
+
 ## 1. ACCOUNTING STATE DESYNCHRONIZATION
 > #1 Critical bug class — 28% of all Criticals on Immunefi.
 

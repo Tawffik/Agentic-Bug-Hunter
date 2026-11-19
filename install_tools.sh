@@ -2,17 +2,19 @@
 # =============================================================================
 # Bug Bounty Tool Installer
 # Installs all required tools via Homebrew and Go
-# Usage: ./install_tools.sh [--with-cicd-scanner] [--with-credential-attack]
+# Usage: ./install_tools.sh [--with-cicd-scanner] [--with-credential-attack] [--with-web3]
 # =============================================================================
 
 set -euo pipefail
 
 INSTALL_CICD_SCANNER=false
 INSTALL_CREDENTIAL_ATTACK=false
+INSTALL_WEB3=false
 for arg in "$@"; do
     case "$arg" in
         --with-cicd-scanner) INSTALL_CICD_SCANNER=true ;;
         --with-credential-attack) INSTALL_CREDENTIAL_ATTACK=true ;;
+        --with-web3) INSTALL_WEB3=true ;;
     esac
 done
 
@@ -350,6 +352,125 @@ else
     log_warn "credential-attack tools skipped (use --with-credential-attack to install)"
 fi
 
+# Web3 / smart-contract tools (optional: --with-web3)
+if [ "$INSTALL_WEB3" = true ]; then
+    echo ""
+    echo "[*] Installing Web3 / smart-contract tools..."
+
+    # Python analyzers (all published by their upstream projects)
+    WEB3_PIPX=(
+        slither-analyzer
+        solc-select
+        crytic-compile
+        halmos
+        eth-wake
+    )
+    for pkg in "${WEB3_PIPX[@]}"; do
+        if command -v pipx &>/dev/null; then
+            if pipx install --force "$pkg" 2>/dev/null; then
+                log_ok "$pkg installed"
+            else
+                log_warn "$pkg failed (run: pipx install $pkg)"
+            fi
+        else
+            log_warn "pipx not found — install $pkg manually"
+        fi
+    done
+
+    # Mythril needs an older Python than 3.13+ (cffi build failure on 3.14).
+    if command -v pipx &>/dev/null; then
+        MYTH_PY=()
+        if command -v python3.12 &>/dev/null; then
+            MYTH_PY=(--python python3.12)
+        elif command -v python3.11 &>/dev/null; then
+            MYTH_PY=(--python python3.11)
+        fi
+        if pipx install --force ${MYTH_PY[@]+"${MYTH_PY[@]}"} mythril 2>/dev/null; then
+            log_ok "mythril installed"
+        else
+            log_warn "mythril failed (try: pipx install --python python3.12 mythril)"
+        fi
+    fi
+
+    # Surya is a legacy ConsenSys tool with no wheel for modern Python. Prefer
+    # slither/aderyn for call graphs; install surya only under Python 3.8-3.10.
+    log_warn "surya skipped (legacy; no modern-Python wheel — use slither/aderyn or Python 3.8)"
+
+    # Foundry (forge/cast/anvil)
+    if command -v forge &>/dev/null; then
+        log_ok "forge already installed"
+    else
+        if curl -L https://foundry.paradigm.xyz | bash; then
+            if [ -x "$HOME/.foundry/bin/foundryup" ]; then
+                "$HOME/.foundry/bin/foundryup" || log_warn "foundryup failed"
+            fi
+        else
+            log_warn "Foundry installer failed"
+        fi
+    fi
+
+    # Aderyn was retired upstream in 2026. Do not install it on new machines;
+    # existing binaries keep working. Use Slither + Medusa/Halmos instead.
+    if command -v aderyn &>/dev/null; then
+        log_ok "aderyn already installed (upstream retired; existing install)"
+    else
+        log_warn "aderyn skipped (retired upstream 2026; use slither/medusa/halmos)"
+    fi
+
+    # Medusa (Go)
+    if command -v medusa &>/dev/null; then
+        log_ok "medusa already installed"
+    elif command -v go &>/dev/null; then
+        GOBIN="$GOPATH/bin" go install github.com/crytic/medusa@latest 2>/dev/null \
+            || log_warn "medusa failed (run: go install github.com/crytic/medusa@latest)"
+    else
+        log_warn "go not found — install medusa manually"
+    fi
+
+    # Solana CLI + Anchor (best-effort; large downloads)
+    if command -v solana &>/dev/null; then
+        log_ok "solana already installed"
+    else
+        sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)" 2>/dev/null \
+            || log_warn "Solana CLI install failed (see docs.anza.xyz/cli/install)"
+    fi
+    if command -v anchor &>/dev/null; then
+        log_ok "anchor already installed"
+    elif command -v cargo &>/dev/null; then
+        cargo install --git https://github.com/coral-xyz/anchor avm --locked 2>/dev/null \
+            && avm install latest 2>/dev/null \
+            || log_warn "anchor/avm failed (run: cargo install --git https://github.com/coral-xyz/anchor avm --locked)"
+    else
+        log_warn "cargo not found — install anchor manually"
+    fi
+
+    # Solhint + MCP servers
+    if command -v npm &>/dev/null; then
+        npm install -g solhint 2>/dev/null || log_warn "solhint failed (run: npm install -g solhint)"
+        # foundry-mcp: install it, but invoke dist/index.js with node.
+        # The published bin has no shebang, so `npx foundry-mcp` fails.
+        if npm install -g foundry-mcp 2>/dev/null; then
+            log_ok "foundry-mcp installed (run: node \$(npm root -g)/foundry-mcp/dist/index.js)"
+        else
+            log_warn "foundry-mcp install failed (run: npm install -g foundry-mcp)"
+        fi
+    else
+        log_warn "npm not found — install solhint/foundry-mcp manually"
+    fi
+
+    # Pin a common solc version when solc-select is available
+    if command -v solc-select &>/dev/null; then
+        solc-select install 0.8.28 >/dev/null 2>&1 && solc-select use 0.8.28 >/dev/null 2>&1 \
+            && log_ok "solc 0.8.28 selected" \
+            || log_warn "solc-select install 0.8.28 failed (run manually)"
+    fi
+
+    log_warn "solidity-audit-mcp: build from upstream — the npm name is a reserved placeholder"
+    log_warn "  git clone https://github.com/mariano-aguero/solidity-audit-mcp && npm install && npm run build"
+else
+    log_warn "Web3 tools skipped (use --with-web3 to install)"
+fi
+
 # Update nuclei templates
 echo ""
 echo "[*] Updating nuclei templates..."
@@ -404,6 +525,9 @@ echo "============================================="
 ALL_TOOLS=(subfinder httpx nuclei ffuf nmap amass gau dalfox subjack sisakulint)
 if [ "$INSTALL_CREDENTIAL_ATTACK" = true ]; then
     ALL_TOOLS+=(hashcat theHarvester cewler cupp trevorspray kerbrute)
+fi
+if [ "$INSTALL_WEB3" = true ]; then
+    ALL_TOOLS+=(forge cast anvil slither solc-select crytic-compile aderyn medusa halmos myth solhint)
 fi
 INSTALLED=0
 MISSING=0
