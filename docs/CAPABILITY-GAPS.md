@@ -25,8 +25,9 @@
 >   `report-writing/references/evidence-discipline.md`.
 > - Validation: `tests/test_exposure_probe.py`, `tests/test_skills_contract.py`.
 >
-> Remaining gaps from this audit are still real (CSRF PoC generator, XXE OOB tester,
-> WebSocket/PostMessage harness, multimodal LLM injection, Web3 analyzers, iOS depth).
+> Remaining gaps: WebSocket/PostMessage runtime harness, multimodal LLM injection,
+> Web3 analyzer wiring, MobSF/Flutter/React-Native depth. CSRF/XXE tooling and iOS playbooks
+> shipped 2026-11-19 (`/csrf`, `/xxe`, `mobile-pentest/references/ios-runtime.md`).
 
 Coverage-vs-tooling audit of the plugin (2026-06-19). The repo is **knowledge-rich and
 confirmation-poor**: the `skills/*/SKILL.md` docs cover almost every technique, but runtime
@@ -63,13 +64,15 @@ Real runtime scanners exist for XSS/SQLi/SSTI/MFA/SAML (`vuln_scanner.sh`), IDOR
 - **JWT attacks** — ✅ SHIPPED (`/jwt-scan`, `tools/jwt_scanner.py`): alg:none forgery,
   RS256→HS256 confusion, HS256 secret crack, static claim analysis. Was [docs-only] (skill
   documented the bugs; `jwt_tool` registered-not-wired).
-- **CSRF** — [docs-only] no PoC generator and no SameSite/token-entropy analyzer; only mentioned
-  inside OAuth-state and triage.
-- **XXE** — [docs-only] no XML/DOCTYPE injection tester, and critically no OOB exfil path.
+- **CSRF** — ✅ SHIPPED (`/csrf`, `tools/csrf_poc.py`): form/multipart/text-plain JSON/method-override/
+  GraphQL PoC variants + SameSite/Secure/HttpOnly analyzer (offline). Class 27 in `web2-vuln-classes`.
+- **XXE** — ✅ SHIPPED (`/xxe`, `tools/xxe_probe.py`): file/SSRF/OOB-DTD/XInclude/SVG/PHP-filter/UTF-7
+  builders + bounded scope-guarded sender. OOB correlation still via `/oob`. Class 28 in `web2-vuln-classes`.
 - **CRLF / HTTP response splitting / host-header injection** — ✅ SHIPPED (`/crlf`, `tools/crlf_scanner.py`). Previously [docs-only].
 - **Prototype pollution** (server-side + client gadget chains) — only touched by the fuzzer; no
   dedicated detection.
-- **WebSocket security** (cross-site WS hijacking, message auth) — [docs-only].
+- **WebSocket security** (cross-site WS hijacking, message auth) — ⚠️ PARTIAL: execution playbook
+  `web2-vuln-classes/references/websocket-postmessage.md`; runtime harness still manual.
 - **HTTP parameter pollution, client-side path traversal, PostMessage** beyond the doc snippet —
   no automation.
 - **No headless-browser runtime testing** — ⚠️ PARTIAL: DOM XSS is now confirmable via `/domxss`
@@ -141,8 +144,9 @@ exported-activity injection, WebView bridge, SSL-pinning bypass, OkHttp signer r
 
 **Missing capabilities:**
 
-- **iOS is much lighter than Android** — no Frida/objection iOS scripts, no keychain dumping
-  automation. `objection` is [registered-not-wired].
+- **iOS is much lighter than Android** — ⚠️ PARTIAL: `mobile-pentest/references/ios-runtime.md` covers
+  IPA static sweep, Frida/objection, keychain/NSUserDefaults, ATS/pinning, universal links, WKWebView,
+  biometric checks. Automated keychain dump/MobSF wiring is still manual.
 - **No MobSF static-scan automation** — `mobsf`, `apkleaks`, `jadx` are [registered-not-wired];
   decompile + grep is manual.
 - **No Flutter / React Native specifics** (RN bundle, Reflutter). [no coverage]
@@ -202,5 +206,5 @@ These gaps already have a tool registered in `tools/external_arsenal.sh`. Closin
   multimodal LLM).
 - LLM red-team corpus — **garak / PyRIT**.
 - Web3 static + fuzzing — **Slither, Aderyn, Echidna, Medusa, Halmos** (none registered yet).
-- CORS / CSRF / XXE / CRLF — no dedicated registered tool; small purpose-built scanners
-  (e.g. a `corsy`-style checker) or nuclei templates.
+- CORS / CSRF / XXE / CRLF — ✅ purpose-built tooling now exists (`cors_scanner.py`,
+  `csrf_poc.py`, `xxe_probe.py`, `crlf_scanner.py`); remaining work is nuclei-template coverage.
