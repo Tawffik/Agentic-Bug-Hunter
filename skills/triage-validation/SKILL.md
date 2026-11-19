@@ -127,6 +127,25 @@ Blank answers auto-fail on auth-related findings.
 
 ---
 
+## EVIDENCE-SHAPE GATE (run before the 4 gates)
+
+Kill findings that are only a *different response* rather than a *different authorization outcome*.
+
+```
+[ ] Baseline (own object) captured.
+[ ] Cross probe returns the FOREIGN object/content — not 403, empty, SPA shell, or generic success.
+[ ] Body diff shows the victim identifier/field.
+[ ] Negative control (a sibling request that should deny) actually denies.
+[ ] No benign explanation: public-by-design, cache, your own second account, intended staff view.
+[ ] Every representation tested (HTML/JSON/export/download/old version) does not weaken the claim.
+```
+
+`200 OK` is not proof. A new status, a different 404, or a schema difference is a lead until the boundary
+crossing is shown. Full matrix: `skills/web2-vuln-classes/references/authorization-edge-cases.md`.
+
+If the finding is disclosure/exposure, also pass the visibility-invariant test:
+`skills/web2-exposure/SKILL.md` (class C/D + current reachability + boundary + minimal proof).
+
 ---
 
 ## 4 PRE-SUBMISSION GATES

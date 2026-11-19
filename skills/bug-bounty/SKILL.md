@@ -55,6 +55,26 @@ Full pipeline: Recon -> Learn -> Hunt -> Validate -> Report. One skill for every
 >
 > **Tool catalogue:** `bughunter/tools/README.md` (~50 tools). Orchestrator: `python3 bughunter/tools/hunt.py --target T` (auto lead ingest; add `--graphql` / `--cve-hunt` as needed).
 
+### Skill routing (load the focused skill instead of staying in this master file)
+
+| Signal / task | Skill |
+|---|---|
+| "What do I do next?", session start, switching targets | `bb-methodology` (+ `references/universal-operator-loop.md`) |
+| Asset discovery, subdomain/URL/JS crawling, permutations, vhost, reverse IP | `web2-recon` |
+| Search engines, GitHub/Shodan, favicon/cert/copyright pivots, origin IP, acquisitions | `dorking-osint` |
+| `.env`/`.git`/backup/config/debug/source-map/historical exposure | `web2-exposure` |
+| Specific web bug class, bypass tables, parser/authz edge cases | `web2-vuln-classes` (+ `references/`) |
+| JS secrets, endpoints, source maps, globals | `jsmax` |
+| GraphQL endpoint | `graphql-audit` |
+| API/authz edge cases with disclosed-pattern playbooks | `johnwick/references/authz-idor.md` |
+| Chain a low/medium into critical | `bug-chaining` |
+| Chat/support widget, AI agent, LLM, MCP | `agentic-app-audit`, `llm-redteam`, `mcp-server-audit` |
+| CI/CD or public build metadata | `cicd-security` |
+| Cloud credentials / buckets / IMDS | `cloud-pentest` |
+| Mobile app traffic/decompile | `mobile-pentest` |
+| Validate before writing | `triage-validation` |
+| Write the report | `report-writing` |
+
 ---
 
 ## AUTH-AWARE HUNTING (when bugs live behind a login)

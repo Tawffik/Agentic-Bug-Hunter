@@ -22,6 +22,21 @@ GOOD: "An attacker can access any user's order history by changing the user_id
        orders, including their shipping address and payment method last 4 digits."
 ```
 
+## EVIDENCE DISCIPLINE — CONFIRMED vs NOT EXECUTED
+
+Every multi-step finding gets a chain table with one status per step:
+
+| Step | Action | Evidence | Status |
+|---|---|---|---|
+| 1 | A reads B's object with A's session | raw request + response showing B's data | CONFIRMED |
+| 2 | Enumerate adjacent IDs at scale | 3 samples + count, redacted | NOT EXECUTED (rate-limit policy) |
+
+- Severity is set by **confirmed** steps only; describe the unexecuted ceiling separately.
+- Include a negative control (a sibling request that is correctly denied).
+- Never merge two different tests into one screenshot.
+- Redact tokens/PII; prefer curl/text over screenshots.
+- Full rules and evidence ladder: [references/evidence-discipline.md](references/evidence-discipline.md).
+
 ## PERSISTENCE RULE
 
 Every report-writing session must leave a complete finding folder on disk. Save

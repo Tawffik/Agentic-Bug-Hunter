@@ -1,6 +1,6 @@
 # Commands
 
-33 slash commands installed into `~/.claude/commands/` by `install.sh`.
+35 slash commands installed into `~/.claude/commands/` by `install.sh`.
 
 ## Core Workflow
 | Command | What It Does |
@@ -12,7 +12,7 @@
 | `/autopilot` | Autonomous loop: scope → recon → hunt → validate → report |
 
 ## Recon & Enumeration
-`/surface` `/scope-aggregate` `/cloud-recon` `/param-discover` `/secrets-hunt` `/takeover` `/scan-cves` `/bypass-403`
+`/surface` `/scope-aggregate` `/cloud-recon` `/param-discover` `/secrets-hunt` `/takeover` `/scan-cves` `/bypass-403` `/exposure` `/dork`
 
 ## Vulnerability Scanners
 `/graphql-audit` `/cors` `/crlf` `/nosqli` `/jwt-scan` `/oob` `/llm-redteam`

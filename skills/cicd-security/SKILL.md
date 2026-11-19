@@ -271,6 +271,43 @@ grep -rn 'index-url\|extra-index-url' requirements.txt pip.conf setup.py
 
 ---
 
+## 7b. PUBLIC CI METADATA — RECON, NOT A FINDING
+
+Public build systems leak more than secrets: repository, branch, commit, artifact, runner, environment,
+internal URLs and deployment topology. Treat CI as an attack-surface graph:
+
+```
+CI -> job -> repo/commit -> artifact/log -> internal host/credential candidate
+```
+
+Where to look:
+
+- Jenkins (`/api/json`, `/job/*`, `/lastSuccessfulBuild/*`), Travis, Buildkite, CircleCI, GitLab CI,
+  GitHub Actions artifacts, Azure DevOps public projects/repos/build pages.
+- Pipeline YAML, failed-build logs, test reports, coverage output, downloadable artifacts.
+- Azure DevOps: `dev.azure.com/<org>/_projects`, public repos, pipeline runs, artifacts.
+- Cloudflare Workers/Pages build metadata and exposed edge API keys (control-plane capability, not just a string).
+
+Rules:
+
+- Public project visibility may be intentional; the finding is a secret/credential in a log or artifact.
+- Do not trigger builds, guess private project IDs, or use discovered credentials.
+- Capture redacted proof (key type + location + capability); never paste the secret in a report.
+- Map one exposed CI job to the host/repo it can deploy to — that relationship is the chain.
+
+### Actions cache poisoning
+
+A low-trust workflow (PR/issue-triggered) writes a cache entry that a privileged workflow later restores and
+executes (build outputs, dependencies, tool caches). Review `actions/cache` keys, `restore-keys`, cache scope
+across branches/PRs, and whether privileged jobs restore caches from untrusted triggers. Validate only in a
+fork/lab you own.
+
+### Remote dependency URLs / install hooks
+
+Inspect `package.json`, lockfiles, `.npmrc`, `requirements.txt`, build scripts and CI logs for dependencies
+declared via attacker-controlled remote URLs or install-time lifecycle scripts. Execution can move outside the
+registry into dependency resolution. Test in an isolated project; never against a live CI environment.
+
 ## 8. BUG CLASS TABLE
 
 | Bug | Trigger | Severity | CVSS Range |

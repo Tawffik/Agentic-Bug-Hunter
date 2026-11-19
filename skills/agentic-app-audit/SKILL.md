@@ -9,6 +9,10 @@ description: Black-box security audit of a DEPLOYED AI agent (not the MCP server
 
 Distinct from its siblings: `skills/llm-redteam` attacks the model's text behavior; `skills/mcp-server-audit` audits the server/tool definitions you can inspect; this skill attacks the **deployed agent as a black box** through its product surface.
 
+> Chat bubble, support widget, helpdesk inbox, WebSocket/MQTT backend and `conversationID` BOLA are
+> covered in [references/chat-support-and-widgets.md](references/chat-support-and-widgets.md). Read that
+> first when the target is a support/chat product rather than a general-purpose agent.
+
 ## 0. QUICK KILL CHECKLIST
 
 - The "dangerous" tool requires a confirmation step the attacker can't satisfy -> Informational.
