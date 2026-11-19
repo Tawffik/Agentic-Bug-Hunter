@@ -8,6 +8,7 @@ MCP (Model Context Protocol) integrations.
 | `burp-mcp-client/` | Burp Suite proxy integration |
 | `caido-mcp-client/` | Caido proxy integration |
 | `hackerone-mcp/` | HackerOne public API helpers (CLI/library) |
+| `web3-mcp/` | Web3/smart-contract MCP: `foundry-mcp` (npm) + `solidity-audit-mcp` (build from upstream; npm name is a placeholder) |
 
 ```bash
 ./install.sh --agent mcp

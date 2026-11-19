@@ -22,6 +22,7 @@ You also need [OpenCode](https://opencode.ai) installed.
 git clone https://github.com/Awarexone/Agentic-Bug-Hunter.git
 cd Agentic-Bug-Hunter
 chmod +x install_tools.sh && ./install_tools.sh   # scanning tools
+# optional Web3 stack: ./install_tools.sh --with-web3
 chmod +x install.sh && ./install.sh --opencode    # skills + commands
 ```
 

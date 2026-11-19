@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "solidity-audit": {
+      "type": "local",
+      "command": ["node", "/ABS/PATH/solidity-audit-mcp/dist/index.js"],
+      "enabled": false
+    },
+    "foundry": {
+      "type": "local",
+      "command": ["node", "/ABS/PATH/node_modules/foundry-mcp/dist/index.js"],
+      "enabled": false
+    }
+  }
+}

@@ -127,9 +127,13 @@ deterministic `scope_checker.py`, audit log, pattern DB, 12-provider brain.
 
 **Missing capabilities:**
 
-- **No static-analyzer or fuzzer integration** — Slither, Aderyn, Echidna, Medusa, Halmos,
-  Mythril are described in the `web3/` docs but **not even registered** in `external_arsenal.sh`
-  and nothing runs them. Audit is entirely manual grep + human PoC. [no coverage]
+- **Static-analyzer / fuzzer integration** — ✅ REGISTERED + INSTALLABLE: `forge/cast/anvil`,
+  `slither`, `solc-select`, `crytic-compile`, `aderyn` (retired upstream; existing installs), `echidna`, `medusa`, `halmos`, `mythril`,
+  `surya`, `heimdall`, `wake`, `solhint`, `solana/anchor/surfpool` are in
+  `bughunter/tools/external_arsenal.sh`; `./install_tools.sh --with-web3` installs them best-effort.
+  Web3 MCP configs live in `bughunter/mcp/web3-mcp/` (`foundry-mcp`; `solidity-audit-mcp` built from
+  upstream because the npm name is a placeholder). A scripted "run all analyzers + merge findings"
+  orchestrator is still manual. [partially closed]
 - **Chains beyond EVM + Solana** — no Move (Aptos/Sui), Cairo (Starknet), Vyper, CosmWasm/Cosmos.
   [no coverage]
 - **No dedicated bridge / cross-chain class** (one of the highest-paid Web3 categories) — only

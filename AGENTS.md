@@ -107,7 +107,7 @@ See **`bughunter/tools/README.md`** for the full ~50-tool catalogue. Highlights:
 - `bughunter/tools/exposure_probe.py` — bounded GET-only exposure-artifact probe (SSRF/scope-guarded, LEAD-only classifier)
 - `bughunter/tools/csrf_poc.py` · `xxe_probe.py` — offline CSRF PoC/SameSite analyzer · XXE payload builder + scope-guarded sender
 - Credential attack (opt-in): `wordlist_engine.sh` · `osint_employees.sh` · `breach_checker.py` · `spray_orchestrator.sh`
-- Web3: `token_scanner.py`
+- Web3: `token_scanner.py` · `./install_tools.sh --with-web3` (Foundry/Slither/Medusa/Halmos/Mythril/Wake/Solana best-effort) · MCP configs in `bughunter/mcp/web3-mcp/`
 
 ### External tool references
 
@@ -115,10 +115,13 @@ See **`bughunter/tools/README.md`** for the full ~50-tool catalogue. Highlights:
 - `skills/security-arsenal/REFERENCES.md` — methodology, writeup archives, dorks, key-verification
 - `skills/security-arsenal/METHODOLOGY_CHEATSHEET.md` — per-vuln quick-check tables
 
-### MCP Integrations (in `mcp/`)
+### MCP Integrations (in `bughunter/mcp/`)
 
-- `mcp/burp-mcp-client/` — Burp Suite proxy integration
-- `mcp/hackerone-mcp/` — HackerOne public API (Hacktivity, program stats, policy)
+- `bughunter/mcp/bughunter-mcp/` — native scope→recon→hunt→validate→report server
+- `bughunter/mcp/burp-mcp-client/` — Burp Suite proxy integration
+- `bughunter/mcp/caido-mcp-client/` — Caido proxy integration
+- `bughunter/mcp/hackerone-mcp/` — HackerOne public API (Hacktivity, program stats, policy)
+- `bughunter/mcp/web3-mcp/` — Foundry MCP + Solidity audit MCP (build from upstream; npm `solidity-audit-mcp` is a placeholder)
 
 ### Hunt Memory (in `memory/`)
 

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "solidity-audit": {
+      "command": "node",
+      "args": ["/ABS/PATH/solidity-audit-mcp/dist/index.js"]
+    },
+    "foundry": {
+      "command": "node",
+      "args": ["/ABS/PATH/node_modules/foundry-mcp/dist/index.js"]
+    }
+  }
+}
