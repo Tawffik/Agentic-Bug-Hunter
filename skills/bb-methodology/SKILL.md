@@ -207,6 +207,11 @@ python3 bughunter/tools/lead_board.py next target.com
 ```
 (`hunt.py` runs ingest + EOL automatically unless `--skip-leads`.)
 
+**Deep methodology reference**: [references/universal-operator-loop.md](references/universal-operator-loop.md)
+— Target Graph, invariant-based hypotheses, one-mutation experiments, evidence classes (`LEAD`/`CONFIRMED`/
+`KILLED`), coverage states, fast path, and the agent output contract. Use it whenever "what should I test
+next?" is not obvious.
+
 ### Phase 2: MAPPING & ANALYSIS
 
 **Goal**: Understand the app like its developer does.
@@ -375,7 +380,10 @@ Every 20 minutes ask yourself: **"Am I making progress?"**
 | Mapping: GraphQL | `bash bughunter/tools/graphql_audit.sh <url>` | Introspection → fingerprint → batching → IDOR → injection |
 | Mapping: CI/CD | `bash bughunter/tools/cicd_scanner.sh owner/repo` | Workflow injection / secret exfil / runner poisoning |
 | Mapping: JS code | Download -> `jsluice` -> VS Code/Cursor grep | Extract -> static analysis -> AI-assisted taint analysis |
-| Mapping: Dorks | Manual Google Dorks | Custom per-target queries find what automation misses |
+| Mapping: Dorks / OSINT | `scripts/dork_runner.py` + `skills/dorking-osint` | Google/Bing/GitHub/Shodan pivots, favicon/cert/reverse-IP, origin-IP; attribute before testing |
+| Mapping: Exposure | `skills/web2-exposure` + `skills/web2-exposure/references/artifact-catalog.md` | Classify `.env`/`.git`/backup/debug/source-map hits; historical vs current; validation ladder |
+| Mapping: API authz | `skills/web2-vuln-classes/references/authorization-edge-cases.md` | Wrapped/array/batch/wildcard IDs, GraphQL mutations, artifacts, last-step gaps |
+| Mapping: Parser/bypass | `skills/web2-vuln-classes/references/parser-differential-bypass.md` | Policy-vs-router path/method/body disagreements; `/bypass-403` for the battery |
 | Discovery: Fuzz | `ffuf -ac` + `cewl` custom wordlist | Auto-calibrate filtering + target-specific words beat generic lists |
 | Discovery: XSS | `kxss` -> `dalfox` | Filter (which params reflect?) -> scan (only reflective params) |
 | Discovery: SQLi | `ghauri` | Modern blind SQLi on ID-like parameters |

@@ -44,6 +44,31 @@ For each JS file:
         - **Logic**: PostMessage vulnerabilities, insecure storage, sensitive data in comments.
 3.  **Map Findings**: Maintain a mapping of `JS_URL -> Findings`.
 
+### 3.5 Source Maps & JS Global Surface
+
+Bundles are inventory; maps and globals are the actual attack surface.
+
+**Source maps**
+- Find `//# sourceMappingURL=` or a `.js.map` sibling for every bundle.
+- Validate the map is real JSON with `sourcesContent` (not a comment or 404 HTML).
+- Extract original paths, routes, internal hosts, comments, feature flags, API base URLs and hidden
+  parameters. Use `sourcemapper` or the map directly.
+- A map alone is not a finding. The finding is a secret with capability, an unauthenticated route, or a
+  logic flaw it reveals. See `skills/web2-exposure/SKILL.md`.
+
+**Globals and handlers**
+- Search for `window.*` assignments, `postMessage`/`message` listeners, custom events, client tokens,
+  `document.*` sinks, `innerHTML`, `eval`, `Function(`, `new URL`, `location.*`.
+- Identify producer -> consumer of each handler: does attacker data cross a trust boundary?
+- A global token/handler is a lead until it enables an action or disclosure.
+
+**Verified-secret discipline**
+- Prefer `trufflehog filesystem ./jsmax_downloads --only-verified` and `jsluice secrets`.
+- Classify: publishable client key vs private credential vs placeholder/fixture.
+- Prove the **capability** with a minimal read-only call inside program scope; never use a key against an
+  unrelated service or modify data. Redact the value everywhere.
+- A key without proven capability is not a reportable finding.
+
 ### 4. Exploitation & Impact (The "Money" Phase)
 After identifying juice, escalate to show maximum impact:
 1.  **Reference Patterns**: Consult `references/exploitation.md` for escalation strategies.

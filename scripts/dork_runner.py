@@ -182,6 +182,73 @@ DORK_CATEGORIES = {
         'site:{target} filetype:pdf "incident response"',
     ],
 
+    "origin": [
+        # Bing supports ip: (Google ignores it). Pass an IP as -d.
+        'ip:{target} (filetype:env OR filetype:sql OR filetype:bak OR filetype:log OR "DB_PASSWORD")',
+        'ip:{target} intitle:"index of"',
+        'ip:{target} inurl:admin',
+        'ip:{target} inurl:api',
+        # Direct-origin / WAF-bypass reconnaissance
+        '"{target}" "origin" inurl:api',
+    ],
+
+    "infra": [
+        # Favicon/copyright/SSL pivots are Shodan/Censys queries; these are the
+        # Google/Bing-indexable companions. See skills/dorking-osint/references/dork-corpus.md.
+        'site:{target} (inurl:swagger OR inurl:openapi OR inurl:api-docs OR inurl:graphql)',
+        'site:{target} inurl:actuator',
+        'site:{target} inurl:phpinfo',
+        'site:{target} inurl:server-status',
+        'site:{target} inurl:elmah',
+        'site:{target} inurl:telescope',
+        'site:{target} inurl:_profiler',
+        'site:{target} inurl:jenkins',
+        'site:{target} inurl:grafana',
+        'site:{target} inurl:kibana',
+    ],
+
+    "github_org": [
+        # Pass the GitHub org name as -d (e.g. -d TargetCorp); prefer
+        # `trufflehog github --org=TargetCorp --only-verified` for volume.
+        'site:github.com "{target}" "password"',
+        'site:github.com "{target}" "api_key" OR "apikey"',
+        'site:github.com "{target}" filename:.env',
+        'site:github.com "{target}" filename:credentials',
+        'site:github.com "{target}" "BEGIN RSA PRIVATE KEY"',
+        'site:github.com "{target}" "AKIA"',
+        'site:github.com "{target}" "sk_live_"',
+        'site:github.com "{target}" "xoxb-" OR "xoxp-"',
+        'site:github.com "{target}" "mongodb+srv://" OR "postgres://"',
+        'site:github.com "{target}" path:.github/workflows "pull_request_target"',
+        'site:github.com "{target}" path:.github/workflows "secrets: inherit"',
+    ],
+
+    "saas": [
+        # First-party SaaS tenants that often allow open registration or
+        # expose indexed internal data. Confirm the tenant is in scope.
+        'site:{target}.freshservice.com',
+        'site:{target}.atlassian.net',
+        'site:{target}.service-now.com',
+        'site:dev.azure.com "{target}"',
+        'site:{target}.sharepoint.com',
+        'site:{target}.zendesk.com',
+        'site:{target}.statuspage.io',
+        'site:{target}.myshopify.com',
+        '"{target}" site:chrome.google.com/webstore',
+        '"{target}" site:addons.mozilla.org',
+    ],
+
+    "acquisition": [
+        # Pass the parent/acquired brand token as -d; expand with reverse WHOIS,
+        # certificate SANs and passive DNS. Check program scope for subsidiaries.
+        'site:{target} "acquired by"',
+        'site:{target} "a subsidiary of"',
+        'site:{target} "formerly"',
+        'site:{target} "now part of"',
+        'site:*.{target}',
+        'site:*.{target} (inurl:login OR inurl:admin OR inurl:api)',
+    ],
+
     "all": []  # Filled dynamically below
 }
 

@@ -351,6 +351,45 @@ cat /tmp/live.txt | awk '{print $1}' | naabu -port 80,443,8080,8443,3000,4000,50
 # Example wins: :8080/actuator/env (Spring Boot), :9200/_cat/indices (Elasticsearch), :6379 (Redis)
 ```
 
+## ADVANCED ASSET EXPANSION (forgotten hosts, not more wordlists)
+
+These pivots find assets that never appear in plain DNS enumeration. Validate ownership before testing
+(see `skills/dorking-osint/SKILL.md` for attribution rules).
+
+```bash
+# 1) Subdomain permutations — naming patterns beat brute force
+#    dev.example.com -> api-dev, dev-api, devapi, backup-dev, staging-dev ...
+dnsgen subs.txt | dnsx -silent -a -resp | tee permuted.txt
+# tools: dnsgen, altdns, gotator
+
+# 2) Vhost fuzzing — hosts on the same IP with no public DNS record
+ffuf -u "https://$TARGET_IP" -H "Host: FUZZ.$TARGET" -w subs.txt -fs 0 -mc all
+
+# 3) Reverse DNS / reverse IP — private hostnames on known IPs
+for ip in $(cat ips.txt); do dig -x "$ip" +short; done
+# also passive DNS (SecurityTrails/ViewDNS) and hosts sharing the same TLS cert
+
+# 4) Certificate pivots
+curl -s "https://crt.sh/?q=%25.$TARGET&output=json" | jq -r '.[].name_value' | sort -u
+# Shodan: ssl.cert.subject.CN:"target.com" / ssl.cert.expired:true hostname:"target.com"
+
+# 5) Favicon hash pivot — same product/company icon on unknown hosts
+httpx -l subs.txt -favicon-mmh3 -silent   # then Shodan: http.favicon.hash:<hash>
+
+# 6) Copyright / technology string pivot
+# Shodan/Censys: http.html:"© CompanyName" or a unique footer/product string
+
+# 7) 404 & redirecting hosts are not dead
+#    - 404 subdomain: probe /humans.txt, /random404, /.env, /debug, /swagger.json
+#    - root redirect: fuzz the ORIGINAL host paths, do not follow the redirect
+cat subs.txt | httpx -mc 404 -silent -o 404subs.txt
+httpx -l 404subs.txt -path /humans.txt -mc 200 -silent
+ffuf -u "https://redirecting-host.$TARGET/FUZZ" -w wordlist.txt -mc 200,301,302,403 -fs 0
+```
+
+Record every discovery with provenance and mark `historical` vs `current`. A new host only matters if it
+changes what you can test next.
+
 ## SECRET SCANNING IN JS BUNDLES
 
 ```bash
@@ -624,3 +663,22 @@ Priority 3: OAuth/SSO flows → auth bypass candidates
 Priority 4: Search/filter with user input → SQLi/SSRF/SSTI candidates
 Priority 5: Admin/debug endpoints → auth bypass candidates
 ```
+
+---
+
+## HANDOFF — EXPOSURE, OSINT, JS, CLOUD
+
+Recon ends when it changes the security model, not when a list is long.
+
+| What you found | Where to go next |
+|---|---|
+| `.env`/`.git`/backup/config/debug/source-map hit | `skills/web2-exposure/SKILL.md` (validation ladder + artifact catalog) |
+| Need more assets via Google/Bing/GitHub/Shodan/Censys, reverse IP, favicon, copyright | `skills/dorking-osint/SKILL.md` |
+| JS bundles, source maps, `window.*` globals, verified secrets | `skills/jsmax/SKILL.md` |
+| Bucket listing / cloud credential | `skills/cloud-pentest/SKILL.md` |
+| Public build logs, Actions/Azure DevOps metadata | `skills/cicd-security/SKILL.md` |
+| Exposed Jenkins/Grafana/Redis/etc. panel | `skills/omni-killchain/references/exposed-services.md` |
+| The surface is mapped and you are ready to hunt | `skills/bb-methodology/references/universal-operator-loop.md` |
+
+Do not report discovery as vulnerability. A new host, a 200, or an interesting filename is a **lead** until
+an authorization/disclosure boundary is crossed with evidence.

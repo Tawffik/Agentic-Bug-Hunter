@@ -7,6 +7,27 @@
 > `interactsh-client`), and the LLM red-team corpus runner (`/llm-redteam`).
 > Resolved items are marked **✅ SHIPPED** inline below.
 
+> **Update (2026-11-19 — knowledge-base upgrade):** Two new skills close the largest
+> knowledge gaps, plus deep references and a new safe tool:
+>
+> - **`skills/web2-exposure/`** — information disclosure / historical intelligence:
+>   artifact catalog, Wayback/CDX/URLScan pivots, representation + artifact-equivalence
+>   + state-conditioned + deletion-residue differentials, secrets capability discipline.
+> - **`skills/dorking-osint/`** — advanced Google/Bing/GitHub/Shodan/Censys dorks,
+>   favicon/cert/copyright pivots, reverse IP/DNS, origin IP, acquisitions, monitoring.
+> - **`bughunter/tools/exposure_probe.py`** + `/exposure` — bounded GET-only artifact probe,
+>   SSRF/scope-guarded, LEAD-only classifier (no body logging).
+> - **`scripts/dork_runner.py`** — new `origin`, `infra`, `github_org`, `saas`, `acquisition`
+>   query families.
+> - Deep references added under `web2-vuln-classes/references/` (authorization edge cases,
+>   parser/403 differentials, framework advisory patterns, SSRF validator desync),
+>   `bb-methodology/references/universal-operator-loop.md`, and
+>   `report-writing/references/evidence-discipline.md`.
+> - Validation: `tests/test_exposure_probe.py`, `tests/test_skills_contract.py`.
+>
+> Remaining gaps from this audit are still real (CSRF PoC generator, XXE OOB tester,
+> WebSocket/PostMessage harness, multimodal LLM injection, Web3 analyzers, iOS depth).
+
 Coverage-vs-tooling audit of the plugin (2026-06-19). The repo is **knowledge-rich and
 confirmation-poor**: the `skills/*/SKILL.md` docs cover almost every technique, but runtime
 automation and out-of-band confirmation are thin. Many vuln classes are "documented but have

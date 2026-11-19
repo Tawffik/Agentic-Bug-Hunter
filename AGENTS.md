@@ -4,25 +4,37 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 
 ## What's Here
 
-### Skills (13 domains — load with `/bug-bounty`, `/web2-recon`, `/token-scan`, etc.)
+### Skills (27 domains — load with `/bug-bounty`, `/web2-recon`, `/exposure`, `/dork`, etc.)
 
 | Skill | Domain |
 |---|---|
-| `skills/bug-bounty/` | Master workflow — recon to report, all vuln classes, LLM testing, chains |
-| `skills/bb-methodology/` | **Hunting mindset + 5-phase non-linear workflow + tool routing + session discipline** |
-| `skills/web2-recon/` | Subdomain enum, live host discovery, URL crawling, nuclei |
-| `skills/web2-vuln-classes/` | 21 bug classes with bypass tables (SSRF, open redirect, file upload, Agentic AI) |
+| `skills/bug-bounty/` | Master workflow — recon to report, all vuln classes, LLM testing, chains, skill routing |
+| `skills/bb-methodology/` | **Hunting mindset + 5-phase non-linear workflow + universal operator loop + tool routing** |
+| `skills/web2-recon/` | Subdomain enum, live hosts, URL crawling, JS, permutations/vhost/reverse-IP, nuclei |
+| `skills/dorking-osint/` | Google/Bing/GitHub/Shodan/Censys dorks, favicon/cert/copyright, origin-IP, acquisitions, monitoring |
+| `skills/web2-exposure/` | Info disclosure — artifact catalog, historical intelligence, representation/artifact differentials, secrets capability |
+| `skills/web2-vuln-classes/` | 28 bug classes with bypass tables (IDOR/BOLA, SSRF, XSS, upload, CSRF, XXE, authz edge cases, parser differentials) |
 | `skills/security-arsenal/` | Payloads, bypass tables, gf patterns, always-rejected list |
+| `skills/argus/` | Automated CORS/CRLF/NoSQLi/JWT/OOB/LLM scanners |
+| `skills/johnwick/` | Full-coverage orchestrator with per-class reference playbooks |
+| `skills/omni-killchain/` | Elite hunting orchestrator + reference killchains |
+| `skills/bug-chaining/` | A→B→C chain patterns, escalation ladders, CVSS multipliers |
+| `skills/pii-hunter/` | PII exposure kill chain, 9-gate validation, cross-tenant confirms |
+| `skills/agentic-app-audit/` | Deployed AI agent abuse — tool hijack, memory poisoning, confused deputy, chat/support widgets |
+| `skills/llm-redteam/` | LLM prompt injection/jailbreak/system-prompt leak/exfil, ASI01-ASI10 |
+| `skills/mcp-server-audit/` | MCP server audit — tool poisoning, param→sink, approval gates, transport config |
+| `skills/client-reverse/` | Request signing / anti-bot token reversal for replay |
+| `skills/jsmax/` | JS secrets/endpoints/JWTs, source maps, window globals, verified-secret discipline |
+| `skills/graphql-audit/` | GraphQL — introspection, field suggestions, batching, IDOR via aliasing, injection |
+| `skills/cicd-security/` | GitHub Actions/Azure DevOps/GitLab — injection, secrets, runners, cache poisoning, public CI metadata |
+| `skills/cloud-pentest/` | Post-access cloud exploitation (AWS/GCP/Azure) — IAM privesc, IMDS, storage, impact proof |
+| `skills/mobile-pentest/` | Android/iOS — runtime-first proxy, APK/IPA decompile, deeplinks, WebView, pinning |
+| `skills/credential-attack/` | Password spray — when/why, pipeline, mode selection, lockout tactics, legal guardrails |
 | `skills/web3-audit/` | 10 smart contract bug classes, Foundry PoC template, pre-dive kill signals |
-| `skills/meme-coin-audit/` | Meme coin rug pull detection, token authority checks, bonding curve exploits, LP attacks |
-| `skills/report-writing/` | H1/Bugcrowd/Intigriti/Immunefi report templates, CVSS 3.1, human tone |
-| `skills/triage-validation/` | 7-Question Gate, 4 gates, never-submit list, conditionally valid table |
-| `skills/credential-attack/` | Password spray methodology — when/why, 4-stage pipeline, mode selection, lockout tactics, legal guardrails |
-| `skills/mobile-pentest/` | Android/iOS app pentest — runtime-first proxy workflow, APK/IPA decompile, deeplink injection, WebView bridge |
-| `skills/cicd-security/` | CI/CD pipeline hunting — GitHub Actions injection, secret exfil, self-hosted runner poisoning |
-| `skills/graphql-audit/` | GraphQL hunting — introspection, field suggestions, batching DoS, IDOR via aliasing, injection |
-| `skills/mcp-server-audit/` | MCP server audit — tool poisoning, param→sink injection, missing approval gates, secret leaks, rug-pull/confused-deputy, transport config |
-| `skills/cloud-pentest/` | Post-access cloud exploitation (AWS/GCP/Azure) — IAM enum + privesc, IMDS metadata creds, impersonation, bucket takeover, secrets harvest, impact proof |
+| `skills/meme-coin-audit/` | Meme coin rug pulls, token authority, bonding curves, LP attacks |
+| `skills/report-writing/` | H1/Bugcrowd/Intigriti/Immunefi templates, CVSS, human tone, CONFIRMED vs NOT EXECUTED |
+| `skills/bugcrowd-reporting/` | Bugcrowd VRT strategy, overrides, OOS rebuttals |
+| `skills/triage-validation/` | 7-Question Gate, 4 gates, evidence-shape gate, never-submit list |
 
 ### Commands (slash commands)
 
@@ -52,6 +64,8 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `/cloud-recon` | `/cloud-recon --keyword <name>` — public S3/Azure/GCP + CloudFlare-bypass origin IPs |
 | `/param-discover` | `/param-discover <url>` — find hidden HTTP parameters (Arjun/x8) |
 | `/bypass-403` | `/bypass-403 <url>` — try header/method/encoding tricks against a 403/401 |
+| `/exposure` | `/exposure <url> [--in-scope target.com]` — bounded artifact probe + visibility validation (LEAD-only) |
+| `/dork` | `/dork target.com [--category ...]` — scoped Google/Bing/GitHub/Shodan query generation + attribution gate |
 | `/arsenal` | `/arsenal [tool]` — list installed external tools or get an install hint |
 | `/scan-cves` | `/scan-cves <host>` — focused nuclei CVE sweep (high/critical) + optional log4j-scan |
 | `/wordlist-gen` | `/wordlist-gen <target>` — company-specific password wordlist; requires `--with-credential-attack` |
@@ -88,6 +102,7 @@ See **`bughunter/tools/README.md`** for the full ~50-tool catalogue. Highlights:
 - `bughunter/tools/waf_encoder.py` · `waf_response_analyzer.py` · `multipart_mutator.py` · `bypass_403.sh`
 - `bughunter/tools/external_arsenal.sh` — installed-tool registry (~50 tools); `_have <tool>` gate
 - `bughunter/tools/secrets_hunter.sh` · `takeover_scanner.sh` · `cloud_recon.sh` · `param_discovery.sh`
+- `bughunter/tools/exposure_probe.py` — bounded GET-only exposure-artifact probe (SSRF/scope-guarded, LEAD-only classifier)
 - Credential attack (opt-in): `wordlist_engine.sh` · `osint_employees.sh` · `breach_checker.py` · `spray_orchestrator.sh`
 - Web3: `token_scanner.py`
 
