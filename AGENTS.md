@@ -4,7 +4,7 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 
 ## What's Here
 
-### Skills (27 domains — load with `/bug-bounty`, `/web2-recon`, `/exposure`, `/dork`, etc.)
+### Skills (28 domains — load with `/bug-bounty`, `/web2-recon`, `/exposure`, `/dork`, etc.)
 
 | Skill | Domain |
 |---|---|
@@ -31,6 +31,7 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `skills/mobile-pentest/` | Android/iOS — runtime-first proxy, APK/IPA decompile, deeplinks, WebView, pinning |
 | `skills/credential-attack/` | Password spray — when/why, pipeline, mode selection, lockout tactics, legal guardrails |
 | `skills/web3-audit/` | 10 smart contract bug classes, Foundry PoC template, pre-dive kill signals |
+| `skills/web3-fuzz/` | Stateful Echidna/Medusa/Foundry fuzz-suite generation (fizz-derived) |
 | `skills/meme-coin-audit/` | Meme coin rug pulls, token authority, bonding curves, LP attacks |
 | `skills/report-writing/` | H1/Bugcrowd/Intigriti/Immunefi templates, CVSS, human tone, CONFIRMED vs NOT EXECUTED |
 | `skills/bugcrowd-reporting/` | Bugcrowd VRT strategy, overrides, OOS rebuttals |
@@ -52,6 +53,7 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `/scope-aggregate` | `/scope-aggregate <program>` — pull every in-scope asset across H1/Bugcrowd/Intigriti/YWH/Immunefi |
 | `/triage` | `/triage` — quick 7-Question Gate |
 | `/web3-audit` | `/web3-audit <contract.sol>` — smart contract audit |
+| `/web3-fuzz` | `/web3-fuzz <project>` — stateful Echidna/Medusa/Foundry fuzz suite |
 | `/autopilot` | `/autopilot target.com --normal` — autonomous hunt loop |
 | `/surface` | `/surface target.com` — ranked attack surface |
 | `/pickup` | `/pickup target.com` — pick up previous hunt (was `/resume`) |
@@ -107,7 +109,7 @@ See **`bughunter/tools/README.md`** for the full ~50-tool catalogue. Highlights:
 - `bughunter/tools/exposure_probe.py` — bounded GET-only exposure-artifact probe (SSRF/scope-guarded, LEAD-only classifier)
 - `bughunter/tools/csrf_poc.py` · `xxe_probe.py` — offline CSRF PoC/SameSite analyzer · XXE payload builder + scope-guarded sender
 - Credential attack (opt-in): `wordlist_engine.sh` · `osint_employees.sh` · `breach_checker.py` · `spray_orchestrator.sh`
-- Web3: `token_scanner.py` · `./install_tools.sh --with-web3` (Foundry/Slither/Medusa/Halmos/Mythril/Wake/Solana best-effort) · MCP configs in `bughunter/mcp/web3-mcp/`
+- Web3: `token_scanner.py` · `web3_evm_hazard_scan.py` · `defi_hack_search.sh` · `chain_audit_env.sh` · `xray_git_security.py` · `./install_tools.sh --with-web3` (Foundry/Slither/Medusa/Echidna/Halmos/Mythril/Wake/Solana best-effort) · MCP configs in `bughunter/mcp/web3-mcp/` (foundry, solidity-audit, evm-agent-toolkit, solodit)
 
 ### External tool references
 

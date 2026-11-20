@@ -129,7 +129,7 @@ ARSENAL_TOOLS=(
   "solc-select|web3|pipx install solc-select|github.com/crytic/solc-select"
   "crytic-compile|web3|pipx install crytic-compile|github.com/crytic/crytic-compile"
   "aderyn|web3|RETIRED upstream (2026) — existing installs only; use slither/medusa/halmos|github.com/Cyfrin/aderyn"
-  "echidna|web3|brew install echidna  # or download a release binary|github.com/crytic/echidna"
+  "echidna|web3|download the release binary from github.com/crytic/echidna/releases (install_tools.sh --with-web3 automates this)|github.com/crytic/echidna"
   "medusa|web3|GOBIN=\$HOME/go/bin go install github.com/crytic/medusa@latest|github.com/crytic/medusa"
   "halmos|web3|pipx install halmos|github.com/a16z/halmos"
   "myth|web3|pipx install --python python3.12 mythril  # 3.14 cffi build fails|github.com/ConsenSys/mythril"
@@ -141,6 +141,9 @@ ARSENAL_TOOLS=(
   "anchor|web3|cargo install --git https://github.com/coral-xyz/anchor avm --locked && avm install latest|github.com/coral-xyz/anchor"
   "surfpool|web3|cargo install surfpool|github.com/txtx/surfpool"
   "foundry-mcp|web3|npm install -g foundry-mcp  # published bin lacks a shebang; run: node $(npm root -g)/foundry-mcp/dist/index.js|github.com/alexbakers/foundry-mcp"
+  "claudit|web3|npm install -g @marchev/claudit  # Solodit MCP; needs SOLODIT_API_KEY|github.com/marchev/claudit"
+  "evm-agent-toolkit|web3|git clone https://github.com/0xendale/evm-agent-toolkit && cd evm-agent-toolkit && npm install && npm run build|github.com/0xendale/evm-agent-toolkit"
+  "hound|web3|git clone https://github.com/scabench-org/hound && cd hound && pip install -r requirements.txt  # graph-based AI audit; set an LLM API key|github.com/scabench-org/hound"
   # solidity-audit-mcp: npm name is a RESERVED PLACEHOLDER ("No functionality").
   # Build from upstream instead: git clone github.com/mariano-aguero/solidity-audit-mcp
   # ── AI Coding Assistants ────────────────────────────────────────────────

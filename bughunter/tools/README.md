@@ -85,6 +85,10 @@ bash bughunter/tools/external_arsenal.sh                     # what's installed 
 | Tool | Purpose |
 |:---|:---|
 | `token_scanner.py` | Automated token red-flag scanner (EVM + Solana / Anchor) |
+| `web3_evm_hazard_scan.py` | LEAD-only scanner: payable multicall/msg.value reuse + L2 dialect hazards (`--json`) |
+| `defi_hack_search.sh` | Search a local DeFiHackLabs clone for runnable exploit PoCs by term |
+| `chain_audit_env.sh` | Detect EVM/Solana/aptos/Sui/Soroban/DAML project and print build/test/fuzz commands (`--json`) |
+| `xray_git_security.py` | Pre-audit git-history risk: fix commits, guard changes, dangerous-area churn (`--json`) |
 
 ## Intelligence & Planning
 

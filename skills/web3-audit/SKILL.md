@@ -61,6 +61,12 @@ High-signal sources: **Solodit** (paid-finding precedent), **DeFiHackLabs** (run
 **Solana Sealevel Attacks**. Treat every detector hit / past exploit as a LEAD until you reproduce
 the missing check in the current code with a Foundry PoC.
 
+**Before writing a report:** run [references/validation-gates.md](references/validation-gates.md)
+(four gates: attack execution, reachability, trigger, impact) and
+[references/defi-hacklabs.md](references/defi-hacklabs.md) for precedent search.
+For invariant/fuzz work, use the `web3-fuzz` skill; for non-EVM chains, see
+`web3/13-multichain-audit.md`.
+
 ---
 
 ## 1. ACCOUNTING STATE DESYNCHRONIZATION

@@ -364,6 +364,7 @@ MCP is an adapter over the existing research engine — not a second scanner. Ac
 | Command | What It Does |
 |:---|:---|
 | `/web3-audit <contract.sol>` | 10-class smart contract audit with Foundry PoC template |
+| `/web3-fuzz <project>` | Stateful Echidna/Medusa/Foundry invariant suite + PoC triage |
 | `/token-scan <contract>` | Rug pull scanner - mint authority · LP lock · honeypot · bonding curve |
 
 ### Session & Utility
@@ -494,6 +495,7 @@ Agentic-Bug-Hunter/
 │   ├── triage-validation/     # 7-Question Gate · 4 gates · never-submit list
 │   ├── report-writing/        # Templates for H1 · Bugcrowd · Intigriti · Immunefi
 │   ├── web3-audit/            # Smart contract bugs · Foundry PoC · 10 bug classes
+│   ├── web3-fuzz/             # Stateful Echidna/Medusa/Foundry fuzz suites
 │   ├── meme-coin-audit/       # Rug pull detection · LP attacks · bonding curve
 │   ├── credential-attack/     # Password spray methodology · legal guardrails
 │   └── client-reverse/        # Request-signing / anti-bot token reversal

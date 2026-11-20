@@ -3,12 +3,38 @@
   "mcp": {
     "solidity-audit": {
       "type": "local",
-      "command": ["node", "/ABS/PATH/solidity-audit-mcp/dist/index.js"],
+      "command": [
+        "node",
+        "/ABS/PATH/solidity-audit-mcp/dist/index.js"
+      ],
       "enabled": false
     },
     "foundry": {
       "type": "local",
-      "command": ["node", "/ABS/PATH/node_modules/foundry-mcp/dist/index.js"],
+      "command": [
+        "node",
+        "/ABS/PATH/node_modules/foundry-mcp/dist/index.js"
+      ],
+      "enabled": false
+    },
+    "evm-agent-toolkit": {
+      "type": "local",
+      "command": [
+        "node",
+        "/ABS/PATH/evm-agent-toolkit/build/mcp/index.js"
+      ],
+      "enabled": false
+    },
+    "solodit": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@marchev/claudit@latest"
+      ],
+      "environment": {
+        "SOLODIT_API_KEY": "{env:SOLODIT_API_KEY}"
+      },
       "enabled": false
     }
   }

@@ -23,7 +23,7 @@ def test_arsenal_registers_web3_tools():
     for tool in ("forge", "cast", "anvil", "slither", "solc-select", "crytic-compile",
                  "aderyn", "echidna", "medusa", "halmos", "myth", "surya",
                  "heimdall", "wake", "solhint", "solana", "anchor", "surfpool",
-                 "foundry-mcp"):
+                 "foundry-mcp", "claudit", "evm-agent-toolkit", "hound"):
         assert re.search(rf'^\s*"{re.escape(tool)}\|web3\|', text, re.M), f"{tool} missing from arsenal"
 
 
@@ -43,6 +43,9 @@ def test_installer_exposes_web3_flag():
     assert "INSTALL_WEB3=true" in text
     assert "slither-analyzer" in text
     assert "foundryup" in text
+    assert "echidna" in text
+    assert "@marchev/claudit" in text
+    assert "evm-agent-toolkit" in text
     assert "solidity-audit-mcp" in text  # warning/hint, not npm install
 
 
@@ -61,6 +64,11 @@ def test_web3_mcp_configs_are_valid_json():
     assert "mcp" in opencode
     assert "foundry" in opencode["mcp"]
     assert "solidity-audit" in opencode["mcp"]
+    assert "evm-agent-toolkit" in opencode["mcp"]
+    assert "solodit" in opencode["mcp"]
+    assert opencode["mcp"]["solodit"]["environment"]["SOLODIT_API_KEY"] == "{env:SOLODIT_API_KEY}"
+    assert opencode["mcp"]["solodit"]["enabled"] is False
+    assert opencode["mcp"]["evm-agent-toolkit"]["enabled"] is False
     # The published foundry-mcp bin lacks a shebang; invoke it with node.
     assert opencode["mcp"]["foundry"]["command"][0] == "node"
     assert "foundry-mcp/dist/index.js" in opencode["mcp"]["foundry"]["command"][1]
@@ -79,5 +87,6 @@ def test_web3_doc_warns_about_placeholder():
 def test_resources_reference_exists_and_is_curated():
     text = RESOURCES.read_text(encoding="utf-8")
     for source in ("Solodit", "Immunefi", "DeFiHackLabs", "SWC", "Foundry Book",
-                   "Sealevel Attacks", "Building Secure Contracts"):
+                   "Sealevel Attacks", "Building Secure Contracts", "Cyfrin audit reports",
+                   "Pashov fizz", "claudit", "xray_git_security.py"):
         assert source in text, f"missing resource: {source}"

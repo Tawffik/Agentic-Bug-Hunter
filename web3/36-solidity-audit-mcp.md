@@ -417,3 +417,19 @@ run_tests(projectRoot: ".", contractName: "ErnVault")
 ---
 
 → NEXT: [00-START-HERE.md](00-START-HERE.md)
+
+---
+
+## Adjacent Web3 MCP servers (2026-11)
+
+The repo now also registers two complementary servers in
+`bughunter/mcp/web3-mcp/` — both disabled by default:
+
+| Server | What it adds | Build / key |
+|---|---|---|
+| `evm-agent-toolkit` | Zod-validated Slither JSON, `forge build` diagnostics, gas, test results, `cast call --trace`, storage layout, calldata decode | source-build from `github.com/0xendale/evm-agent-toolkit` (npm name unpublished) |
+| `solodit` (claudit) | Solodit precedent search: `search_findings`, `get_finding`, `get_filter_options` | `npx -y @marchev/claudit@latest` + `SOLODIT_API_KEY` |
+
+Use them for deterministic tool output and paid-precedent lookup. A detector hit
+or Solodit match is a **LEAD**; reproduce the missing check in the target with a
+Foundry PoC before reporting. See `bughunter/mcp/web3-mcp/README.md` for configs.

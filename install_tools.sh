@@ -427,6 +427,27 @@ if [ "$INSTALL_WEB3" = true ]; then
         log_warn "go not found — install medusa manually"
     fi
 
+    # Echidna (Haskell; binary release only — no pip/apt package).
+    if command -v echidna &>/dev/null; then
+        log_ok "echidna already installed"
+    else
+        ECHIDNA_VERSION="${ECHIDNA_VERSION:-2.4.0}"
+        ECHIDNA_ARCH="x86_64"
+        case "$(uname -m)" in aarch64|arm64) ECHIDNA_ARCH="aarch64" ;; esac
+        ECHIDNA_OS="linux"
+        case "$(uname -s)" in Darwin) ECHIDNA_OS="macos" ;; esac
+        ECHIDNA_URL="https://github.com/crytic/echidna/releases/download/v${ECHIDNA_VERSION}/echidna-${ECHIDNA_VERSION}-${ECHIDNA_ARCH}-${ECHIDNA_OS}.tar.gz"
+        mkdir -p "$HOME/.local/bin"
+        if curl -fsSL "$ECHIDNA_URL" -o /tmp/echidna.tar.gz \
+            && tar -xzf /tmp/echidna.tar.gz -C "$HOME/.local/bin" echidna \
+            && chmod +x "$HOME/.local/bin/echidna"; then
+            log_ok "echidna ${ECHIDNA_VERSION} installed to ~/.local/bin"
+        else
+            log_warn "echidna install failed (download: $ECHIDNA_URL)"
+        fi
+        rm -f /tmp/echidna.tar.gz
+    fi
+
     # Solana CLI + Anchor (best-effort; large downloads)
     if command -v solana &>/dev/null; then
         log_ok "solana already installed"
@@ -454,6 +475,11 @@ if [ "$INSTALL_WEB3" = true ]; then
         else
             log_warn "foundry-mcp install failed (run: npm install -g foundry-mcp)"
         fi
+        if npm install -g @marchev/claudit 2>/dev/null; then
+            log_ok "claudit installed (Solodit MCP; set SOLODIT_API_KEY to use)"
+        else
+            log_warn "claudit failed (run: npm install -g @marchev/claudit)"
+        fi
     else
         log_warn "npm not found — install solhint/foundry-mcp manually"
     fi
@@ -463,6 +489,33 @@ if [ "$INSTALL_WEB3" = true ]; then
         solc-select install 0.8.28 >/dev/null 2>&1 && solc-select use 0.8.28 >/dev/null 2>&1 \
             && log_ok "solc 0.8.28 selected" \
             || log_warn "solc-select install 0.8.28 failed (run manually)"
+    fi
+
+    # evm-agent-toolkit: source-build (its npm package is unpublished). Provides
+    # structured Slither/Forge/cast/storage-layout/trace/calldata tools.
+    EVM_MCP_DIR="${EVM_AGENT_TOOLKIT_DIR:-$HOME/.local/share/bughunter/evm-agent-toolkit}"
+    if [ -f "$EVM_MCP_DIR/build/mcp/index.js" ]; then
+        chmod +x "$EVM_MCP_DIR/build/mcp/index.js"
+        mkdir -p "$HOME/.local/bin"
+        ln -sf "$EVM_MCP_DIR/build/mcp/index.js" "$HOME/.local/bin/evm-agent-toolkit"
+        log_ok "evm-agent-toolkit already built ($EVM_MCP_DIR)"
+    elif command -v git &>/dev/null && command -v npm &>/dev/null; then
+        if [ -d "$EVM_MCP_DIR/.git" ]; then
+            git -C "$EVM_MCP_DIR" pull --ff-only >/dev/null 2>&1 || true
+        else
+            git clone --depth 1 https://github.com/0xendale/evm-agent-toolkit "$EVM_MCP_DIR" >/dev/null 2>&1 || true
+        fi
+        if (cd "$EVM_MCP_DIR" && npm install --no-audit --no-fund >/dev/null 2>&1 && npm run build >/dev/null 2>&1) \
+            && [ -f "$EVM_MCP_DIR/build/mcp/index.js" ]; then
+            chmod +x "$EVM_MCP_DIR/build/mcp/index.js"
+            mkdir -p "$HOME/.local/bin"
+            ln -sf "$EVM_MCP_DIR/build/mcp/index.js" "$HOME/.local/bin/evm-agent-toolkit"
+            log_ok "evm-agent-toolkit built ($EVM_MCP_DIR/build/mcp/index.js)"
+        else
+            log_warn "evm-agent-toolkit build failed (see bughunter/mcp/web3-mcp/README.md)"
+        fi
+    else
+        log_warn "evm-agent-toolkit skipped (git/npm missing; see bughunter/mcp/web3-mcp/README.md)"
     fi
 
     log_warn "solidity-audit-mcp: build from upstream — the npm name is a reserved placeholder"
@@ -527,7 +580,7 @@ if [ "$INSTALL_CREDENTIAL_ATTACK" = true ]; then
     ALL_TOOLS+=(hashcat theHarvester cewler cupp trevorspray kerbrute)
 fi
 if [ "$INSTALL_WEB3" = true ]; then
-    ALL_TOOLS+=(forge cast anvil slither solc-select crytic-compile aderyn medusa halmos myth solhint)
+    ALL_TOOLS+=(forge cast anvil slither solc-select crytic-compile aderyn medusa echidna halmos myth solhint claudit evm-agent-toolkit)
 fi
 INSTALLED=0
 MISSING=0

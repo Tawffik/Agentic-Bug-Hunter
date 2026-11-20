@@ -2,11 +2,31 @@
   "mcpServers": {
     "solidity-audit": {
       "command": "node",
-      "args": ["/ABS/PATH/solidity-audit-mcp/dist/index.js"]
+      "args": [
+        "/ABS/PATH/solidity-audit-mcp/dist/index.js"
+      ]
     },
     "foundry": {
       "command": "node",
-      "args": ["/ABS/PATH/node_modules/foundry-mcp/dist/index.js"]
+      "args": [
+        "/ABS/PATH/node_modules/foundry-mcp/dist/index.js"
+      ]
+    },
+    "evm-agent-toolkit": {
+      "command": "node",
+      "args": [
+        "/ABS/PATH/evm-agent-toolkit/build/mcp/index.js"
+      ]
+    },
+    "solodit": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@marchev/claudit@latest"
+      ],
+      "env": {
+        "SOLODIT_API_KEY": "${SOLODIT_API_KEY}"
+      }
     }
   }
 }

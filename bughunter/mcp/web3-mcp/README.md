@@ -1,12 +1,14 @@
 # Web3 MCP Integrations
 
-Two optional MCP servers for smart-contract work. Both are **opt-in**: review the upstream
+Four optional MCP servers for smart-contract work. All are **opt-in**: review the upstream
 code before enabling, and only run them against contracts you are authorized to audit.
 
 | Server | Transport | Source | Status |
 |---|---|---|---|
 | `foundry-mcp` | stdio (`node .../foundry-mcp/dist/index.js`) | github.com/alexbakers/foundry-mcp | npm v1.1.1 installs; published bin lacks a shebang, so invoke `node` |
 | `solidity-audit-mcp` | stdio (`node dist/index.js`) | github.com/mariano-aguero/solidity-audit-mcp | **build from GitHub** |
+| `evm-agent-toolkit` | stdio (`node build/mcp/index.js`) | github.com/0xendale/evm-agent-toolkit | **build from GitHub** (npm name is unpublished) |
+| `solodit` | stdio (`npx -y @marchev/claudit@latest`) | github.com/marchev/claudit | npm package; needs `SOLODIT_API_KEY` |
 
 > **Supply-chain warning (verified 2026-11-19):** the npm package named
 > `solidity-audit-mcp` is a **reserved placeholder** ("Reserved name placeholder. No
@@ -35,6 +37,34 @@ pipx install halmos
 npm install -g foundry-mcp
 node "$(npm root -g)/foundry-mcp/dist/index.js"   # starts the stdio MCP server
 ```
+
+## Build evm-agent-toolkit from upstream
+
+The npm name `@0xendale/evm-agent-toolkit` is **not published** (verified 2026-11-20).
+The repository README's `npx` example is stale; build it locally:
+
+```bash
+git clone https://github.com/0xendale/evm-agent-toolkit
+cd evm-agent-toolkit
+npm install
+npm run build
+# point the MCP client at build/mcp/index.js
+```
+
+It exposes structured (Zod-validated) `slither`, `forge` gas/compile/test, `cast call --trace`,
+`forge inspect storage-layout`, calldata decode, and toolchain-version tools. Prerequisites:
+`slither`, `forge`, `cast`.
+
+## Solodit MCP (claudit)
+
+```bash
+export SOLODIT_API_KEY="sk_..."   # free key: https://solodit.cyfrin.io
+npx -y @marchev/claudit@latest    # stdio MCP server
+```
+
+Tools: `search_findings` (firm/tag/severity/protocol/reported/quality filters),
+`get_finding`, `get_filter_options`. Use it to find paid precedent, then reproduce the
+same missing check in the target; a Solodit hit is a **LEAD**, never proof.
 
 ## Build solidity-audit-mcp from upstream
 
@@ -67,6 +97,10 @@ Copy `claude-config.json` into `~/.claude/mcp.json` (or project `.mcp.json`).
   fast read/test loops against a local repo or fork.
 - `analyze_contract`, `check_vulnerabilities`, `generate_invariants`, `diff_audit`,
   `explain_finding` from solidity-audit-mcp (Slither + Aderyn + SWC patterns).
+- Deterministic Slither/Forge/cast JSON from `evm-agent-toolkit` — storage layout,
+  call traces, calldata decode, gas, compile diagnostics, and test results without
+  noisy CLI parsing.
+- Solodit precedent search from `solodit` (claudit) with severity/firm/tag/protocol filters.
 - Treat every output as a **LEAD**: re-run the detector, read the code, and build a
   Foundry PoC before reporting. A detector hit is not a vulnerability.
 
