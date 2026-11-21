@@ -97,3 +97,14 @@ def test_arsenal_registers_pro_tools():
 def test_pro_commands_exist():
     assert (REPO / "commands" / "browser-capture.md").exists()
     assert (REPO / "commands" / "patch-diff.md").exists()
+
+
+def test_installer_help_does_not_install():
+    proc = subprocess.run(
+        ["bash", str(INSTALLER), "--help"],
+        capture_output=True, text=True,
+    )
+    assert proc.returncode == 0
+    assert "--with-pro" in proc.stdout
+    assert "Homebrew not found" not in proc.stdout
+    assert "Installing" not in proc.stdout

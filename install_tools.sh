@@ -13,6 +13,12 @@ INSTALL_WEB3=false
 INSTALL_PRO=false
 for arg in "$@"; do
     case "$arg" in
+        --help|-h)
+            sed -n '2,6p' "$0"
+            echo ""
+            echo "Optional: --with-cicd-scanner --with-credential-attack --with-web3 --with-pro"
+            exit 0
+            ;;
         --with-cicd-scanner) INSTALL_CICD_SCANNER=true ;;
         --with-credential-attack) INSTALL_CREDENTIAL_ATTACK=true ;;
         --with-web3) INSTALL_WEB3=true ;;
