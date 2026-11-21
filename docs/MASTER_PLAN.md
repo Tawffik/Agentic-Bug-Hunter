@@ -232,7 +232,7 @@ score = payout_cap
 - [x] Add profile/README topics, license, CI badges (VulnRadar).
 - [x] Import 333-tip corpus (`knowledge/tips/`) and 7 `bb-*` sources (`knowledge/notion/`) into the flagship.
 - [ ] Add program-intel adapter (H1/Bugcrowd scope/payout/known issues).
-- [x] Add EPSS enrichment to VulnRadar; OSV/PoC-in-GitHub still pending.
+- [x] Add EPSS + public-PoC enrichment to VulnRadar; OSV still pending.
 
 ### Days 31–60 — lifecycle
 
