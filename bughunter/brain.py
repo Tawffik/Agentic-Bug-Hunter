@@ -1416,7 +1416,7 @@ Keep it under 80 words total."""
             section_paths = self._extract_report_paths(raw)
             if section_urls and not section_urls.issubset(allowed_urls):
                 return "NO_REPORTS"
-            if section_paths and not any(path in allowed_paths for path in section_paths):
+            if section_paths and not section_paths.issubset(allowed_paths):
                 return "NO_REPORTS"
             return raw
 
@@ -1429,7 +1429,7 @@ Keep it under 80 words total."""
             section_paths = self._extract_report_paths(section)
             if section_urls and not section_urls.issubset(allowed_urls):
                 continue
-            if section_paths and not any(path in allowed_paths for path in section_paths):
+            if section_paths and not section_paths.issubset(allowed_paths):
                 continue
             kept_sections.append(section)
 
@@ -1775,7 +1775,10 @@ Do NOT fabricate hypothetical chains using invented endpoints or made-up evidenc
 
         try:
             from tools.validate_core import is_report_ready
-        except Exception:  # noqa: BLE001 - if the gate can't load, fail open loudly
+        except Exception as exc:  # noqa: BLE001 - if the gate can't load, fail open LOUDLY
+            print(f"[!] report gate unavailable ({exc}) — allowing report for manual "
+                  f"review. Fix tools.validate_core to restore deterministic gating.",
+                  file=sys.stderr)
             return True, ""
 
         val_files = _glob.glob(os.path.join(findings_dir, "**", "validation.json"),
@@ -1795,6 +1798,10 @@ Do NOT fabricate hypothetical chains using invented endpoints or made-up evidenc
             try:
                 v = _json.loads(open(vf, encoding="utf-8").read())
             except (OSError, ValueError):
+                continue
+            if not isinstance(v, dict):
+                # legacy/multi-finding validation files may be arrays — never crash the gate
+                blocked.append((vf, None, []))
                 continue
             (ready if is_report_ready(v) else blocked).append(
                 (vf, v.get("status"), v.get("rejection_reasons") or []))
@@ -1983,7 +1990,8 @@ IF DROP: What would need to change for this to become viable?"""
         verdict = "UNKNOWN"
         for line in result.splitlines():
             if line.startswith("VERDICT:"):
-                v = line.split(":", 1)[1].strip().split()[0]
+                parts = line.split(":", 1)[1].split()
+                v = parts[0] if parts else ""
                 if v in ("SUBMIT", "CHAIN", "DROP"):
                     verdict = v
                 break
@@ -2051,7 +2059,7 @@ Give me:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         # Cap bar width at 20 so it stays readable even with max_stale=50
         bar_width = min(max_stale, 20)
-        filled    = round(stale_count * bar_width / max_stale)
+        filled    = round(stale_count * bar_width / max_stale) if max_stale else 0
         bar_full  = "█" * filled
         bar_empty = "░" * (bar_width - filled)
         colour_map = {"growing": GREEN, "busy": CYAN, "idle": YELLOW}
@@ -2430,6 +2438,16 @@ NEXT ACTION: <one concrete action>
         """Stream a response from a full message history (multi-turn)."""
         if not self.enabled:
             return ""
+        # self.client (the raw Ollama handle) is None for every cloud provider,
+        # so the Ollama-only path below would raise AttributeError and silently
+        # return "" — breaking the autonomous exploit loop on the documented
+        # free-cloud providers (Groq/DeepSeek). Flatten the history and use the
+        # provider-agnostic path instead.
+        if self._llm.provider != "ollama":
+            prompt = "\n\n".join(
+                f"[{m.get('role', 'user')}] {m.get('content', '')}" for m in messages
+            )
+            return self._stream(prompt, label, max_tokens)
         print(f"\n{MAGENTA}{BOLD}[BRAIN/{self.model}] {label}{NC}")
         print(f"{DIM}{'─'*60}{NC}")
         full_text = ""
@@ -2704,7 +2722,11 @@ Based on this:
         recon_path  = Path(recon_dir)
         target      = self._target_from_artifact_dir(recon_dir)
         httpx_file  = recon_path / "live" / "httpx_full.txt"
-        priority_file = recon_path / "priority" / "prioritized_hosts.txt"
+        # recon_adapter writes prioritized_hosts.json; the .txt variant is read
+        # by vuln_scanner.sh but nothing ever writes it. Prefer the real file.
+        priority_json  = recon_path / "priority" / "prioritized_hosts.json"
+        priority_txt   = recon_path / "priority" / "prioritized_hosts.txt"
+        priority_file  = priority_json if priority_json.exists() else priority_txt
 
         httpx_sample     = self._read_file_sample(str(httpx_file), 3000)
         priority_sample  = self._read_file_sample(str(priority_file), 2000)
@@ -2715,10 +2737,10 @@ Based on this:
 {analysis[:3000]}
 
 ## Live hosts (httpx)
-{httpx_sample or "(none)"}
+{delimit_untrusted("httpx output", httpx_sample) or "(none)"}
 
 ## Priority hosts
-{priority_sample or "(none)"}
+{delimit_untrusted("priority hosts", priority_sample) or "(none)"}
 
 ---
 

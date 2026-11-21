@@ -52,5 +52,7 @@ nmap-output/
 # Runtime lead-board ledgers (per-target, regenerated on each hunt)
 # ** matches both the repo-root layout and bughunter/memory/leads/ after the bughunter/ move
 **/memory/leads/
+# Self-audit runtime state (regression baseline + improvement ledger)
+**/memory/self-audit/
 dist/
 build/

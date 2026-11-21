@@ -40,6 +40,7 @@ bash bughunter/tools/external_arsenal.sh                     # what's installed 
 | `exposure_probe.py` | Bounded GET-only exposure-artifact probe (SSRF/scope-guarded, content-marker classifier, LEAD-only) |
 | `cicd_scanner.sh` | GitHub Actions workflow scanner (sisakulint + remote scan) |
 | `graphql_audit.sh` | 7-phase GraphQL audit: introspection, batching, IDOR, injection, alias bomb |
+| `spec_ingest.py` | Ingest OpenAPI 3.x / Swagger 2.0 / Postman into the API surface — routes every declared endpoint to a hunt-* skill (contract-driven, LEAD-only) |
 | `eol_check.py` | End-of-life / lifecycle intel from endoflife.date for fingerprint pairs |
 | `external_arsenal.sh` | Installed-tool registry (~50 external binaries); `_have <tool>` gate |
 | `target_selector.py` | Rank public HackerOne programs and pick top targets |
@@ -113,6 +114,7 @@ adb, Frida; gcloud/az are printed as separate installs).
 | Tool | Purpose |
 |:---|:---|
 | `intel_engine.py` | CVE + disclosure intel with hunt-memory context |
+| `self_audit.py` | Continuous-evolution engine — capability inventory, coverage-gap detection, test-regression drift vs baseline, and an improvement ledger with measured metrics |
 | `learn.py` | On-demand target learning from disclosed reports / NVD / GHSA |
 | `mindmap.py` | Mermaid mind map + prioritized hunting checklist from tech stack |
 | `dashboard.py` | Live ANSI TUI for recon/hunt phase progress |
@@ -137,6 +139,28 @@ adb, Frida; gcloud/az are printed as separate installs).
 | `spray_orchestrator.sh` | Password spray with typed-host confirm + lockout warn + audit log |
 | `_spray_http_form.py` | HTTP form spray worker (spawned by orchestrator) |
 | `_spray_oauth.py` | OAuth password-grant spray worker |
+
+## Additional Scanners & Support
+
+| Tool | Purpose |
+|:---|:---|
+| `cors_scanner.py` | CORS misconfiguration (origin reflection / null / credentialed read) |
+| `crlf_scanner.py` | CRLF & host-header injection |
+| `jwt_scanner.py` | JWT attacks (alg:none, RS256→HS256 confusion, secret crack) |
+| `nosqli_scanner.py` | NoSQL injection (operator auth-bypass / `$where` blind) |
+| `oob_listener.py` | Out-of-band confirmation of blind SSRF/XXE/SQLi/RCE via interactsh |
+| `llm_redteam.py` | LLM red-team corpus (prompt injection / jailbreak / prompt leak / exfil) |
+| `sast_scan.py` | Lightweight source SAST for the argument→sink classes |
+| `port_scanner.py` | Focused service/port sweep for recon |
+| `visual_triage.py` | Rank screenshots/findings for human triage |
+| `poc_bundler.py` | Bundle PoC + evidence into a submission artifact |
+| `oracle.py` | Deterministic oracle helpers backing verification gates |
+| `verifier.py` | Per-lead deterministic verifier used by swarm workers |
+| `swarm.py` | Parallel ephemeral verifiers over the lead board |
+| `memory_migrate.py` | Migrate/rotate hunt-memory JSONL between schemas |
+| `hunt_dashboard.py` | Live ANSI dashboard for hunt state |
+| `target_normalize.py` | Safe target/dir-name normalization (path-traversal guard) |
+| `banner.sh` | Shared CLI banner helper sourced by tools |
 
 ## Output Format
 

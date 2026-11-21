@@ -547,6 +547,54 @@ def ingest_lead_board(domain):
     return ok2
 
 
+# Spec-file names worth probing for an API contract. Only these are opened so a
+# stray JSON blob in the recon tree is never mistaken for a spec.
+_SPEC_NAME_HINTS = ("openapi", "swagger", "postman", "api-spec", "apispec", "schema.json")
+
+
+def _find_spec_files(recon_dir):
+    """Return candidate API spec files (json/yaml) under a recon dir."""
+    found = []
+    for root, _dirs, files in os.walk(recon_dir):
+        for name in files:
+            low = name.lower()
+            if low.endswith((".json", ".yaml", ".yml")) and any(h in low for h in _SPEC_NAME_HINTS):
+                found.append(os.path.join(root, name))
+    return sorted(found)
+
+
+def run_spec_ingest(domain):
+    """Ingest any OpenAPI/Swagger/Postman spec found during recon into the board.
+
+    Tests the API from its contract instead of only what a crawler found. Never
+    fatal: a missing or malformed spec is logged and skipped.
+    """
+    script = os.path.join(TOOLS_DIR, "spec_ingest.py")
+    if not os.path.isfile(script):
+        return False
+    recon_dir = os.path.join(RECON_DIR, domain)
+    specs = _find_spec_files(recon_dir) if os.path.isdir(recon_dir) else []
+    if not specs:
+        return False
+
+    ingested = False
+    for spec in specs:
+        log("info", f"API spec found — ingesting contract from {os.path.basename(spec)}")
+        ok, out = run_cmd(
+            ["python3", script, spec, "--target", domain,
+             "--recon-dir", recon_dir, "--ingest"],
+            timeout=120,
+        )
+        if out.strip():
+            print(out.rstrip())
+        if not ok:
+            log("warn", f"spec_ingest skipped {os.path.basename(spec)} (non-fatal)")
+        else:
+            ingested = True
+    return ingested
+
+
+
 def run_swarm(domain, workers=6):
     """Fan out parallel ephemeral verifiers over the lead board.
 
@@ -936,6 +984,7 @@ def hunt_target(
         # Post-recon enrichment: never lose a lead + flag EOL tech.
         if not skip_leads and os.path.isdir(os.path.join(RECON_DIR, domain)):
             result["leads"] = ingest_lead_board(domain)
+            run_spec_ingest(domain)
             run_eol_check(domain)
 
     if recon_only:

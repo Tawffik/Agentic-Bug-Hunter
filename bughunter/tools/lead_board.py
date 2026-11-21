@@ -330,9 +330,11 @@ def ingest(target, recon_dir):
 
 
 def rank_key(ld):
-    return (PRIO_RANK.get(ld["priority"], 3),
-            0 if ld["skill"] in HIGH_VALUE else 1,
-            ld["created"])
+    # Tolerate malformed/hand-edited ledger lines: a missing key must not crash
+    # the whole board (swarm/next/show all sort through rank_key).
+    return (PRIO_RANK.get(ld.get("priority"), 3),
+            0 if ld.get("skill") in HIGH_VALUE else 1,
+            ld.get("created", ""))
 
 
 def show(target, mode):
@@ -427,9 +429,10 @@ def touch(target, lead_id, status, note, finding_id=None):
 def add(target, skill, evidence, signal, priority, finding_id=None):
     with ledger_lock(target):
         leads = load_ledger(target)
-        if any(dedup_key(l["skill"], l["evidence"]) == dedup_key(skill, evidence) for l in leads):
-            print("[!] lead already exists (same skill+evidence)")
-            return
+        for existing in leads:
+            if dedup_key(existing["skill"], existing["evidence"]) == dedup_key(skill, evidence):
+                print("[!] lead already exists (same skill+evidence)")
+                return existing
         ld = {"id": "lb-" + secrets.token_hex(3), "target": target, "skill": skill,
               "priority": priority, "signal": signal or "manual", "why": "manually added",
               "evidence": norm_evidence(evidence), "source": "manual", "status": "new",
@@ -437,12 +440,13 @@ def add(target, skill, evidence, signal, priority, finding_id=None):
         ok, reason = adjudicate(ld)
         if not ok:
             print(f"[!] lead rejected by adjudication: {reason}")
-            return
+            return None
         if finding_id:
             ld["finding_id"] = finding_id
         leads.append(ld)
         save_ledger(target, leads)
     print(f"[+] added {ld['id']}  {skill}  {evidence}")
+    return ld
 
 
 def main():

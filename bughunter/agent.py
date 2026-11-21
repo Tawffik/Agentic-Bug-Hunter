@@ -420,6 +420,23 @@ TOOLS: list[dict] = [
 
 TOOL_NAMES = {t["function"]["name"] for t in TOOLS}
 
+# Phase label (used by the dashboard/result dict) → the tool name(s) whose
+# successful completion satisfies it. completed_steps stores TOOL names, so a
+# bare `label in completed_steps` is always False; map through this instead.
+PHASE_TOOLS = {
+    "recon": ("run_recon",),
+    "scan": ("run_vuln_scan",),
+    "js_analysis": ("run_js_analysis",),
+    "secret_hunt": ("run_secret_hunt",),
+    "param_discovery": ("run_param_discovery", "run_post_param_discovery"),
+    "api_fuzz": ("run_api_fuzz",),
+    "cors": ("run_cors_check",),
+    "cms_exploit": ("run_cms_exploit",),
+    "rce_scan": ("run_rce_scan",),
+    "sqlmap": ("run_sqlmap_targeted", "run_sqlmap_on_file"),
+    "jwt_audit": ("run_jwt_audit",),
+}
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 #  Memory
@@ -457,8 +474,16 @@ class HuntMemory:
                 self.observation_buf  = data.get("observation_buf", [])[-10:]
                 self.completed_steps  = data.get("completed_steps", [])
                 self.step_count       = data.get("step_count", 0)
-            except Exception:
-                pass
+            except (OSError, ValueError) as exc:
+                # Never silently reset: a half-written/corrupt session would be
+                # overwritten by the next save(), destroying prior findings.
+                # Preserve it as .corrupt and start fresh.
+                try:
+                    os.replace(self.session_file, self.session_file + ".corrupt")
+                except OSError:
+                    pass
+                print(f"[!] could not read session {self.session_file} ({exc}); "
+                      f"kept as .corrupt and starting fresh", file=sys.stderr)
 
     def save(self) -> None:
         Path(self.session_file).parent.mkdir(parents=True, exist_ok=True)
@@ -617,6 +642,25 @@ class ToolDispatcher:
         "run_sqlmap_targeted": "POST",
         "run_sqlmap_on_file": "POST",
         "run_jwt_audit": "GET",
+    }
+
+    # Tool name → the hunt.py function that implements it. Must match reality:
+    # a tool whose backend is missing would raise AttributeError, get swallowed,
+    # and (via record_failure) falsely trip the circuit breaker for real work.
+    TOOL_BACKENDS = {
+        "run_recon": "run_recon",
+        "run_vuln_scan": "run_vuln_scan",
+        "run_js_analysis": "run_js_analysis",
+        "run_secret_hunt": "run_secret_hunt",
+        "run_param_discovery": "run_param_discovery",
+        "run_post_param_discovery": "run_post_param_discovery",
+        "run_api_fuzz": "run_api_fuzz",
+        "run_cors_check": "run_cors_check",
+        "run_cms_exploit": "run_cms_exploit",
+        "run_rce_scan": "run_rce_scan",
+        "run_sqlmap_targeted": "run_sqlmap_targeted",
+        "run_sqlmap_on_file": "run_sqlmap_request_file",
+        "run_jwt_audit": "run_jwt_audit",
     }
 
     def __init__(self, domain: str, memory: HuntMemory,
@@ -806,12 +850,22 @@ class ToolDispatcher:
             # Filter recon output in place before any scanner reads it.
             self._filter_recon_urls_to_scope(domain)
 
+        # An advertised tool with no hunt.py backend would raise AttributeError,
+        # which the except below swallows into a traceback and — worse — feeds
+        # record_failure(), so a handful of dead tools could open the circuit
+        # breaker for real work. Report the gap honestly and skip.
+        backend = self.TOOL_BACKENDS.get(name)
+        if backend is not None and not hasattr(h, backend):
+            msg = (f"TOOL UNAVAILABLE: {name} is not wired to a hunt.py "
+                   f"backend ({backend}); skipped without contacting the target.")
+            self._record(kind="action", tool=name, status="unavailable", observation=msg)
+            return msg
+
         try:
             if name == "run_recon":
                 ok = h.run_recon(
                     domain,
-                    scope_lock=args.get("scope_lock", self.scope_lock),
-                    max_urls=int(args.get("max_urls", self.max_urls)),
+                    scope_lock=bool(args.get("scope_lock", self.scope_lock)),
                 )
                 obs = self._summarize_recon(domain, ok)
 
@@ -819,7 +873,6 @@ class ToolDispatcher:
                 ok = h.run_vuln_scan(
                     domain,
                     quick=bool(args.get("quick", False)),
-                    full=bool(args.get("full", False)),
                 )
                 obs = self._summarize_findings(domain, "scan", ok)
 
@@ -954,22 +1007,35 @@ class ToolDispatcher:
     @staticmethod
     def _parse_request_file_host(request_file: str) -> str | None:
         """Parse the target host out of a raw HTTP request file (sqlmap/
-        Burp style) by scanning for a `Host:` header line. Deliberately not
-        a full HTTP parser — request files for sqlmap are well-formed raw
-        requests with a `Host:` header, and a simple line scan is
-        sufficient. Returns the host (with port, if present), or None if
-        the file couldn't be read or no Host header was found — callers
-        must treat None as "refuse", not "assume in scope". See
-        SECURITY-REVIEW-2026-08-22.md finding #2."""
+        Burp style). Inspects BOTH the request line (an absolute-URI form,
+        ``GET http://host/path HTTP/1.1``, which sqlmap honors even when a
+        different Host: header is present) and the ``Host:`` header. If the
+        two disagree the request is ambiguous, so we refuse (return None)
+        rather than guess — callers must treat None as "refuse", not
+        "assume in scope". See SECURITY-REVIEW-2026-08-22.md finding #2."""
         try:
             with open(request_file, "r", errors="replace") as f:
-                for line in f:
-                    m = re.match(r"^\s*Host:\s*(.+?)\s*$", line, re.IGNORECASE)
-                    if m:
-                        return m.group(1).strip()
+                lines = f.read().splitlines()
         except OSError:
             return None
-        return None
+        if not lines:
+            return None
+
+        abs_host = None
+        rm = re.match(r"^[A-Za-z]+\s+https?://([^/\s:]+)", lines[0])
+        if rm:
+            abs_host = rm.group(1).strip()
+
+        host_hdr = None
+        for line in lines:
+            m = re.match(r"^\s*Host:\s*(.+?)\s*$", line, re.IGNORECASE)
+            if m:
+                host_hdr = m.group(1).strip()
+                break
+
+        if abs_host and host_hdr and abs_host.lower() != host_hdr.lower():
+            return None
+        return abs_host or host_hdr
 
     def _filter_recon_urls_to_scope(self, domain: str) -> None:
         """Drop out-of-scope URLs from recon output files IN PLACE before
@@ -1003,15 +1069,16 @@ class ToolDispatcher:
             recon_dir = h._resolve_recon_dir(domain)
         except Exception:
             return
-        relative_paths = (
-            os.path.join("urls", "all.txt"),
-            os.path.join("urls", "with_params.txt"),
-            os.path.join("urls", "js_files.txt"),
-            os.path.join("urls", "api_endpoints.txt"),
-            os.path.join("live", "urls.txt"),
-        )
-        for rel_path in relative_paths:
-            urls_file = os.path.join(recon_dir, rel_path)
+        # Single source of truth: hunt's list. It includes urls/graphql.txt,
+        # which this copy previously omitted — a scope-filtering hole for
+        # GraphQL URLs read by the graphql audit.
+        relpaths = getattr(h, "_RECON_URL_RELPATHS", (
+            ("urls", "all.txt"), ("urls", "with_params.txt"),
+            ("urls", "js_files.txt"), ("urls", "api_endpoints.txt"),
+            ("urls", "graphql.txt"), ("live", "urls.txt"),
+        ))
+        for rel_path in relpaths:
+            urls_file = os.path.join(recon_dir, *rel_path)
             if not os.path.isfile(urls_file):
                 continue
             self._guard._scope_checker.filter_file(urls_file)
@@ -1774,11 +1841,9 @@ class ReActAgent:
             "working_memory":   self.memory.working_memory,
             "verdict":          self.verdict,
             "session_file":     self.memory.session_file,
-            # Map completed_steps to phase flags print_dashboard checks
-            **{step: (step in self.memory.completed_steps)
-               for step in ("recon", "scan", "js_analysis", "secret_hunt",
-                            "param_discovery", "api_fuzz", "cors", "cms_exploit",
-                            "rce_scan", "sqlmap", "jwt_audit")},
+            # Map completed_steps (tool names) to phase flags print_dashboard checks
+            **{phase: any(t in self.memory.completed_steps for t in tools)
+               for phase, tools in PHASE_TOOLS.items()},
         }
 
 
@@ -1975,10 +2040,8 @@ def run_agent_hunt(
                     "findings":        len(memory.findings_log),
                     "session_file":    session_file,
                     "working_memory":  memory.working_memory,
-                    **{step: (step in memory.completed_steps)
-                       for step in ("recon", "scan", "js_analysis", "secret_hunt",
-                                    "param_discovery", "api_fuzz", "cors", "cms_exploit",
-                                    "rce_scan", "sqlmap", "jwt_audit")},
+                    **{phase: any(t in memory.completed_steps for t in tools)
+                       for phase, tools in PHASE_TOOLS.items()},
                 }
             except Exception as e:
                 print(f"{YELLOW}[Agent] LangGraph error: {e} — falling back to built-in{NC}",

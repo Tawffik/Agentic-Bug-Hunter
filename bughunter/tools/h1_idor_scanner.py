@@ -467,7 +467,7 @@ def test_2fa_rate_limit(token_b: str):
                 status = r.status
         except urllib.error.HTTPError as e:
             status = e.code
-        except:
+        except Exception:
             status = 0
 
         print(f"  Attempt {i+1}/15 (code={code}): HTTP {status}")

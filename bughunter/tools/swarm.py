@@ -48,14 +48,19 @@ FINDINGS_DIR = os.path.join(_REPO, "findings")
 
 
 def _scope_checker(domains: list[str]):
+    """Build the ONE authoritative ScopeChecker.
+
+    Does NOT swallow a ScopeError: an invalid/dangerous scope pattern (e.g.
+    ``*.com``) must abort the wave, not silently disable scope enforcement.
+    Returning None here would make every worker send traffic with no scope
+    check at all — wider than running no swarm. None is returned only when the
+    caller supplied no scope domains at all.
+    """
     if not domains:
         return None
-    try:
-        from tools.scope_checker import ScopeChecker
+    from tools.scope_checker import ScopeChecker
 
-        return ScopeChecker(domains)
-    except Exception:  # noqa: BLE001
-        return None
+    return ScopeChecker(domains)
 
 
 def _first_param(url: str) -> str | None:
@@ -84,7 +89,8 @@ def finding_from_lead(lead: dict, target: str) -> dict:
     return finding
 
 
-def run_worker(lead: dict, target: str, scope_domains: list[str]) -> dict:
+def run_worker(lead: dict, target: str, scope_domains: list[str],
+               scope_checker=None) -> dict:
     """One ephemeral, single-objective worker. Runs in a thread."""
     lead_id = lead["id"]
     skill = lead.get("skill", "")
@@ -99,10 +105,12 @@ def run_worker(lead: dict, target: str, scope_domains: list[str]) -> dict:
         return {"lead_id": lead_id, "skill": skill, "outcome": "parked",
                 "reason": f"no deterministic verifier for {skill}"}
 
+    if scope_checker is None:
+        scope_checker = _scope_checker(scope_domains)
     try:
         result = verify_finding_programmatic(
             finding,
-            scope_checker=_scope_checker(scope_domains),
+            scope_checker=scope_checker,
             session_dir=session_dir,
             write_dir=session_dir,
         )
@@ -163,9 +171,18 @@ def coordinate(target, *, recon_dir=None, workers=6, max_leads=0,
         return {"target": target, "dispatched": 0, "results": [],
                 "summary": {"note": "no untouched leads to verify"}}
 
+    # Build the scope checker ONCE, before any worker runs. An invalid scope
+    # configuration aborts the wave rather than silently running unscoped.
+    try:
+        checker = _scope_checker(scope_domains)
+    except Exception as exc:  # noqa: BLE001 - ScopeError and any build failure => abort
+        return {"target": target, "dispatched": 0, "results": [],
+                "summary": {"note": f"invalid scope configuration: {exc}"},
+                "error": str(exc)}
+
     results = []
     with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
-        futs = {pool.submit(run_worker, l, target, scope_domains): l for l in leads}
+        futs = {pool.submit(run_worker, l, target, scope_domains, checker): l for l in leads}
         for fut in as_completed(futs):
             try:
                 results.append(fut.result())

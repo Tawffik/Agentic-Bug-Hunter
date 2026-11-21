@@ -58,6 +58,8 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `/osint-monitor` | `/osint-monitor <org1,org2>` — GitHub OSINT delta monitor |
 | `/program-intel` | `/program-intel hackerone:handle` — public stats + 0-100 target score |
 | `/handoff-ingest` | `/handoff-ingest <agent-handoff-dir>` — validate and ingest lifecycle leads |
+| `/spec-ingest` | `/spec-ingest <spec> --target <host> [--ingest]` — OpenAPI/Swagger/Postman → API leads |
+| `/self-audit` | `/self-audit [audit\|baseline\|drift\|record\|ledger]` — capability audit + regression gate |
 | `/patch-diff` | `/patch-diff <repo> [--from REF] [--to REF]` — fix/CVE regression hunt |
 | `/autopilot` | `/autopilot target.com --normal` — autonomous hunt loop |
 | `/surface` | `/surface target.com` — ranked attack surface |
@@ -104,8 +106,10 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 
 See **`bughunter/tools/README.md`** for the full ~50-tool catalogue. Highlights:
 
-- `bughunter/tools/hunt.py` — master orchestrator (auto lead-board ingest + EOL after recon; `--graphql` / `--cve-hunt` / `--zero-day`)
+- `bughunter/tools/hunt.py` — master orchestrator (auto lead-board ingest + spec ingest + EOL after recon; `--graphql` / `--cve-hunt` / `--zero-day`)
 - `bughunter/tools/lead_board.py` — persistent recon→skill lead ledger (`ingest` / `show` / `next` / `touch`)
+- `bughunter/tools/spec_ingest.py` — OpenAPI/Swagger/Postman → classified API leads (`--ingest` → lead board)
+- `bughunter/tools/self_audit.py` — capability audit + coverage gaps + test-regression `drift` + improvement ledger
 - `bughunter/tools/recon_engine.sh` · `vuln_scanner.sh` · `validate.py` · `scope_checker.py`
 - `bughunter/tools/graphql_audit.sh` · `cicd_scanner.sh` · `cve_scan.sh` · `eol_check.py`
 - `bughunter/tools/waf_encoder.py` · `waf_response_analyzer.py` · `multipart_mutator.py` · `bypass_403.sh`

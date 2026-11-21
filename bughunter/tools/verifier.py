@@ -190,7 +190,7 @@ def load_bundle(bundle_dir: str) -> dict:
     with open(os.path.join(bundle_dir, "request.http"), encoding="utf-8",
               errors="replace") as fh:
         ex = poc.parse_raw_request(fh.read())
-    meta = manifest.get("exchange", {})
+    meta = manifest.get("exchange") or {}
     if meta.get("url"):      # manifest URL is authoritative (keeps the right scheme)
         ex.url = meta["url"]
     if meta.get("method"):
@@ -294,10 +294,10 @@ def verify(bundle_dir: str, marker_override: str | None = None,
         "marker_used": bool(marker),
         "marker_in_baseline": rd.marker_in_baseline,
         "response_status": rd.status,
-        "finding": manifest.get("finding", {}) if has_bundle else {},
+        "finding": (manifest.get("finding") or {}) if has_bundle else {},
         # evidence_sha256 = the ORIGINAL response hash (binds the record to this
         # bundle for report_gate); rederived_sha256 = what we actually re-fetched.
-        "evidence_sha256": manifest.get("exchange", {}).get("response_sha256"),
+        "evidence_sha256": (manifest.get("exchange") or {}).get("response_sha256"),
         "rederived_sha256": rd.fresh_sha256,
         "rederived_status": rd.status,
         "bundle": bundle_dir,
