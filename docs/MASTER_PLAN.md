@@ -230,9 +230,9 @@ score = payout_cap
 - [x] Add browser capture, patch-diff hunt, pro installer.
 - [x] Add GitHub OSINT monitor (`github_osint_monitor.py` + scheduled workflow).
 - [x] Add profile/README topics, license, CI badges (VulnRadar).
-- [x] Import 333-tip corpus into `knowledge/tips/` (bb-* still to merge).
+- [x] Import 333-tip corpus (`knowledge/tips/`) and 7 `bb-*` sources (`knowledge/notion/`) into the flagship.
 - [ ] Add program-intel adapter (H1/Bugcrowd scope/payout/known issues).
-- [ ] Add EPSS/OSV/PoC-in-GitHub to VulnRadar.
+- [x] Add EPSS enrichment to VulnRadar; OSV/PoC-in-GitHub still pending.
 
 ### Days 31–60 — lifecycle
 

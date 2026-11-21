@@ -118,6 +118,7 @@ See **`bughunter/tools/README.md`** for the full ~50-tool catalogue. Highlights:
 ### Knowledge corpora
 
 - `knowledge/tips/` — 333-tip bug-bounty corpus (searchable, not auto-loaded)
+- `knowledge/notion/` — consolidated Notion skill sources from the `bb-*` repos
 
 ### External tool references
 
