@@ -259,6 +259,16 @@ if [ "${TARGET_TYPE:-domain}" = "domain" ]; then
     _detect_dns_wildcard "$TARGET"
 fi
 
+# Tool-integrity preflight — catch shadowed/wrong binaries (e.g. the Python
+# `httpx` client shadowing ProjectDiscovery `httpx`) before they silently
+# produce empty results. Warn-only so recon still runs; the hunt pipeline
+# decides whether to abort. See tools/tool_preflight.py.
+if command -v python3 >/dev/null 2>&1 && [ -f "$BASE_DIR/tools/tool_preflight.py" ]; then
+    if ! python3 "$BASE_DIR/tools/tool_preflight.py" --quiet >/dev/null 2>&1; then
+        log_warn "Tool preflight flags a wrong/missing binary — results may be empty. Run: python3 tools/tool_preflight.py"
+    fi
+fi
+
 # ============================================================
 # Phase 1: Subdomain Enumeration (or Host Discovery for IP/CIDR)
 # ============================================================

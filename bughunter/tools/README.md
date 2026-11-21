@@ -23,6 +23,7 @@ bash bughunter/tools/external_arsenal.sh                     # what's installed 
 | `vuln_scanner.sh` | XSS · SQLi · SSTI · SSRF · MFA · SAML probe pipeline |
 | `validate.py` | 4-gate finding validator with identity checks and curl PoC requirement |
 | `scope_checker.py` | Deterministic scope safety check before any request |
+| `tool_preflight.py` | Verify required binaries are the expected implementations (detects shadowed `httpx` etc.) before a hunt |
 | `lead_board.py` | Persistent recon→skill lead ledger (`ingest` / `show` / `next` / `touch` / `add`) |
 
 ## Recon & Discovery
