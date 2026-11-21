@@ -72,6 +72,7 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `/takeover` | `/takeover --recon <recon-dir>` — subdomain takeover candidates (dnsReaper/subjack) |
 | `/cloud-recon` | `/cloud-recon --keyword <name>` — public S3/Azure/GCP + CloudFlare-bypass origin IPs |
 | `/param-discover` | `/param-discover <url>` — find hidden HTTP parameters (Arjun/x8) |
+| `/js-analyze` | `/js-analyze <file\|dir>` — offline JS endpoints/secrets/sinks/source-maps |
 | `/bypass-403` | `/bypass-403 <url>` — try header/method/encoding tricks against a 403/401 |
 | `/exposure` | `/exposure <url> [--in-scope target.com]` — bounded artifact probe + visibility validation (LEAD-only) |
 | `/csrf` | `/csrf <url> -p k=v [--json ...]` — generate CSRF PoCs + SameSite analysis |

@@ -171,8 +171,12 @@ param discovery, 403 bypass, CVE sweep.
   doubles as report PoC evidence. Was [registered-not-wired].
 - **No Shodan/Censys/favicon-hash** asset discovery, **no ASN/CIDR → IP-range** expansion.
   [no coverage]
-- **No JS source-map extraction / deobfuscation** beyond secret-grepping. `linkfinder` is
-  [registered-not-wired] for endpoint extraction from JS.
+- **JS source-map extraction / deobfuscation / endpoint extraction** — ✅ SHIPPED
+  (`tools/js_analyzer.py`, `/js-analyze`): deterministic offline extractor for endpoints,
+  params, secrets (cloud/SaaS/Auth/CI/JWT/keys), client sinks (eval/innerHTML/postMessage/…),
+  and source-map refs. `recon_engine.sh` calls it to replace the old inline `sed`+`grep`, and
+  `lead_board ingest` already reads `js/endpoints.txt`. `linkfinder` remains optional for
+  deeper deobfuscation. Was [registered-not-wired] / [docs-only].
 
 ## Cross-cutting / Others
 

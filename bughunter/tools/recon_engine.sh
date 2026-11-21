@@ -516,29 +516,25 @@ echo ""
 log_info "Phase 5: JavaScript Analysis"
 
 if [ -s "$RECON_DIR/urls/js_files.txt" ]; then
-    log_step "Extracting endpoints from JS files (top 50)..."
-    mkdir -p "$RECON_DIR/js"
-
+    log_step "Downloading JS bundles (top 50) for analysis..."
+    mkdir -p "$RECON_DIR/js/_raw"
+    _js_idx=0
     head -50 "$RECON_DIR/urls/js_files.txt" | while IFS= read -r js_url; do
-        curl -s --max-time 10 ${BB_AUTH_ARGS[@]+"${BB_AUTH_ARGS[@]}"} "$js_url" 2>/dev/null | \
-            sed -nE 's/.*["'"'"']([a-zA-Z0-9_/.-]*(\/[a-zA-Z0-9_/.-]+)+)["'"'"'].*/\1/p' \
-            >> "$RECON_DIR/js/endpoints_raw.txt" 2>/dev/null || true
+        _js_idx=$((_js_idx + 1))
+        curl -s --max-time 10 ${BB_AUTH_ARGS[@]+"${BB_AUTH_ARGS[@]}"} "$js_url" \
+            -o "$RECON_DIR/js/_raw/$(printf '%03d' "$_js_idx").js" 2>/dev/null || true
     done
 
-    if [ -f "$RECON_DIR/js/endpoints_raw.txt" ]; then
-        sort -u "$RECON_DIR/js/endpoints_raw.txt" > "$RECON_DIR/js/endpoints.txt"
+    # One tested extractor for endpoints / params / secrets / sinks / sourcemaps
+    # (replaces the old inline sed+grep; see tools/js_analyzer.py).
+    if python3 "$BASE_DIR/tools/js_analyzer.py" analyze "$RECON_DIR/js/_raw" \
+            --out "$RECON_DIR/js" --json > "$RECON_DIR/js/summary.json" 2>/dev/null; then
         log_done "JS endpoints: $(wc -l < "$RECON_DIR/js/endpoints.txt" 2>/dev/null || echo 0)"
-
-        # Extract potential secrets from JS
-        head -50 "$RECON_DIR/urls/js_files.txt" | while IFS= read -r js_url; do
-            curl -s --max-time 10 ${BB_AUTH_ARGS[@]+"${BB_AUTH_ARGS[@]}"} "$js_url" 2>/dev/null | \
-                grep -oiE '(api[_-]?key|api[_-]?secret|access[_-]?token|auth[_-]?token|client[_-]?secret|password|secret[_-]?key)["\s]*[:=]["\s]*[a-zA-Z0-9_\-]{8,}' \
-                >> "$RECON_DIR/js/potential_secrets.txt" 2>/dev/null || true
-        done
         if [ -s "$RECON_DIR/js/potential_secrets.txt" ]; then
-            sort -u "$RECON_DIR/js/potential_secrets.txt" -o "$RECON_DIR/js/potential_secrets.txt"
-            log_warn "Potential secrets found in JS: $(wc -l < "$RECON_DIR/js/potential_secrets.txt")"
+            log_warn "Potential secrets found in JS: $(wc -l < "$RECON_DIR/js/potential_secrets.txt") (see $RECON_DIR/js/potential_secrets.txt)"
         fi
+    else
+        log_warn "js_analyzer unavailable — skipping JS analysis"
     fi
 else
     log_warn "No JS files found — skipping JS analysis"

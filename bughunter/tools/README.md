@@ -32,6 +32,7 @@ bash bughunter/tools/external_arsenal.sh                     # what's installed 
 | `scope_aggregator.sh` | Multi-platform scope pull (bbscope + bounty-targets-data) |
 | `recon_adapter.py` | Normalize recon output across nested/flat layouts |
 | `param_discovery.sh` | Hidden HTTP parameters via Arjun · x8 |
+| `js_analyzer.py` | Offline JS-bundle analysis — endpoints, params, secrets (cloud/SaaS/Auth/CI/JWT/keys), client sinks, source maps (`analyze <file\|dir\|->`) |
 | `cloud_recon.sh` | S3Scanner · cloud_enum · CloudFail for public bucket exposure |
 | `takeover_scanner.sh` | Subdomain takeover via dnsReaper · subjack |
 | `cve_scan.sh` | Focused nuclei CVE sweep (high/critical) + optional log4j-scan |
