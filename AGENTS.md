@@ -57,6 +57,7 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `/browser-capture` | `/browser-capture <url>` — Playwright authenticated capture |
 | `/osint-monitor` | `/osint-monitor <org1,org2>` — GitHub OSINT delta monitor |
 | `/program-intel` | `/program-intel hackerone:handle` — public stats + 0-100 target score |
+| `/handoff-ingest` | `/handoff-ingest <agent-handoff-dir>` — validate and ingest lifecycle leads |
 | `/patch-diff` | `/patch-diff <repo> [--from REF] [--to REF]` — fix/CVE regression hunt |
 | `/autopilot` | `/autopilot target.com --normal` — autonomous hunt loop |
 | `/surface` | `/surface target.com` — ranked attack surface |

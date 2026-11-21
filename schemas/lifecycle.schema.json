@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BugBounty lifecycle handoff",
+  "description": "Contract between BugBountyCI (producer), Agentic-Bug-Hunter (hunter/validator) and VulnRadar (CVE correlation).",
+  "type": "object",
+  "required": ["schema_version", "target_profile", "assets", "leads", "evidence", "run_meta"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "target_profile": {
+      "type": "object",
+      "required": ["target", "scope", "platform", "program", "technologies"],
+      "properties": {
+        "target": {"type": "string", "minLength": 1},
+        "scope": {"type": "array", "items": {"type": "string"}},
+        "platform": {"type": "string"},
+        "program": {"type": "string"},
+        "payout": {"type": ["number", "string"]},
+        "known_issues": {"type": "array", "items": {"type": "string"}},
+        "technologies": {"type": "array", "items": {"type": "object"}}
+      },
+      "additionalProperties": true
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["host", "source", "scope_status"],
+        "properties": {
+          "host": {"type": "string"},
+          "url": {"type": "string"},
+          "tech": {"type": "array"},
+          "source": {"type": "string"},
+          "first_seen": {"type": "string"},
+          "scope_status": {"type": "string", "enum": ["in_scope", "out_of_scope", "unknown"]}
+        },
+        "additionalProperties": true
+      }
+    },
+    "leads": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "class", "severity", "confidence", "status", "source", "dedupe_key"],
+        "properties": {
+          "id": {"type": "string"},
+          "class": {"type": "string"},
+          "title": {"type": "string"},
+          "severity": {"type": "string"},
+          "confidence": {"type": "string"},
+          "status": {"type": "string", "enum": ["new", "investigating", "killed", "reported", "parked"]},
+          "source": {"type": "string"},
+          "evidence_ref": {"type": "string"},
+          "dedupe_key": {"type": "string"},
+          "next_action": {"type": "string"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "ref"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string"},
+          "ref": {"type": "string"},
+          "sha256": {"type": "string"},
+          "status": {"type": "string"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "run_meta": {
+      "type": "object",
+      "required": ["run_id", "target", "producer", "generated_at"],
+      "properties": {
+        "run_id": {"type": "string"},
+        "target": {"type": "string"},
+        "producer": {"type": "string"},
+        "generated_at": {"type": "string"},
+        "run_url": {"type": "string"},
+        "artifact": {"type": "string"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

@@ -236,7 +236,7 @@ score = payout_cap
 
 ### Days 31–60 — lifecycle
 
-- [ ] Unified target/evidence schema and delta state.
+- [x] Shared lifecycle schema + BugBountyCI → Agentic handoff (delta state still pending).
 - [ ] Target scoring + metrics dashboard.
 - [ ] Burp/Caido MCP + Playwright end-to-end capture/replay.
 - [ ] Secret scanning + GitHub org monitor schedules.

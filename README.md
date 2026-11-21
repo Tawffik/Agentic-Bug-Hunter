@@ -370,6 +370,7 @@ MCP is an adapter over the existing research engine — not a second scanner. Ac
 | `/browser-capture <url>` | Playwright authenticated capture: network, storage, cookies, screenshot, HAR |
 | `/osint-monitor <orgs>` | GitHub OSINT delta: new repos, security commits, releases, workflows, alerts |
 | `/program-intel <platform:handle>` | Public program stats + 0-100 target score |
+| `/handoff-ingest <dir>` | Validate/dedupe/rank a BugBountyCI handoff and ingest leads |
 | `/patch-diff <repo> <range>` | Turn a fix/CVE diff into security hypotheses and a pre-fix PoC checklist |
 | `/token-scan <contract>` | Rug pull scanner - mint authority · LP lock · honeypot · bonding curve |
 

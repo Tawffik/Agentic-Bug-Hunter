@@ -98,6 +98,7 @@ bash bughunter/tools/external_arsenal.sh                     # what's installed 
 | `patch_diff_hunt.sh` | Fix/CVE commit range → changed files, guard diffs, sibling-path hypotheses, report |
 | `github_osint_monitor.py` | Delta-first GitHub org monitor: new repos, security commits, releases, workflow changes, secret/dependency alerts |
 | `program_intel.py` | Public HackerOne/Bugcrowd stats + 0-100 target score |
+| `handoff_ingest.py` | Validate/dedupe/rank a BugBountyCI `agent-handoff/` and optionally ingest into the lead board |
 | `dom_xss_harness.py` | Real-browser DOM XSS confirmation (requires Playwright + Chromium) |
 | `auth_session.py` / `_auth_helper.sh` | Load once, inject auth into curl/httpx/katana/nuclei/ffuf |
 | `aws` / `gcloud` / `az` | Cloud post-access and IAM enumeration (install separately) |
