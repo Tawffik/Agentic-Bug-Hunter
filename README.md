@@ -531,6 +531,7 @@ Agentic-Bug-Hunter/
 │   ├── auth-sessions.md       # Auth header management guide
 │   ├── payloads.md            # Payload reference for common vuln classes
 │   ├── smart-contract-audit.md# Smart contract audit deep-dive
+│   ├── MASTER_PLAN.md         # Pro lifecycle plan — consolidation, OSINT monitoring, integrations, roadmap
 │   ├── TUTORIAL.md            # A→Z video tutorial walkthrough
 │   └── TODOS.md               # Open improvement items
 │
