@@ -17,3 +17,8 @@ Tricks* database, each with the original execution contract.
 
 Use it as a checklist/search surface, not as a scanner: pick a tip, map it to
 the current target, and prove the trigger before reporting.
+
+## `notion/`
+
+Standalone Notion skill sources consolidated from the `bb-*` repos; see
+`INDEX.md` for the mapping.
