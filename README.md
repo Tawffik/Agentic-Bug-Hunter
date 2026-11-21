@@ -277,6 +277,8 @@ cd Agentic-Bug-Hunter
 chmod +x install_tools.sh && ./install_tools.sh   # subfinder · httpx · nuclei · katana · ffuf
 # optional Web3 stack (Foundry · Slither · Aderyn · Medusa · Halmos · Solana/Anchor):
 # ./install_tools.sh --with-web3
+# optional pro workflow (Playwright/Chromium · AWS CLI · mitmproxy · adb · Frida):
+# ./install_tools.sh --with-pro
 chmod +x install.sh      && ./install.sh          # skills + commands → ~/.claude/
 ```
 
@@ -365,6 +367,8 @@ MCP is an adapter over the existing research engine — not a second scanner. Ac
 |:---|:---|
 | `/web3-audit <contract.sol>` | 10-class smart contract audit with Foundry PoC template |
 | `/web3-fuzz <project>` | Stateful Echidna/Medusa/Foundry invariant suite + PoC triage |
+| `/browser-capture <url>` | Playwright authenticated capture: network, storage, cookies, screenshot, HAR |
+| `/patch-diff <repo> <range>` | Turn a fix/CVE diff into security hypotheses and a pre-fix PoC checklist |
 | `/token-scan <contract>` | Rug pull scanner - mint authority · LP lock · honeypot · bonding curve |
 
 ### Session & Utility

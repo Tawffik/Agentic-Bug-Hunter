@@ -54,6 +54,8 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `/triage` | `/triage` — quick 7-Question Gate |
 | `/web3-audit` | `/web3-audit <contract.sol>` — smart contract audit |
 | `/web3-fuzz` | `/web3-fuzz <project>` — stateful Echidna/Medusa/Foundry fuzz suite |
+| `/browser-capture` | `/browser-capture <url>` — Playwright authenticated capture |
+| `/patch-diff` | `/patch-diff <repo> [--from REF] [--to REF]` — fix/CVE regression hunt |
 | `/autopilot` | `/autopilot target.com --normal` — autonomous hunt loop |
 | `/surface` | `/surface target.com` — ranked attack surface |
 | `/pickup` | `/pickup target.com` — pick up previous hunt (was `/resume`) |
@@ -110,6 +112,7 @@ See **`bughunter/tools/README.md`** for the full ~50-tool catalogue. Highlights:
 - `bughunter/tools/csrf_poc.py` · `xxe_probe.py` — offline CSRF PoC/SameSite analyzer · XXE payload builder + scope-guarded sender
 - Credential attack (opt-in): `wordlist_engine.sh` · `osint_employees.sh` · `breach_checker.py` · `spray_orchestrator.sh`
 - Web3: `token_scanner.py` · `web3_evm_hazard_scan.py` · `defi_hack_search.sh` · `chain_audit_env.sh` · `xray_git_security.py` · `./install_tools.sh --with-web3` (Foundry/Slither/Medusa/Echidna/Halmos/Mythril/Wake/Solana best-effort) · MCP configs in `bughunter/mcp/web3-mcp/` (foundry, solidity-audit, evm-agent-toolkit, solodit)
+- Pro workflow: `browser_capture.py` · `patch_diff_hunt.sh` · `dom_xss_harness.py` · `auth_session.py` · `./install_tools.sh --with-pro` (Playwright/Chromium, AWS CLI, mitmproxy, adb, Frida)
 
 ### External tool references
 

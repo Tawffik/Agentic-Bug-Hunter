@@ -146,6 +146,13 @@ ARSENAL_TOOLS=(
   "hound|web3|git clone https://github.com/scabench-org/hound && cd hound && pip install -r requirements.txt  # graph-based AI audit; set an LLM API key|github.com/scabench-org/hound"
   # solidity-audit-mcp: npm name is a RESERVED PLACEHOLDER ("No functionality").
   # Build from upstream instead: git clone github.com/mariano-aguero/solidity-audit-mcp
+  # ── Pro workflow / browser / cloud / mobile ──────────────────────────────
+  "aws|cloud|pipx install awscli|aws.amazon.com/cli"
+  "gcloud|cloud|curl -sSL https://sdk.cloud.google.com -o /tmp/gcloud.sh && bash /tmp/gcloud.sh --disable-prompts|cloud.google.com/sdk"
+  "az|cloud|curl -sL https://aka.ms/InstallAzureCLIDeb -o /tmp/az.sh && sudo bash /tmp/az.sh|learn.microsoft.com/cli/azure"
+  "adb|mobile|sudo apt-get install adb|developer.android.com/tools/adb"
+  "frida|mobile|pipx install frida-tools|frida.re"
+  "mitmproxy|proxy|pipx install mitmproxy|mitmproxy.org"
   # ── AI Coding Assistants ────────────────────────────────────────────────
   "kimchi|ai|curl -fsSL https://kimchi.dev/install.sh -o kimchi_install.sh && sh kimchi_install.sh|kimchi.dev"
   "freebuff|ai|npm install -g freebuff|freebuff.com"

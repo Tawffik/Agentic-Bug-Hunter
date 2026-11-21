@@ -2,7 +2,7 @@
 # =============================================================================
 # Bug Bounty Tool Installer
 # Installs all required tools via Homebrew and Go
-# Usage: ./install_tools.sh [--with-cicd-scanner] [--with-credential-attack] [--with-web3]
+# Usage: ./install_tools.sh [--with-cicd-scanner] [--with-credential-attack] [--with-web3] [--with-pro]
 # =============================================================================
 
 set -euo pipefail
@@ -10,11 +10,13 @@ set -euo pipefail
 INSTALL_CICD_SCANNER=false
 INSTALL_CREDENTIAL_ATTACK=false
 INSTALL_WEB3=false
+INSTALL_PRO=false
 for arg in "$@"; do
     case "$arg" in
         --with-cicd-scanner) INSTALL_CICD_SCANNER=true ;;
         --with-credential-attack) INSTALL_CREDENTIAL_ATTACK=true ;;
         --with-web3) INSTALL_WEB3=true ;;
+        --with-pro) INSTALL_PRO=true ;;
     esac
 done
 
@@ -569,6 +571,71 @@ else
     log_warn "python3/uv or requirements.txt not found — skipping Python dependencies"
 fi
 
+# Pro workflow tools (optional: --with-pro)
+# Browser automation, cloud CLIs, proxy, and mobile runtime.
+if [ "$INSTALL_PRO" = true ]; then
+    echo ""
+    echo "[*] Installing pro workflow tools..."
+    export PATH="$HOME/.local/bin:$PATH"
+
+    # Playwright (Python library + Chromium). Needed by dom_xss_harness.py and
+    # browser_capture.py for real-browser confirmation.
+    if command -v python3 &>/dev/null; then
+        if python3 -m pip install --user --quiet playwright 2>/dev/null \
+            || python3 -m pip install --user --quiet --break-system-packages playwright 2>/dev/null; then
+            python3 -m playwright install chromium >/dev/null 2>&1 \
+                && log_ok "playwright + chromium installed" \
+                || log_warn "playwright installed; run: python3 -m playwright install chromium"
+        else
+            log_warn "playwright install failed (python3 -m pip install --user playwright)"
+        fi
+    fi
+
+    # AWS CLI (cloud post-access / S3 / IAM)
+    if command -v aws &>/dev/null; then
+        log_ok "aws already installed"
+    elif command -v pipx &>/dev/null; then
+        pipx install awscli >/dev/null 2>&1 && log_ok "awscli installed" \
+            || log_warn "awscli failed (pipx install awscli)"
+    else
+        log_warn "awscli skipped (pipx missing)"
+    fi
+
+    # mitmproxy (traffic capture / replay)
+    if command -v mitmproxy &>/dev/null; then
+        log_ok "mitmproxy already installed"
+    elif command -v pipx &>/dev/null; then
+        pipx install mitmproxy >/dev/null 2>&1 && log_ok "mitmproxy installed" \
+            || log_warn "mitmproxy failed (pipx install mitmproxy)"
+    else
+        log_warn "mitmproxy skipped (pipx missing)"
+    fi
+
+    # Android platform-tools (ADB) + Frida (mobile runtime)
+    if command -v adb &>/dev/null; then
+        log_ok "adb already installed"
+    elif command -v apt-get &>/dev/null; then
+        sudo apt-get update -qq >/dev/null 2>&1 || true
+        sudo apt-get install -y -qq adb >/dev/null 2>&1 \
+            && log_ok "adb installed" \
+            || log_warn "adb failed (sudo apt-get install adb)"
+    else
+        log_warn "adb skipped (no apt-get)"
+    fi
+    if command -v frida &>/dev/null; then
+        log_ok "frida already installed"
+    elif command -v pipx &>/dev/null; then
+        pipx install frida-tools >/dev/null 2>&1 && log_ok "frida-tools installed" \
+            || log_warn "frida-tools failed (Python 3.14 may be unsupported)"
+    else
+        log_warn "frida skipped (pipx missing)"
+    fi
+
+    log_warn "gcloud/az: install separately if the target is GCP/Azure (too large for this installer)"
+else
+    log_warn "Pro workflow tools skipped (use --with-pro to install)"
+fi
+
 # Verification
 echo ""
 echo "============================================="
@@ -581,6 +648,9 @@ if [ "$INSTALL_CREDENTIAL_ATTACK" = true ]; then
 fi
 if [ "$INSTALL_WEB3" = true ]; then
     ALL_TOOLS+=(forge cast anvil slither solc-select crytic-compile aderyn medusa echidna halmos myth solhint claudit evm-agent-toolkit)
+fi
+if [ "$INSTALL_PRO" = true ]; then
+    ALL_TOOLS+=(playwright aws mitmproxy adb frida)
 fi
 INSTALLED=0
 MISSING=0

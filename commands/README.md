@@ -10,6 +10,8 @@
 | `/validate` | 7-Question Gate + 4 pre-submission gates on the current finding |
 | `/report` | Submission-ready report for H1 · Bugcrowd · Intigriti · Immunefi |
 | `/autopilot` | Autonomous loop: scope → recon → hunt → validate → report |
+| `/browser-capture` | Playwright authenticated capture — network, storage, cookies, screenshot, HAR |
+| `/patch-diff` | Fix/CVE commit range → security hypotheses and pre-fix PoC plan |
 
 ## Recon & Enumeration
 `/surface` `/scope-aggregate` `/cloud-recon` `/param-discover` `/secrets-hunt` `/takeover` `/scan-cves` `/bypass-403` `/exposure` `/dork`
@@ -27,7 +29,7 @@
 | `/llm-redteam` | LLM red-team corpus — injection, jailbreak, prompt leak, exfil |
 
 ## Smart Contract
-`/web3-audit` `/token-scan`
+`/web3-audit` `/web3-fuzz` `/token-scan`
 
 ## Credential Attack
 `/wordlist-gen` `/osint-employees` `/breach-check` `/spray`

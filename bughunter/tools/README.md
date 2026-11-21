@@ -90,6 +90,21 @@ bash bughunter/tools/external_arsenal.sh                     # what's installed 
 | `chain_audit_env.sh` | Detect EVM/Solana/aptos/Sui/Soroban/DAML project and print build/test/fuzz commands (`--json`) |
 | `xray_git_security.py` | Pre-audit git-history risk: fix commits, guard changes, dangerous-area churn (`--json`) |
 
+## Pro Workflow / Browser / Cloud / Mobile
+
+| Tool | Purpose |
+|:---|:---|
+| `browser_capture.py` | Playwright authenticated capture: network requests, storage, cookies, screenshot, HAR, replayable storage state |
+| `patch_diff_hunt.sh` | Fix/CVE commit range → changed files, guard diffs, sibling-path hypotheses, report |
+| `dom_xss_harness.py` | Real-browser DOM XSS confirmation (requires Playwright + Chromium) |
+| `auth_session.py` / `_auth_helper.sh` | Load once, inject auth into curl/httpx/katana/nuclei/ffuf |
+| `aws` / `gcloud` / `az` | Cloud post-access and IAM enumeration (install separately) |
+| `adb` / `frida` | Android runtime capture and SSL-pinning bypass (authorized mobile scope) |
+| `mitmproxy` | Traffic capture/replay when Burp/Caido is not available |
+
+Install these with `./install_tools.sh --with-pro` (browser, AWS CLI, mitmproxy,
+adb, Frida; gcloud/az are printed as separate installs).
+
 ## Intelligence & Planning
 
 | Tool | Purpose |
