@@ -117,6 +117,7 @@ See **`bughunter/tools/README.md`** for the full ~50-tool catalogue. Highlights:
 - `bughunter/tools/external_arsenal.sh` — installed-tool registry (~50 tools); `_have <tool>` gate
 - `bughunter/tools/secrets_hunter.sh` · `takeover_scanner.sh` · `cloud_recon.sh` · `param_discovery.sh`
 - `bughunter/tools/exposure_probe.py` — bounded GET-only exposure-artifact probe (SSRF/scope-guarded, LEAD-only classifier)
+- `bughunter/tools/exposure_attribution.py` — OSINT/exposure hit attribution gate (host relationship + noise + disclosure class → ranked leads)
 - `bughunter/tools/csrf_poc.py` · `xxe_probe.py` — offline CSRF PoC/SameSite analyzer · XXE payload builder + scope-guarded sender
 - Credential attack (opt-in): `wordlist_engine.sh` · `osint_employees.sh` · `breach_checker.py` · `spray_orchestrator.sh`
 - Web3: `token_scanner.py` · `web3_evm_hazard_scan.py` · `defi_hack_search.sh` · `chain_audit_env.sh` · `xray_git_security.py` · `./install_tools.sh --with-web3` (Foundry/Slither/Medusa/Echidna/Halmos/Mythril/Wake/Solana best-effort) · MCP configs in `bughunter/mcp/web3-mcp/` (foundry, solidity-audit, evm-agent-toolkit, solodit)

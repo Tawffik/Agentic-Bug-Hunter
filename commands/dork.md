@@ -31,6 +31,20 @@ gh search code 'org:TargetCorp filename:.env'
 
 ## Attribution gate (before any active request)
 
+Run the automated gate over your collected hits (GitHub/URLScan/CDX/Google
+results as JSONL `{"url":..,"source":..,"snippet":..}`) — it scores host
+relationship + noise and ranks leads:
+
+```bash
+python3 bughunter/tools/exposure_attribution.py attribute --target target.com -i hits.jsonl
+python3 bughunter/tools/exposure_attribution.py attribute --target target.com -i hits.jsonl \
+  --min-verdict LIKELY --json --out attributed.jsonl
+python3 bughunter/tools/exposure_attribution.py classify --url https://target.com/.env
+```
+
+Verdicts: `TARGET` / `LIKELY` / `WEAK` / `NOISE` / `UNRELATED` (LEAD-only — not a finding).
+The manual checklist below is the human backstop when the gate says `TARGET`/`LIKELY`:
+
 - [ ] Result host resolves to a target-owned IP/ASN or certificate/WHOIS supports ownership.
 - [ ] Asset is on the program's current in-scope list (or documented first-party).
 - [ ] SaaS result: the specific tenant is in scope, not just the provider.

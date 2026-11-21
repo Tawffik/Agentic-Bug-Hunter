@@ -39,6 +39,7 @@ bash bughunter/tools/external_arsenal.sh                     # what's installed 
 | `bypass_403.sh` | Header · method · encoding tricks against 403/401 (soft-block aware) |
 | `secrets_hunter.sh` | trufflehog · noseyparker · gitleaks across FS/git/JS/GitHub org |
 | `exposure_probe.py` | Bounded GET-only exposure-artifact probe (SSRF/scope-guarded, content-marker classifier, LEAD-only) |
+| `exposure_attribution.py` | Attribute OSINT/exposure hits to a target — host relationship + noise triage + disclosure class, ranked leads (LEAD-only) |
 | `cicd_scanner.sh` | GitHub Actions workflow scanner (sisakulint + remote scan) |
 | `graphql_audit.sh` | 7-phase GraphQL audit: introspection, batching, IDOR, injection, alias bomb |
 | `spec_ingest.py` | Ingest OpenAPI 3.x / Swagger 2.0 / Postman into the API surface — routes every declared endpoint to a hunt-* skill (contract-driven, LEAD-only) |

@@ -171,6 +171,11 @@ param discovery, 403 bypass, CVE sweep.
   doubles as report PoC evidence. Was [registered-not-wired].
 - **No Shodan/Censys/favicon-hash** asset discovery, **no ASN/CIDR → IP-range** expansion.
   [no coverage]
+- **Dork/OSINT hit attribution** — ✅ SHIPPED (`tools/exposure_attribution.py`): the
+  host-relationship + noise + disclosure-class gate that `/dork` documented but never
+  automated. Scores each hit (DIRECT_HOST/RELATED_SUBDOMAIN/INDEX_ONLY), demotes
+  localhost/example/vendor/template noise, tags the disclosure class, and ranks leads
+  (LEAD-only). Was [docs-only].
 - **JS source-map extraction / deobfuscation / endpoint extraction** — ✅ SHIPPED
   (`tools/js_analyzer.py`, `/js-analyze`): deterministic offline extractor for endpoints,
   params, secrets (cloud/SaaS/Auth/CI/JWT/keys), client sinks (eval/innerHTML/postMessage/…),
