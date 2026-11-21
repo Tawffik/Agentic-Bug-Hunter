@@ -1,0 +1,337 @@
+# Agent Skills Index
+
+_Total: 333 tips as standalone skills._
+
+- [Nested / Wrapped Object IDOR — outer validated, inner executed](skills/nested-wrapped-object-idor-outer-validated-inner-executed.md) — 🔥 قوية
+- [BOLA via Wildcard / Special ID Values (\*, all, 0, -1, null, empty)](skills/bola-via-wildcard-special-id-values-all-0-1-null-empty.md) — 🔥 قوية
+- [Cache Poisoning via Unkeyed Headers (X-Forwarded-Host / X-Forwarded-Scheme)](skills/cache-poisoning-via-unkeyed-headers-x-forwarded-host-x-forwarded-scheme.md) — 🔥 قوية
+- [BOLA / IDOR via Batch & Bulk ID Mixing](skills/bola-idor-via-batch-bulk-id-mixing.md) — 🔥 قوية
+- [GraphQL Mutation BOLA — test write operations, not only queries](skills/graphql-mutation-bola-test-write-operations-not-only-queries.md) — 🔥 قوية
+- [AI Chat / Support Agent — conversationID / session UUID BOLA (unauthenticated or cross-user)](skills/ai-chat-support-agent-conversationid-session-uuid-bola-unauthenticated-or-cross-user.md) — 🔥 قوية
+- [Array-form IDOR — id\[\]=attacker&id\[\]=victim bypass](skills/array-form-idor-idattackeridvictim-bypass.md) — 🔥 قوية
+- [Disable JavaScript → legacy / forgotten form still live](skills/disable-javascript-legacy-forgotten-form-still-live.md) — ⭐ جيدة
+- [SSRF Magic DNS ([nip.io](http://nip.io) / [xip.io](http://xip.io)) — filter checks string, not resolved IP](skills/ssrf-magic-dns-nipiohttpnipio-xipiohttpxipio-filter-checks-string-not-resolved-ip.md) — 🔥 قوية
+- [Google / Firebase API key impact — not always Low](skills/google-firebase-api-key-impact-not-always-low.md) — 🔥 قوية
+- [OTP / 2FA Bypass via Type Juggling (array / null / object)](skills/otp-2fa-bypass-via-type-juggling-array-null-object.md) — 🔥 قوية
+- [CSRF token bypass via HTTP method override](skills/csrf-token-bypass-via-http-method-override.md) — ⭐ جيدة
+- [WAF URL normalization fail — double encoding & nested paths](skills/waf-url-normalization-fail-double-encoding-nested-paths.md) — 🔥 قوية
+- [Newline injection in JSON parameters (password-reset / email)](skills/newline-injection-in-json-parameters-password-reset-email.md) — 🔥 قوية
+- [AI support agents as attack surface (IDOR / BAC / XSS)](skills/ai-support-agents-as-attack-surface-idor-bac-xss.md) — 🔥 قوية
+- [X-Forwarded-Host open-redirect style host poisoning (JS/asset redirect chains)](skills/x-forwarded-host-open-redirect-style-host-poisoning-jsasset-redirect-chains.md) — ⭐ جيدة
+- [WAF bypass via URL normalization: double encoding and nested paths](skills/waf-bypass-via-url-normalization-double-encoding-and-nested-paths.md) — ⭐ جيدة
+- [Re-test after "Resolved" — regressions and silent reintroductions](skills/re-test-after-resolved-regressions-and-silent-reintroductions.md) — ⭐ جيدة
+- [Escalate the finding: SSRF→RCE, Self-XSS→Clickjacking/CSRF, misconfig chains](skills/escalate-the-finding-ssrfrce-self-xssclickjackingcsrf-misconfig-chains.md) — 🔥 قوية
+- [Zip upload path traversal → RCE via zip:// wrapper](skills/zip-upload-path-traversal-rce-via-zip-wrapper.md) — 🔥 قوية
+- [AWS tip: probe /ramp\_core.js for embedded AccessKey material](skills/aws-tip-probe-ramp-corejs-for-embedded-accesskey-material.md) — ⭐ جيدة
+- [Exposed Google Maps API keys may unlock Gemini — validate model access not just Maps](skills/exposed-google-maps-api-keys-may-unlock-gemini-validate-model-access-not-just-maps.md) — 🔥 قوية
+- [NXDOMAIN + dangling DNS → subdomain takeover candidates](skills/nxdomain-dangling-dns-subdomain-takeover-candidates.md) — ⭐ جيدة
+- [Web cache poisoning via malformed Cookie parameter](skills/web-cache-poisoning-via-malformed-cookie-parameter.md) — ⭐ جيدة
+- [AI support chatbot that renders model output in DOM → XSS → session theft / ATO](skills/ai-support-chatbot-that-renders-model-output-in-dom-xss-session-theft-ato.md) — 🔥 قوية
+- [Wayback → private emails / JWTs from historical URLs](skills/wayback-private-emails-jwts-from-historical-urls.md) — 🔥 قوية
+- [Basic Auth cancel spam — intermittent auth bypass on some panels](skills/basic-auth-cancel-spam-intermittent-auth-bypass-on-some-panels.md) — 📌 للمراجعة
+- [Next.js Middleware / Proxy — dynamic route parameter injection can bypass path checks](skills/nextjs-middleware-proxy-dynamic-route-parameter-injection-can-bypass-path-checks.md) — 🔥 قوية
+- [Authorization path parser differential — encoded semicolon, slash, and backslash](skills/authorization-path-parser-differential-encoded-semicolon-slash-and-backslash.md) — 🔥 قوية
+- [Middleware vs Router URL Normalization — test duplicate slashes and semicolon delimiters](skills/middleware-vs-router-url-normalization-test-duplicate-slashes-and-semicolon-delimiters.md) — 🔥 قوية
+- [Moby / Docker AuthZ — oversized request body omitted before policy evaluation](skills/moby-docker-authz-oversized-request-body-omitted-before-policy-evaluation.md) — 🔥 قوية
+- [follow-redirects — regex metacharacters in sensitiveHeaders may evade stripping](skills/follow-redirects-regex-metacharacters-in-sensitiveheaders-may-evade-stripping.md) — ⭐ جيدة
+- [follow-redirects — array-form headers can bypass cross-origin credential stripping](skills/follow-redirects-array-form-headers-can-bypass-cross-origin-credential-stripping.md) — 🔥 قوية
+- [gRPC-Go — non-canonical HTTP/2 :path bypasses path-based deny rules](skills/grpc-go-non-canonical-http2-path-bypasses-path-based-deny-rules.md) — 🔥 قوية
+- [n8n shared OAuth credential reconnect — read permission must not authorize token replacement](skills/n8n-shared-oauth-credential-reconnect-read-permission-must-not-authorize-token-replacement.md) — 🔥 قوية
+- [Casdoor — token exchange must bind JWT identity to the target organization](skills/casdoor-token-exchange-must-bind-jwt-identity-to-the-target-organization.md) — 🔥 قوية
+- [Angular HttpClient — URL parsing discrepancy may leak XSRF tokens](skills/angular-httpclient-url-parsing-discrepancy-may-leak-xsrf-tokens.md) — 🔥 قوية
+- [n8n OAuth callback — bind the completing browser session to the flow initiator](skills/n8n-oauth-callback-bind-the-completing-browser-session-to-the-flow-initiator.md) — 🔥 قوية
+- [Path policy vs execution parser: compare both views](skills/path-policy-vs-execution-parser-compare-both-views.md) — 🔥 قوية
+- [Treat negative parser cases as evidence](skills/treat-negative-parser-cases-as-evidence.md) — ⭐ جيدة
+- [Separate read access from state-changing authorization](skills/separate-read-access-from-state-changing-authorization.md) — 🔥 قوية
+- [WSDL / SOAP Service Discovery + 403 Differential Fuzzing Across Authorized Hosts](skills/wsdl-soap-service-discovery-403-differential-fuzzing-across-authorized-hosts.md) — 📌 للمراجعة
+- [SSRF / Request Parsing — leading-slash and request-target differences](skills/ssrf-request-parsing-leading-slash-and-request-target-differences.md) — 📌 للمراجعة
+- [Google API Key / Firebase Identity Toolkit — verify real auth impact, not key presence](skills/google-api-key-firebase-identity-toolkit-verify-real-auth-impact-not-key-presence.md) — ⭐ جيدة
+- [Client-side role / isAdmin / price tampering — verify server-side enforcement](skills/client-side-role-isadmin-price-tampering-verify-server-side-enforcement.md) — ⭐ جيدة
+- [Azure Application Gateway v2 — 403 Query String Extension Bypass (Unverified)](skills/azure-application-gateway-v2-403-query-string-extension-bypass-unverified.md) — 📌 للمراجعة
+- [Last-step authorization check in multi-step flows](skills/last-step-authorization-check-in-multi-step-flows.md) — 🔥 قوية
+- [Authorization test: swap the target, not the session](skills/authorization-test-swap-the-target-not-the-session.md) — 🔥 قوية
+- [200 OK is not proof of BOLA](skills/200-ok-is-not-proof-of-bola.md) — 🔥 قوية
+- [AWS App Recon Chain → Cognito Identifiers, S3 / DNS / Deployment Artifact Exposure (\$10K Case)](skills/aws-app-recon-chain-cognito-identifiers-s3-dns-deployment-artifact-exposure-10k-case.md) — ⭐ جيدة
+- [AI Builder Project Visibility Regression → Source / Chat History Authorization Boundary](skills/ai-builder-project-visibility-regression-source-chat-history-authorization-boundary.md) — 📌 للمراجعة
+- [Vibe-Coded Apps (Lovable / Bolt / v0 / Replit) → Backend Authorization & Data Exposure Review](skills/vibe-coded-apps-lovable-bolt-v0-replit-backend-authorization-data-exposure-review.md) — ⭐ جيدة
+- [Supabase Auth Misconfiguration Chain → Email Auto-Confirm + User Metadata Role Escalation (\$1,800 Case)](skills/supabase-auth-misconfiguration-chain-email-auto-confirm-user-metadata-role-escalation-1800-case.md) — ⭐ جيدة
+- [Azure DevOps Public Project Review → Pipeline Metadata & Accidental Secret Exposure](skills/azure-devops-public-project-review-pipeline-metadata-accidental-secret-exposure.md) — ⭐ جيدة
+- [Prometheus /metrics + /pprof Exposed → Infrastructure & Runtime Disclosure](skills/prometheus-metrics-pprof-exposed-infrastructure-runtime-disclosure.md) — ⭐ جيدة
+- [Freshservice Customer Portal Open Signup → Helpdesk Data Exposure](skills/freshservice-customer-portal-open-signup-helpdesk-data-exposure.md) — ⭐ جيدة
+- [Symfony Profiler / app\_dev.php Exposed → Debug Trace & Environment Disclosure](skills/symfony-profiler-app-devphp-exposed-debug-trace-environment-disclosure.md) — ⭐ جيدة
+- [Laravel Telescope in Production → Request / Query / Exception Disclosure](skills/laravel-telescope-in-production-request-query-exception-disclosure.md) — ⭐ جيدة
+- [MQTT / WebSocket Chat Backend — Topic Authorization & Cross-Session Disclosure](skills/mqtt-websocket-chat-backend-topic-authorization-cross-session-disclosure.md) — ⭐ جيدة
+- [📌 INDEX — Bug Bounty Tips: الفئات والأولوية](skills/index-bug-bounty-tips-الفئات-والأولوية.md) — 📌 للمراجعة
+- [Broken Access: function-level (access admin endpoint as normal user)](skills/broken-access-function-level-access-admin-endpoint-as-normal-user.md) — 🔥 قوية
+- [Third-party widget IDOR (Intercom / chat / support)](skills/third-party-widget-idor-intercom-chat-support.md) — 🔥 قوية
+- [IDOR on WRITE methods (PATCH/PUT/DELETE) while GET is protected](skills/idor-on-write-methods-patchputdelete-while-get-is-protected.md) — 🔥 قوية
+- [IDOR via old API version (/v1/ while /v2/ is fixed)](skills/idor-via-old-api-version-v1-while-v2-is-fixed.md) — 🔥 قوية
+- [SSRF via webhook / import / URL fetch features](skills/ssrf-via-webhook-import-url-fetch-features.md) — 🔥 قوية
+- [Array / parameter pollution on ID (user\_id\[\]=1&user\_id\[\]=2)](skills/array-parameter-pollution-on-id-user-id1user-id2.md) — ⭐ جيدة
+- [UUID leak in invites / shared links / emails → IDOR](skills/uuid-leak-in-invites-shared-links-emails-idor.md) — 🔥 قوية
+- [Business Logic: race on wallet / coupon / referral](skills/business-logic-race-on-wallet-coupon-referral.md) — 🔥 قوية
+- [Second-order IDOR (create → background process → leak)](skills/second-order-idor-create-background-process-leak.md) — 🔥 قوية
+- [Mass Assignment + IDOR (hidden fields like is\_admin / role)](skills/mass-assignment-idor-hidden-fields-like-is-admin-role.md) — 🔥 قوية
+- [Password Reset HPP (double email parameter)](skills/password-reset-hpp-double-email-parameter.md) — 🔥 قوية
+- [Password Reset token returned in response body/headers](skills/password-reset-token-returned-in-response-bodyheaders.md) — 🔥 قوية
+- [Password Reset email parameter pollution / overwrite](skills/password-reset-email-parameter-pollution-overwrite.md) — ⭐ جيدة
+- [Password Reset Race Condition (OTP / token generation)](skills/password-reset-race-condition-otp-token-generation.md) — 🔥 قوية
+- [CRLF in password reset to inject Host](skills/crlf-in-password-reset-to-inject-host.md) — ⭐ جيدة
+- [Password Reset token not bound to user / reusable](skills/password-reset-token-not-bound-to-user-reusable.md) — 🔥 قوية
+- [Password Reset Poisoning via Host Header](skills/password-reset-poisoning-via-host-header.md) — 🔥 قوية
+- [Password Reset via X-Forwarded-Host / Forwarded headers](skills/password-reset-via-x-forwarded-host-forwarded-headers.md) — 🔥 قوية
+- [Firebase Realtime DB open rules (read/write without auth)](skills/firebase-realtime-db-open-rules-readwrite-without-auth.md) — 🔥 قوية
+- [phpinfo() / server-status / server-info exposed](skills/phpinfo-server-status-server-info-exposed.md) — ⭐ جيدة
+- [GraphQL / GraphiQL / Playground open without auth](skills/graphql-graphiql-playground-open-without-auth.md) — 🔥 قوية
+- [Spring Boot Actuator endpoints exposed](skills/spring-boot-actuator-endpoints-exposed.md) — 🔥 قوية
+- [Elmah.axd / [ASP.NET](http://ASP.NET) error log exposed](skills/elmahaxd-aspnethttpaspnet-error-log-exposed.md) — ⭐ جيدة
+- [CORS origin reflection + credentials = data theft](skills/cors-origin-reflection-credentials-data-theft.md) — 🔥 قوية
+- [S3 / GCS writable bucket → RCE or data overwrite](skills/s3-gcs-writable-bucket-rce-or-data-overwrite.md) — 🔥 قوية
+- [Django DEBUG=True in production](skills/django-debugtrue-in-production.md) — 🔥 قوية
+- [Common debug / admin panels on non-standard ports or staging](skills/common-debug-admin-panels-on-non-standard-ports-or-staging.md) — ⭐ جيدة
+- [Source maps (.[js.map](http://js.map)) → full frontend source + secrets](skills/source-maps-jsmaphttpjsmap-full-frontend-source-secrets.md) — ⭐ جيدة
+- [Shodan Dork: SSL cert CN for target subdomains](skills/shodan-dork-ssl-cert-cn-for-target-subdomains.md) — 🔥 قوية
+- [GitHub Dork: CI/CD dangerous patterns](skills/github-dork-cicd-dangerous-patterns.md) — 🔥 قوية
+- [Shodan Dork: Favicon hash pivot](skills/shodan-dork-favicon-hash-pivot.md) — 🔥 قوية
+- [GitHub Dork: AWS keys + .env (high payout)](skills/github-dork-aws-keys-env-high-payout.md) — 🔥 قوية
+- [GitHub Dork: Stripe live keys](skills/github-dork-stripe-live-keys.md) — 🔥 قوية
+- [Shodan Dork: Jenkins unauth dashboard](skills/shodan-dork-jenkins-unauth-dashboard.md) — 🔥 قوية
+- [GitHub Dork: Private keys (RSA/SSH)](skills/github-dork-private-keys-rsassh.md) — 🔥 قوية
+- [GitHub Dork: OpenAI / Anthropic / Slack tokens](skills/github-dork-openai-anthropic-slack-tokens.md) — 🔥 قوية
+- [Shodan Dork: Grafana / Kibana open](skills/shodan-dork-grafana-kibana-open.md) — 🔥 قوية
+- [GitHub Dork: DB connection strings](skills/github-dork-db-connection-strings.md) — 🔥 قوية
+- [Dork (Lesser-known): Bing IP-based search for exposed files](skills/dork-lesser-known-bing-ip-based-search-for-exposed-files.md) — ⭐ جيدة
+- [Dork (High Signal): Full juicy extensions dump](skills/dork-high-signal-full-juicy-extensions-dump.md) — 🔥 قوية
+- [Dork (High Signal): Cloud buckets linked to target](skills/dork-high-signal-cloud-buckets-linked-to-target.md) — 🔥 قوية
+- [Dork (High Signal): Test / Staging / Dev environments](skills/dork-high-signal-test-staging-dev-environments.md) — 🔥 قوية
+- [Dork (High Signal): wp-config / PHP config backups](skills/dork-high-signal-wp-config-php-config-backups.md) — 🔥 قوية
+- [Dork (High Signal): Error / Stack Trace / SQL errors](skills/dork-high-signal-error-stack-trace-sql-errors.md) — ⭐ جيدة
+- [Dork (High Signal): Index of with sensitive names](skills/dork-high-signal-index-of-with-sensitive-names.md) — 🔥 قوية
+- [Dork (High Signal): Database dumps with real content](skills/dork-high-signal-database-dumps-with-real-content.md) — 🔥 قوية
+- [Dork (High Signal): Confidential / Internal documents](skills/dork-high-signal-confidential-internal-documents.md) — ⭐ جيدة
+- [Dork (High Signal): API Docs & Swagger / GraphQL / Redoc](skills/dork-high-signal-api-docs-swagger-graphql-redoc.md) — 🔥 قوية
+- [Different 404 Fingerprint → Look for a Separate Backend API Context](skills/different-404-fingerprint-look-for-a-separate-backend-api-context.md) — ⭐ جيدة
+- [Connectivity Check → cURL Shell Injection; Then Pivot to Sibling Features](skills/connectivity-check-curl-shell-injection-then-pivot-to-sibling-features.md) — ⭐ جيدة
+- [LFI Filter Differential: Emoji Path Segments (<code>⬅️/</code>)](skills/lfi-filter-differential-emoji-path-segments-codecode.md) — 📌 للمراجعة
+- [PHP URL Allowlist Edge Case: Zero-Padded Ports (<code>:000443</code>)](skills/php-url-allowlist-edge-case-zero-padded-ports-code000443code.md) — ⭐ جيدة
+- [Redirect Hop → Custom Authorization Header Leak (HTTP Client Integrations)](skills/redirect-hop-custom-authorization-header-leak-http-client-integrations.md) — 🔥 قوية
+- [GitHub Actions cache poisoning across low-trust and privileged workflows](skills/github-actions-cache-poisoning-across-low-trust-and-privileged-workflows.md) — ⭐ جيدة
+- [GitHub Actions: untrusted issue/comment/branch text injected into shell](skills/github-actions-untrusted-issuecommentbranch-text-injected-into-shell.md) — ⭐ جيدة
+- [Password-reset token leaks to third-party analytics via Referer / page URL](skills/password-reset-token-leaks-to-third-party-analytics-via-referer-page-url.md) — ⭐ جيدة
+- [GitHub Actions <code>pull_request_target</code> → untrusted PR code executed with secrets](skills/github-actions-codepull-request-targetcode-untrusted-pr-code-executed-with-secrets.md) — ⭐ جيدة
+- [معيار مراجعة وتقييم الـ Bug Bounty Tips](skills/معيار-مراجعة-وتقييم-الـ-bug-bounty-tips.md) — 
+- [Advanced Dork: .git exposure with HEAD/config](skills/advanced-dork-git-exposure-with-headconfig.md) — ⭐ جيدة
+- [Advanced Dork: SQL dumps with real data](skills/advanced-dork-sql-dumps-with-real-data.md) — 🔥 قوية
+- [Advanced Dork: Backup files with credentials](skills/advanced-dork-backup-files-with-credentials.md) — ⭐ جيدة
+- [Advanced Dork: Open directory listings with sensitive folders](skills/advanced-dork-open-directory-listings-with-sensitive-folders.md) — 🔥 قوية
+- [Advanced Dork: Private keys & certificates](skills/advanced-dork-private-keys-certificates.md) — 🔥 قوية
+- [Advanced Dork: .env with real secrets (DB\_PASSWORD / AWS\_SECRET)](skills/advanced-dork-env-with-real-secrets-db-password-aws-secret.md) — 🔥 قوية
+- [Advanced Dork: Firebase / S3 public buckets](skills/advanced-dork-firebase-s3-public-buckets.md) — 🔥 قوية
+- [Advanced Dork: Swagger / OpenAPI / GraphQL docs](skills/advanced-dork-swagger-openapi-graphql-docs.md) — 🔥 قوية
+- [.htpasswd / .htaccess exposed → Basic Auth credentials](skills/htpasswd-htaccess-exposed-basic-auth-credentials.md) — ⭐ جيدة
+- [config.php / [settings.py](http://settings.py) / [application.properties](http://application.properties) / appsettings.json exposed](skills/configphp-settingspyhttpsettingspy-applicationpropertieshttpapplicationproperties-appsettingsjson-exposed.md) — 🔥 قوية
+- [Hasura GraphQL engine → missing authorization on mutations](skills/hasura-graphql-engine-missing-authorization-on-mutations.md) — ⭐ جيدة
+- [GraphQL unauthenticated → full user data leak (no token needed)](skills/graphql-unauthenticated-full-user-data-leak-no-token-needed.md) — 🔥 قوية
+- [GraphQL introspection still open in production](skills/graphql-introspection-still-open-in-production.md) — 🔥 قوية
+- [Laravel storage/logs or error.log / debug.log exposed](skills/laravel-storagelogs-or-errorlog-debuglog-exposed.md) — ⭐ جيدة
+- [Swagger / OpenAPI /api-docs exposed → full API map](skills/swagger-openapi-api-docs-exposed-full-api-map.md) — 🔥 قوية
+- [Directory listing enabled (especially /wp-content, /uploads, /backup)](skills/directory-listing-enabled-especially-wp-content-uploads-backup.md) — ⭐ جيدة
+- [Grafana open / unauthenticated → dashboards + data sources](skills/grafana-open-unauthenticated-dashboards-data-sources.md) — 🔥 قوية
+- [MFA flow validation: test for server-side enforcement](skills/mfa-flow-validation-test-for-server-side-enforcement.md) — 📌 للمراجعة
+- [Backup files (wp-config.php.bak, .env.bak, .sql, \~ files) → credentials leak](skills/backup-files-wp-configphpbak-envbak-sql-files-credentials-leak.md) — 📌 للمراجعة
+- [.svn/wc.db exposed → full source code reconstruction (\$400 case)](skills/svnwcdb-exposed-full-source-code-reconstruction-400-case.md) — 🔥 قوية
+- [security.txt + .well-known/ → contact + policy info](skills/securitytxt-well-known-contact-policy-info.md) — ⭐ جيدة
+- [MinIO / Portainer / Consul / Vault unauthenticated dashboards](skills/minio-portainer-consul-vault-unauthenticated-dashboards.md) — ⭐ جيدة
+- [Jenkins exposed script console → potential critical misconfiguration](skills/jenkins-exposed-script-console-potential-critical-misconfiguration.md) — 📌 للمراجعة
+- [Amazon Cognito misconfig → Account Takeover](skills/amazon-cognito-misconfig-account-takeover.md) — 🔥 قوية
+- [Redis port 6379 exposed without auth](skills/redis-port-6379-exposed-without-auth.md) — 🔥 قوية
+- [phpMyAdmin / adminer.php unauthenticated (auth\_type=config)](skills/phpmyadmin-adminerphp-unauthenticated-auth-typeconfig.md) — 🔥 قوية
+- [Django DEBUG=True in production → full traceback + settings leak](skills/django-debugtrue-in-production-full-traceback-settings-leak.md) — ⭐ جيدة
+- [CORS null origin + Allow-Credentials: true → data theft](skills/cors-null-origin-allow-credentials-true-data-theft.md) — 🔥 قوية
+- [MongoDB port 27017 exposed without auth](skills/mongodb-port-27017-exposed-without-auth.md) — 🔥 قوية
+- [Elasticsearch / Kibana open (no auth) → full data dump](skills/elasticsearch-kibana-open-no-auth-full-data-dump.md) — 🔥 قوية
+- [S3 bucket permits writes → assess impact safely](skills/s3-bucket-permits-writes-assess-impact-safely.md) — 📌 للمراجعة
+- [.git/config exposed → full source dump with git-dumper (\$500–\$3500+ real cases)](skills/gitconfig-exposed-full-source-dump-with-git-dumper-5003500-real-cases.md) — ⭐ جيدة
+- [crossdomain.xml / clientaccesspolicy.xml permissive → Flash/Silverlight origin issues](skills/crossdomainxml-clientaccesspolicyxml-permissive-flashsilverlight-origin-issues.md) — 📌 للمراجعة
+- [Cloudflare [R2.dev](http://R2.dev) public access left on → data exposure](skills/cloudflare-r2devhttpr2dev-public-access-left-on-data-exposure.md) — 🔥 قوية
+- [NFS shares misconfigured (showmount -e) → mount and read files](skills/nfs-shares-misconfigured-showmount-e-mount-and-read-files.md) — ⭐ جيدة
+- [robots.txt + sitemap.xml → hidden sensitive paths](skills/robotstxt-sitemapxml-hidden-sensitive-paths.md) — ⭐ جيدة
+- [Orphaned / dangling S3 CNAME → claim the bucket name](skills/orphaned-dangling-s3-cname-claim-the-bucket-name.md) — ⭐ جيدة
+- [S3 / GCS / Azure public listing → millions of records in minutes](skills/s3-gcs-azure-public-listing-millions-of-records-in-minutes.md) — 🔥 قوية
+- [phpinfo() exposed → detailed server config + internal paths (NASA P4 + many cases)](skills/phpinfo-exposed-detailed-server-config-internal-paths-nasa-p4-many-cases.md) — ⭐ جيدة
+- [Elmah.axd /elmah → Session cookies → Employee ATO (\$6,000 escalation case)](skills/elmahaxd-elmah-session-cookies-employee-ato-6000-escalation-case.md) — 📌 للمراجعة
+- [web.config / web.xml exposure → connection strings & internal paths](skills/webconfig-webxml-exposure-connection-strings-internal-paths.md) — ⭐ جيدة
+- [Apache server-status / server-info مكشوف → internal info + active requests](skills/apache-server-status-server-info-مكشوف-internal-info-active-requests.md) — ⭐ جيدة
+- [package-lock.json / yarn.lock / composer.lock → dependency versions + potential vulns](skills/package-lockjson-yarnlock-composerlock-dependency-versions-potential-vulns.md) — ⭐ جيدة
+- [Spring Actuator /actuator/env أو /actuator/health → env vars & secrets](skills/spring-actuator-actuatorenv-أو-actuatorhealth-env-vars-secrets.md) — 🔥 قوية
+- [.DS\_Store + Thumbs.db exposure → directory structure leak](skills/ds-store-thumbsdb-exposure-directory-structure-leak.md) — ⭐ جيدة
+- [Firebase Realtime DB / Firestore open rules → full read/write (classic high impact)](skills/firebase-realtime-db-firestore-open-rules-full-readwrite-classic-high-impact.md) — 🔥 قوية
+- [Java/Tomcat LFI filter bypass with ;/..;/..;/](skills/javatomcat-lfi-filter-bypass-with.md) — ⭐ جيدة
+- [Empty API response subdomain → still try full Swagger paths](skills/empty-api-response-subdomain-still-try-full-swagger-paths.md) — ⭐ جيدة
+- [Forgotten QA / Staging subdomain → full document download without auth (\$800 case)](skills/forgotten-qa-staging-subdomain-full-document-download-without-auth-800-case.md) — 🔥 قوية
+- [Redirecting host (foo → bar) → fuzz the original host anyway](skills/redirecting-host-foo-bar-fuzz-the-original-host-anyway.md) — ⭐ جيدة
+- [Intercom chat widget identity verification missing → full support history leak](skills/intercom-chat-widget-identity-verification-missing-full-support-history-leak.md) — 🔥 قوية
+- [Hardcoded third-party Analytics Write Key in JS → unauth data injection](skills/hardcoded-third-party-analytics-write-key-in-js-unauth-data-injection.md) — 🔥 قوية
+- [Internal web extensions published publicly → hardcoded secrets](skills/internal-web-extensions-published-publicly-hardcoded-secrets.md) — 🔥 قوية
+- [Git history (not current files) → leaked CI/CD tokens (NASA VDP case)](skills/git-history-not-current-files-leaked-cicd-tokens-nasa-vdp-case.md) — 🔥 قوية
+- [Reverse DNS / Reverse IP → hidden Super Admin panel (\$7,500 case)](skills/reverse-dns-reverse-ip-hidden-super-admin-panel-7500-case.md) — 🔥 قوية
+- [403/401 host → [archive.org](http://archive.org) old snapshots still have secrets](skills/403401-host-archiveorghttparchiveorg-old-snapshots-still-have-secrets.md) — ⭐ جيدة
+- [404 response → check for exposed config or repository paths](skills/404-response-check-for-exposed-config-or-repository-paths.md) — ⭐ جيدة
+- [Source map exposes client-side code or possible secrets](skills/source-map-exposes-client-side-code-or-possible-secrets.md) — 📌 للمراجعة
+- [Wayback + out-of-scope domain invoices → Sensitive PII Disclosure (paid + HoF)](skills/wayback-out-of-scope-domain-invoices-sensitive-pii-disclosure-paid-hof.md) — ⭐ جيدة
+- [Forgotten Source Map → Enterprise SSO Bypass (Critical Auth Bypass)](skills/forgotten-source-map-enterprise-sso-bypass-critical-auth-bypass.md) — 🔥 قوية
+- [Swagger configUrl misconfig → Reflected XSS = \$400 Bounty](skills/swagger-configurl-misconfig-reflected-xss-400-bounty.md) — ⭐ جيدة
+- [Exposed .env على subdomain = \$250–\$10k+ (Easy \$250 case + higher)](skills/exposed-env-على-subdomain-25010k-easy-250-case-higher.md) — 🔥 قوية
+- [GraphQL Introspection Schema Leak → \$5,500 Bounty](skills/graphql-introspection-schema-leak-5500-bounty.md) — 🔥 قوية
+- [API Debug /env /status endpoints → \$3,000 Bounty (Secret Hunter case)](skills/api-debug-env-status-endpoints-3000-bounty-secret-hunter-case.md) — 🔥 قوية
+- [Internal browser extensions publicly accessible → hardcoded secrets](skills/internal-browser-extensions-publicly-accessible-hardcoded-secrets.md) — ⭐ جيدة
+- [Vhost Fuzzing لأصول مش موجودة في DNS العام](skills/vhost-fuzzing-لأصول-مش-موجودة-في-dns-العام.md) — 🔥 قوية
+- [TruffleHog --only-verified على JS files + Git history (false-positive killer)](skills/trufflehog-only-verified-على-js-files-git-history-false-positive-killer.md) — 🔥 قوية
+- [Wayback archived sensitive files when live returns 404/Access Denied](skills/wayback-archived-sensitive-files-when-live-returns-404access-denied.md) — 🔥 قوية
+- [composer.phar / phar archives as Info Disclosure](skills/composerphar-phar-archives-as-info-disclosure.md) — ⭐ جيدة
+- [Katana JS collection → extract S3/GCS/Azure URLs → verify bucket exposure](skills/katana-js-collection-extract-s3gcsazure-urls-verify-bucket-exposure.md) — ⭐ جيدة
+- [WordPress /\_wpeprivate/config.json Information Disclosure](skills/wordpress-wpeprivateconfigjson-information-disclosure.md) — ⭐ جيدة
+- [Source Maps → sourcemapper + metis (Intigriti 2026 tip)](skills/source-maps-sourcemapper-metis-intigriti-2026-tip.md) — ⭐ جيدة
+- [Excessive API fields + GDPR/CCPA framing لرفع الـ Severity](skills/excessive-api-fields-gdprccpa-framing-لرفع-الـ-severity.md) — 🔥 قوية
+- [Third-party AI Chat Widget IDOR → Sensitive Contact / PII Exposure](skills/third-party-ai-chat-widget-idor-sensitive-contact-pii-exposure.md) — 🔥 قوية
+- [Backup tar.gz / .zip / .sql على الـ root domain مباشرة](skills/backup-targz-zip-sql-على-الـ-root-domain-مباشرة.md) — 🔥 قوية
+- [Swagger / OpenAPI UI → DOM XSS + Admin endpoints + leaked keys](skills/swagger-openapi-ui-dom-xss-admin-endpoints-leaked-keys.md) — 🔥 قوية
+- [Array injection (\[\] or \[1,2,3\]) → Full Path / Stack Trace Disclosure](skills/array-injection-or-123-full-path-stack-trace-disclosure.md) — ⭐ جيدة
+- [humans.txt on 404 subdomains → PII / names / credentials (quick win)](skills/humanstxt-on-404-subdomains-pii-names-credentials-quick-win.md) — 🔥 قوية
+- [Google Alerts على Dorks الثابتة لمراقبة Exposure جديدة](skills/google-alerts-على-dorks-الثابتة-لمراقبة-exposure-جديدة.md) — 🔥 قوية
+- [PHP2Shell — CVE-2026-109618 / CVE-2026-109619: patch-aware triage](skills/php2shell-cve-2026-109618-cve-2026-109619-patch-aware-triage.md) — 🔥 قوية
+- [DorkAgent — automate scoped dork research](skills/dorkagent-automate-scoped-dork-research.md) — ⭐ جيدة
+- [S3 bucket misconfiguration triage with s3sec](skills/s3-bucket-misconfiguration-triage-with-s3sec.md) — 📌 للمراجعة
+- [Open Redirect — Google dorks and common parameter names](skills/open-redirect-google-dorks-and-common-parameter-names.md) — 🔥 قوية
+- [Discover quieter bug bounty programs via Slack dork](skills/discover-quieter-bug-bounty-programs-via-slack-dork.md) — ⭐ جيدة
+- [Default-ish admin password pattern: admin / \[company\]12345](skills/default-ish-admin-password-pattern-admin-company12345.md) — ⭐ جيدة
+- [Wayback archived files when live path returns 404 or Access Denied](skills/wayback-archived-files-when-live-path-returns-404-or-access-denied.md) — 🔥 قوية
+- [Google Alerts on your dorks — monitor new indexed exposure](skills/google-alerts-on-your-dorks-monitor-new-indexed-exposure.md) — ⭐ جيدة
+- [humans.txt on filtered 404 subdomains — names and credentials](skills/humanstxt-on-filtered-404-subdomains-names-and-credentials.md) — 🔥 قوية
+- [JS Miner (Burp) — secrets and API keys in static JavaScript](skills/js-miner-burp-secrets-and-api-keys-in-static-javascript.md) — ⭐ جيدة
+- [Katana JS collection → extract S3 URLs → verify bucket exposure](skills/katana-js-collection-extract-s3-urls-verify-bucket-exposure.md) — 🔥 قوية
+- [FindSomething browser extension for credential-shaped strings during recon](skills/findsomething-browser-extension-for-credential-shaped-strings-during-recon.md) — ⭐ جيدة
+- [Google-indexed PDFs with personal fields → ID-style parameter tampering](skills/google-indexed-pdfs-with-personal-fields-id-style-parameter-tampering.md) — 🔥 قوية
+- [404 Subdomains — Backend errors, S3 paths, and leaked stack info](skills/404-subdomains-backend-errors-s3-paths-and-leaked-stack-info.md) — 🔥 قوية
+- [GitHub dork pattern: Token / Company name co-occurrence](skills/github-dork-pattern-token-company-name-co-occurrence.md) — 🔥 قوية
+- [WordPress Plugin SQLi — منهجية وصلت لـ CVE رسمي](skills/wordpress-plugin-sqli-منهجية-وصلت-لـ-cve-رسمي.md) — 🔥 قوية
+- [Mass Scanning بـ Nuclei Templates بدل الفحص اليدوي واحد واحد](skills/mass-scanning-بـ-nuclei-templates-بدل-الفحص-اليدوي-واحد-واحد.md) — ⭐ جيدة
+- [LFI Hunting — 3 تقنيات من اكتشافات حقيقية (GET/POST/Hidden Params)](skills/lfi-hunting-3-تقنيات-من-اكتشافات-حقيقية-getposthidden-params.md) — 🔥 قوية
+- [Backup Disclosure عبر فزّ امتداد tar.gz على الدومين الرئيسي](skills/backup-disclosure-عبر-فزّ-امتداد-targz-على-الدومين-الرئيسي.md) — 🔥 قوية
+- [🗺️ Source Map Pivot — app.js → [app.js.map](http://app.js.map) → original routes/hosts/comments](skills/source-map-pivot-appjs-appjsmaphttpappjsmap-original-routeshostscomments.md) — ⭐ جيدة
+- [🪟 JS Global Surface — لا تبحث فقط عن API URLs؛ فتّش عن Window Globals وHandlers](skills/js-global-surface-لا-تبحث-فقط-عن-api-urls؛-فتّش-عن-window-globals-وhandlers.md) — ⭐ جيدة
+- [🗑️ Deletion Residue — البيانات المحذوفة قد تظل موجودة في Surface ثانوي](skills/deletion-residue-البيانات-المحذوفة-قد-تظل-موجودة-في-surface-ثانوي.md) — 🔥 قوية
+- [🔍 Public JSON/Search Response — الـSearch endpoint قد يعرض Metadata أكثر من الصفحة](skills/public-jsonsearch-response-الـsearch-endpoint-قد-يعرض-metadata-أكثر-من-الصفحة.md) — 🔥 قوية
+- [🌐 Historical Infrastructure Pivot — Historical Host/DNS/IP → Current Asset](skills/historical-infrastructure-pivot-historical-hostdnsip-current-asset.md) — 🔥 قوية
+- [🔁 Metadata Flow — Referer/Origin/Redirect قد يسرّب Identifier حساس](skills/metadata-flow-refereroriginredirect-قد-يسرّب-identifier-حساس.md) — ⭐ جيدة
+- [🏗️ Public CI Metadata — الـCI المكشوف ليس Secrets فقط؛ هو Attack-Surface Graph](skills/public-ci-metadata-الـci-المكشوف-ليس-secrets-فقط؛-هو-attack-surface-graph.md) — 🔥 قوية
+- [🚩 Disabled Feature → Live API — الـUI يقول Disabled لكن الـBackend قد يظل يقبل الطلب](skills/disabled-feature-live-api-الـui-يقول-disabled-لكن-الـbackend-قد-يظل-يقبل-الطلب.md) — 🔥 قوية
+- [📜 Historical Backup Recovery — Current 404 لا يعني أن الملف لم يكن متاحًا](skills/historical-backup-recovery-current-404-لا-يعني-أن-الملف-لم-يكن-متاحًا.md) — 🔥 قوية
+- [📦 Artifact Equivalence — قارن الـExport والDownload والـAPI لنفس الـObject](skills/artifact-equivalence-قارن-الـexport-والdownload-والـapi-لنفس-الـobject.md) — 🔥 قوية
+- [✉️ Invitation-State Leakage — pending invitation قد يغيّر Visibility](skills/invitation-state-leakage-pending-invitation-قد-يغيّر-visibility.md) — 🔥 قوية
+- [⏳ Historical API Drift — Wayback لاستخراج APIs القديمة ثم اختبار وجودها حاليًا](skills/historical-api-drift-wayback-لاستخراج-apis-القديمة-ثم-اختبار-وجودها-حاليًا.md) — 🔥 قوية
+- [🧩 State-Conditioned Disclosure — جرّب نفس الـObject مع اختلاف الـState](skills/state-conditioned-disclosure-جرّب-نفس-الـobject-مع-اختلاف-الـstate.md) — 🔥 قوية
+- [🧬 Error Grammar → Technology → Targeted Pivot](skills/error-grammar-technology-targeted-pivot.md) — 🔥 قوية
+- [🔎 Representation Differential — نفس الـObject بصيغ مختلفة ممكن يكشف Fields زيادة](skills/representation-differential-نفس-الـobject-بصيغ-مختلفة-ممكن-يكشف-fields-زيادة.md) — 🔥 قوية
+- [🔔 Bug Bounty Tip — File/Folder Delete Endpoints Need Separate Authorization Checks](skills/bug-bounty-tip-filefolder-delete-endpoints-need-separate-authorization-checks.md) — 🔥 قوية
+- [🔔 Bug Bounty Tip — Parameter Swap → Unauthorized Workspace Access](skills/bug-bounty-tip-parameter-swap-unauthorized-workspace-access.md) — 🔥 قوية
+- [🔔 Bug Bounty Tip — Subscription/Entitlement Checks Are Often Weaker Than UI Checks](skills/bug-bounty-tip-subscriptionentitlement-checks-are-often-weaker-than-ui-checks.md) — ⭐ جيدة
+- [🔔 Bug Bounty Tip — Treat AI/Agent Findings as Hypotheses Until You Reproduce Impact](skills/bug-bounty-tip-treat-aiagent-findings-as-hypotheses-until-you-reproduce-impact.md) — 🔥 قوية
+- [HEIF/HEIC Upload → Image Parser RCE → SSO Session Pivot](skills/heifheic-upload-image-parser-rce-sso-session-pivot.md) — 🔥 قوية
+- [HEIF Upload → Image-Processing RCE → SSO Session Pivot](skills/heif-upload-image-processing-rce-sso-session-pivot.md) — 🔥 قوية
+- [Cloudflare Worker/API Key Exposure → Edge JavaScript Supply-Chain Injection](skills/cloudflare-workerapi-key-exposure-edge-javascript-supply-chain-injection.md) — ⭐ جيدة
+- [npm Remote Dependency URLs → CI/CD Secret Theft](skills/npm-remote-dependency-urls-cicd-secret-theft.md) — 🔥 قوية
+- [MCP Cache Poisoning → Cross-User Prompt Injection via Cached Tool Instructions](skills/mcp-cache-poisoning-cross-user-prompt-injection-via-cached-tool-instructions.md) — 📌 للمراجعة
+- [Malicious Extension → AI Browser Agent Privilege Hijacking](skills/malicious-extension-ai-browser-agent-privilege-hijacking.md) — ⭐ جيدة
+- [Stored Prompt Injection عبر Project Invite → Cross-User Code Execution](skills/stored-prompt-injection-عبر-project-invite-cross-user-code-execution.md) — 🔥 قوية
+- [ScreenConnect Application Logs — Reconstruct Remote Session Activity](skills/screenconnect-application-logs-reconstruct-remote-session-activity.md) — ⭐ جيدة
+- [Origin IP Discovery — Recon Methodology](skills/origin-ip-discovery-recon-methodology.md) — ⭐ جيدة
+- [Password Reset → Account Takeover — Parameter Parsing](skills/password-reset-account-takeover-parameter-parsing.md) — 🔥 قوية
+- [Registration Input → SQL Injection — Time-Based Validation](skills/registration-input-sql-injection-time-based-validation.md) — 🔥 قوية
+- [IDOR Checklist — Object & Function Authorization Testing](skills/idor-checklist-object-function-authorization-testing.md) — 🔥 قوية
+- [Web Cache Deception — Path/Delimiter Confusion](skills/web-cache-deception-pathdelimiter-confusion.md) — ⭐ جيدة
+- [ScreenConnect Relay Parameters — Detect Unseen Relay Destinations](skills/screenconnect-relay-parameters-detect-unseen-relay-destinations.md) — ⭐ جيدة
+- [403/401 Bypass — Path Normalization & Parser Differential](skills/403401-bypass-path-normalization-parser-differential.md) — 🔥 قوية
+- [OAuth Token Leakage عبر Referer Header + redirect\_uri](skills/oauth-token-leakage-عبر-referer-header-redirect-uri.md) — 🔥 قوية
+- [🐦 أفضل حسابات Twitter/X لمتابعة Bug Bounty](skills/أفضل-حسابات-twitterx-لمتابعة-bug-bounty.md) — 🔥 قوية
+- [💬 أفضل قنوات Telegram لمتابعة Bug Bounty](skills/أفضل-قنوات-telegram-لمتابعة-bug-bounty.md) — ⭐ جيدة
+- [HTTP Request Smuggling — CL.TE / [TE.CL](http://TE.CL) + HTTP/2 Downgrade](skills/http-request-smuggling-clte-teclhttptecl-http2-downgrade.md) — 🔥 قوية
+- [منهجية XSS الذكية — ابدأ بـ HTML بسيط لخريطة الفلترة](skills/منهجية-xss-الذكية-ابدأ-بـ-html-بسيط-لخريطة-الفلترة.md) — ⭐ جيدة
+- [Race Condition على APIs — Double Spend / إعادة استخدام Coupons](skills/race-condition-على-apis-double-spend-إعادة-استخدام-coupons.md) — 🔥 قوية
+- [صيد الأسرار (Secrets) بـ TruffleHog / gitleaks في JS والريبوز](skills/صيد-الأسرار-secrets-بـ-trufflehog-gitleaks-في-js-والريبوز.md) — 🔥 قوية
+- [IDOR Chaining — تسريب Email من Profile + Password Reset = ATO](skills/idor-chaining-تسريب-email-من-profile-password-reset-ato.md) — 🔥 قوية
+- [Prototype Pollution — من Client-Side لـ Server-Side RCE (Node.js)](skills/prototype-pollution-من-client-side-لـ-server-side-rce-nodejs.md) — 🔥 قوية
+- [Web Cache Deception → تحويل Reflected XSS إلى Stored](skills/web-cache-deception-تحويل-reflected-xss-إلى-stored.md) — 🔥 قوية
+- [SSRF عبر مولّدات PDF و Headless Browsers](skills/ssrf-عبر-مولّدات-pdf-و-headless-browsers.md) — 🔥 قوية
+- [Autorize — أتمتة صيد IDOR / Broken Access Control](skills/autorize-أتمتة-صيد-idor-broken-access-control.md) — 🔥 قوية
+- [Fat GET Requests — تمرير Params في الـ Body لتجاوز Cache Key](skills/fat-get-requests-تمرير-params-في-الـ-body-لتجاوز-cache-key.md) — 🔥 قوية
+- [استخدم [interact.sh](http://interact.sh) Self-Hosted بدل Burp Collaborator في SSRF](skills/استخدم-interactshhttpinteractsh-self-hosted-بدل-burp-collaborator-في-ssrf.md) — ⭐ جيدة
+- [اكتشاف Log4Shell أوتوماتيكيًا عبر Match & Replace](skills/اكتشاف-log4shell-أوتوماتيكيًا-عبر-match-replace.md) — ⭐ جيدة
+- [لقاء Assets مخفية عبر Favicon Hash Enumeration](skills/لقاء-assets-مخفية-عبر-favicon-hash-enumeration.md) — ⭐ جيدة
+- [Open Registrations على أدوات Third-Party (Jira/Jenkins/ServiceNow)](skills/open-registrations-على-أدوات-third-party-jirajenkinsservicenow.md) — 🔥 قوية
+- [Bypass الدفع بالـ Test Cards المنسية في Production](skills/bypass-الدفع-بالـ-test-cards-المنسية-في-production.md) — ⭐ جيدة
+- [Business Logic: Bypass الأسعار بتلاعب العملات (Currency Confusion)](skills/business-logic-bypass-الأسعار-بتلاعب-العملات-currency-confusion.md) — 🔥 قوية
+- [إيجاد Cloud Storage Buckets مكشوفة عبر Google Dorks](skills/إيجاد-cloud-storage-buckets-مكشوفة-عبر-google-dorks.md) — ⭐ جيدة
+- [Bypass الـ WAF عبر إيجاد الـ Origin IP](skills/bypass-الـ-waf-عبر-إيجاد-الـ-origin-ip.md) — 🔥 قوية
+- [اكتشاف DOM-based XSS عبر Event Breakpoints](skills/اكتشاف-dom-based-xss-عبر-event-breakpoints.md) — 🔥 قوية
+- [Race Condition Attack — استخدام كوبون أكتر من مرة بالتوازي](skills/race-condition-attack-استخدام-كوبون-أكتر-من-مرة-بالتوازي.md) — 🔥 قوية
+- [SSRF: فزّينج الـ Ports الداخلية + الوصول لـ Cloud Metadata](skills/ssrf-فزّينج-الـ-ports-الداخلية-الوصول-لـ-cloud-metadata.md) — 🔥 قوية
+- [متستشوششي من Hosts اللي بتعمل Redirect من الـ Root](skills/متستشوششي-من-hosts-اللي-بتعمل-redirect-من-الـ-root.md) — ⭐ جيدة
+- [CSRF في GraphQL Targets](skills/csrf-في-graphql-targets.md) — ⭐ جيدة
+- [JWT: Key ID (kid) Injection Attack](skills/jwt-key-id-kid-injection-attack.md) — 🔥 قوية
+- [Hidden Parameter Discovery بأداة Arjun](skills/hidden-parameter-discovery-بأداة-arjun.md) — ⭐ جيدة
+- [Recon: البحث بـ Copyright Notices للقاء hosts تابعة للشركة](skills/recon-البحث-بـ-copyright-notices-للقاء-hosts-تابعة-للشركة.md) — ⭐ جيدة
+- [تسجيل نقاط CSRF سهلة في أبلكيشنز تقبل JSON](skills/تسجيل-نقاط-csrf-سهلة-في-أبلكيشنز-تقبل-json.md) — ⭐ جيدة
+- [JWT: هجوم 'None' Algorithm — Bypass Authentication](skills/jwt-هجوم-none-algorithm-bypass-authentication.md) — 🔥 قوية
+- [مشاكل [R2.dev](http://R2.dev) في Cloudflare R2 Buckets](skills/مشاكل-r2devhttpr2dev-في-cloudflare-r2-buckets.md) — ⭐ جيدة
+- [Blind XSS أوتوماتيكي عبر Match & Replace في Burp](skills/blind-xss-أوتوماتيكي-عبر-match-replace-في-burp.md) — 🔥 قوية
+- [منهجية استهداف مواقع WordPress عبر فحص الـ Plugins](skills/منهجية-استهداف-مواقع-wordpress-عبر-فحص-الـ-plugins.md) — ⭐ جيدة
+- [JWT Algorithm Confusion — RS256 إلى HS256 باستخدام Public Key](skills/jwt-algorithm-confusion-rs256-إلى-hs256-باستخدام-public-key.md) — 🔥 قوية
+- [CSP Bypass عبر JSONP/Scripts على Domains موثوقة](skills/csp-bypass-عبر-jsonpscripts-على-domains-موثوقة.md) — 🔥 قوية
+- [IDOR: منهجية احترافية بأداة Authz + Burp Intruder](skills/idor-منهجية-احترافية-بأداة-authz-burp-intruder.md) — 🔥 قوية
+- [SQL Injection داخل GraphQL Resolvers](skills/sql-injection-داخل-graphql-resolvers.md) — 🔥 قوية
+- [Vhost Fuzzing بـ FFUF — لقاء أصول مخفية](skills/vhost-fuzzing-بـ-ffuf-لقاء-أصول-مخفية.md) — 🔥 قوية
+- [Pipeline كامل لاكتشاف Subdomain Takeover](skills/pipeline-كامل-لاكتشاف-subdomain-takeover.md) — 🔥 قوية
+- [توليد PDFs خبيثة لاختبار ثغرات File Upload](skills/توليد-pdfs-خبيثة-لاختبار-ثغرات-file-upload.md) — ⭐ جيدة
+- [XXE: Bypass الفلاتر عبر UTF-7 Charset Encoding](skills/xxe-bypass-الفلاتر-عبر-utf-7-charset-encoding.md) — ⭐ جيدة
+- [Blind SSRF Detection عبر Interactsh](skills/blind-ssrf-detection-عبر-interactsh.md) — 🔥 قوية
+- [NoSQL Injection عبر Parameter Arrays لتجاوز قيود الـ Content-Type](skills/nosql-injection-عبر-parameter-arrays-لتجاوز-قيود-الـ-content-type.md) — 🔥 قوية
+- [CORS Bypass عبر Whitelisted Third-Party Origins](skills/cors-bypass-عبر-whitelisted-third-party-origins.md) — 🔥 قوية
+- [Mass Assignment في REST APIs — إضافة حقول غير مسموحة](skills/mass-assignment-في-rest-apis-إضافة-حقول-غير-مسموحة.md) — 🔥 قوية
+- [لقاء Hosts منسية عبر مشاكل Certificate SSL](skills/لقاء-hosts-منسية-عبر-مشاكل-certificate-ssl.md) — ⭐ جيدة
+- [Bypass File Upload Validation بـ Magic Bytes](skills/bypass-file-upload-validation-بـ-magic-bytes.md) — 🔥 قوية
+- [فزّينج بأكتر من HTTP Method مش بس GET](skills/فزّينج-بأكتر-من-http-method-مش-بس-get.md) — ⭐ جيدة
+- [أداة Reflix: اكتشاف باراميترات ورصد DOM XSS sinks أوتوماتيكيًا](skills/أداة-reflix-اكتشاف-باراميترات-ورصد-dom-xss-sinks-أوتوماتيكيًا.md) — ⭐ جيدة
+- [phpldapadmin: ديفولت لوجن + XSS معروفة في cmd.php](skills/phpldapadmin-ديفولت-لوجن-xss-معروفة-في-cmdphp.md) — 🔥 قوية
+- [Bypass 403 Forbidden بإضافة X-Client-IP: 127.0.0.1](skills/bypass-403-forbidden-بإضافة-x-client-ip-127001.md) — ⭐ جيدة
+- [Recon: فلترة الـ endpoints للصور — طريقة للقاء PII مسربة](skills/recon-فلترة-الـ-endpoints-للصور-طريقة-للقاء-pii-مسربة.md) — 🔥 قوية
+- [XSS: PDF file لتجاوز أي WAF عبر ASCII hex encoding](skills/xss-pdf-file-لتجاوز-أي-waf-عبر-ascii-hex-encoding.md) — 🔥 قوية
+- [XSS: تشفير كلمة javascript: بـ HTML Entities لتجاوز الفلاتر](skills/xss-تشفير-كلمة-javascript-بـ-html-entities-لتجاوز-الفلاتر.md) — ⭐ جيدة
+- [Bypass قيود الوصول بتغيير حروف الـ Path (Case Sensitivity)](skills/bypass-قيود-الوصول-بتغيير-حروف-الـ-path-case-sensitivity.md) — 🔥 قوية
+- [Bypass فلاتر القيم بالـ Base64 Encoding (SQL/SSTI/XSS/LFI)](skills/bypass-فلاتر-القيم-بالـ-base64-encoding-sqlsstixsslfi.md) — 🔥 قوية
+- [أداة HuntProxy: بديل لـ Burp مبني لـ AI Agents](skills/أداة-huntproxy-بديل-لـ-burp-مبني-لـ-ai-agents.md) — 🔥 قوية
+- [حيلة Burp لاكتشاف Blind SSRF عبر Bruteforce للـ Headers](skills/حيلة-burp-لاكتشاف-blind-ssrf-عبر-bruteforce-للـ-headers.md) — 🔥 قوية
+- [RCE عبر رفع ملف ZIP يحتوي على PHP + PHP zip wrapper](skills/rce-عبر-رفع-ملف-zip-يحتوي-على-php-php-zip-wrapper.md) — 🔥 قوية
+- [SQLi: Payload تجاوز تسجيل الدخول بـ time-based sleep](skills/sqli-payload-تجاوز-تسجيل-الدخول-بـ-time-based-sleep.md) — ⭐ جيدة
+- [تقنية جديدة لإيجاد الساب دومينز عبر [crt.sh](http://crt.sh) API](skills/تقنية-جديدة-لإيجاد-الساب-دومينز-عبر-crtshhttpcrtsh-api.md) — ⭐ جيدة
+- [Username Enumeration عبر endpoint التحقق من اليوزرنيم](skills/username-enumeration-عبر-endpoint-التحقق-من-اليوزرنيم.md) — ⭐ جيدة
+- [Sub Domain Takeover — أدوات وخطوات](skills/sub-domain-takeover-أدوات-وخطوات.md) — ⭐ جيدة
+- [IDOR: متلفّش الـ ID، لفّه (wrap it)](skills/idor-متلفّش-الـ-id،-لفّه-wrap-it.md) — 🔥 قوية
+- [API: جرّب تغيير نوع قيمة الـ UUID لـ ID أو Email](skills/api-جرّب-تغيير-نوع-قيمة-الـ-uuid-لـ-id-أو-email.md) — ⭐ جيدة
+- [Fuzzing امتدادات الملفات على الأبلكيشنز المبنية بالـ AI](skills/fuzzing-امتدادات-الملفات-على-الأبلكيشنز-المبنية-بالـ-ai.md) — ⭐ جيدة
+- [SQLi: كشف الحقن في باراميترات رقمية عبر إضافة تعبير حسابي](skills/sqli-كشف-الحقن-في-باراميترات-رقمية-عبر-إضافة-تعبير-حسابي.md) — 🔥 قوية
+- [RCE WAF Bypass — استخدام \$u والـ wildcards](skills/rce-waf-bypass-استخدام-u-والـ-wildcards.md) — 🔥 قوية
+- [Subdomain Permutations متقدمة — أنماط تسمية شائعة](skills/subdomain-permutations-متقدمة-أنماط-تسمية-شائعة.md) — 🔥 قوية
+- [IDOR Trick: تلاعب بباراميتر user\_id بأكتر من طريقة](skills/idor-trick-تلاعب-بباراميتر-user-id-بأكتر-من-طريقة.md) — ⭐ جيدة
+- [ملفات Recon أساسية لازم تتفحص قبل أي حاجة](skills/ملفات-recon-أساسية-لازم-تتفحص-قبل-أي-حاجة.md) — ⭐ جيدة
+- [Subdomain Permutations: خد الساب دومينز وولّد احتمالات جديدة](skills/subdomain-permutations-خد-الساب-دومينز-وولّد-احتمالات-جديدة.md) — 🔥 قوية
+- [XSS: حقن سكريبت خارجي من غير أقواس](skills/xss-حقن-سكريبت-خارجي-من-غير-أقواس.md) — ⭐ جيدة
+- [SQLi: Time-based payload بديل لما غيره يفشل](skills/sqli-time-based-payload-بديل-لما-غيره-يفشل.md) — 🔥 قوية
+- [Recon شامل: HTTP Methods/Headers Fuzzing + Path Fuzzing](skills/recon-شامل-http-methodsheaders-fuzzing-path-fuzzing.md) — ⭐ جيدة
+- [Payload واحد لاختبار SQLi + XSS + SSTI مع بعض](skills/payload-واحد-لاختبار-sqli-xss-ssti-مع-بعض.md) — 🔥 قوية
+- [Password Reset Vulnerabilities — قائمة تقنيات شاملة](skills/password-reset-vulnerabilities-قائمة-تقنيات-شاملة.md) — 🔥 قوية
+- [SSRF Bypass — قائمة عناوين [localhost](http://localhost) بديلة](skills/ssrf-bypass-قائمة-عناوين-localhosthttplocalhost-بديلة.md) — 🔥 قوية
+- [JSON: مفاتيح مكررة ممكن تفصل الـ Auth عن التنفيذ](skills/json-مفاتيح-مكررة-ممكن-تفصل-الـ-auth-عن-التنفيذ.md) — 🔥 قوية
+- [WAF Bypass لأمر whoami عبر تقنيات تفتيت السترينج](skills/waf-bypass-لأمر-whoami-عبر-تقنيات-تفتيت-السترينج.md) — ⭐ جيدة
+- [XSS باستخدام tag الـ \<map>](skills/xss-باستخدام-tag-الـ-map.md) — ⭐ جيدة
+- [منطق SQL Injection: أولوية AND قبل OR (شرح تفصيلي)](skills/منطق-sql-injection-أولوية-and-قبل-or-شرح-تفصيلي.md) — 🔥 قوية

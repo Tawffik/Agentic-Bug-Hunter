@@ -1,0 +1,73 @@
+name: GitHub OSINT Monitor
+
+on:
+  schedule:
+    - cron: "15 7 * * *"
+  workflow_dispatch:
+    inputs:
+      orgs:
+        description: "Comma-separated GitHub organizations (authorized targets only)"
+        required: false
+        default: "Tawffik"
+      max_repos:
+        description: "Max repositories per organization"
+        required: false
+        default: "100"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: github-osint-monitor
+  cancel-in-progress: false
+
+jobs:
+  osint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run delta-first OSINT monitor
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORGS: ${{ github.event.inputs.orgs || 'Tawffik' }}
+          MAX_REPOS: ${{ github.event.inputs.max_repos || '100' }}
+        run: |
+          python3 bughunter/tools/github_osint_monitor.py \
+            --orgs "$ORGS" \
+            --max-repos "$MAX_REPOS" \
+            --state memory/osint-state.json \
+            --out output/osint
+
+      - name: Commit OSINT delta and state
+        run: |
+          git config user.name "vulnradar-bot"
+          git config user.email "vulnradar-bot@users.noreply.github.com"
+          git add output/osint memory/osint-state.json || true
+          if git diff --cached --quiet; then
+            echo "No OSINT changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: GitHub OSINT delta [automated]"
+          for attempt in 1 2 3; do
+            if git push; then exit 0; fi
+            git pull --rebase --autostash -X ours origin main || { git rebase --abort 2>/dev/null; sleep $((attempt * 3)); }
+          done
+          echo "⚠️ OSINT push failed after retries"
+          exit 1
+
+      - name: Upload OSINT artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-osint-${{ github.run_number }}
+          path: |
+            output/osint/
+            memory/osint-state.json
+          if-no-files-found: ignore
+          retention-days: 30

@@ -1,0 +1,101 @@
+# Category: API Hacking
+
+_Count: 97_
+
+- [Nested / Wrapped Object IDOR — outer validated, inner executed](../skills/nested-wrapped-object-idor-outer-validated-inner-executed.md) — 🔥 قوية
+- [BOLA via Wildcard / Special ID Values (\*, all, 0, -1, null, empty)](../skills/bola-via-wildcard-special-id-values-all-0-1-null-empty.md) — 🔥 قوية
+- [Cache Poisoning via Unkeyed Headers (X-Forwarded-Host / X-Forwarded-Scheme)](../skills/cache-poisoning-via-unkeyed-headers-x-forwarded-host-x-forwarded-scheme.md) — 🔥 قوية
+- [BOLA / IDOR via Batch & Bulk ID Mixing](../skills/bola-idor-via-batch-bulk-id-mixing.md) — 🔥 قوية
+- [GraphQL Mutation BOLA — test write operations, not only queries](../skills/graphql-mutation-bola-test-write-operations-not-only-queries.md) — 🔥 قوية
+- [AI Chat / Support Agent — conversationID / session UUID BOLA (unauthenticated or cross-user)](../skills/ai-chat-support-agent-conversationid-session-uuid-bola-unauthenticated-or-cross-user.md) — 🔥 قوية
+- [Array-form IDOR — id\[\]=attacker&id\[\]=victim bypass](../skills/array-form-idor-idattackeridvictim-bypass.md) — 🔥 قوية
+- [Google / Firebase API key impact — not always Low](../skills/google-firebase-api-key-impact-not-always-low.md) — 🔥 قوية
+- [OTP / 2FA Bypass via Type Juggling (array / null / object)](../skills/otp-2fa-bypass-via-type-juggling-array-null-object.md) — 🔥 قوية
+- [Newline injection in JSON parameters (password-reset / email)](../skills/newline-injection-in-json-parameters-password-reset-email.md) — 🔥 قوية
+- [AI support agents as attack surface (IDOR / BAC / XSS)](../skills/ai-support-agents-as-attack-surface-idor-bac-xss.md) — 🔥 قوية
+- [AWS tip: probe /ramp\_core.js for embedded AccessKey material](../skills/aws-tip-probe-ramp-corejs-for-embedded-accesskey-material.md) — ⭐ جيدة
+- [Exposed Google Maps API keys may unlock Gemini — validate model access not just Maps](../skills/exposed-google-maps-api-keys-may-unlock-gemini-validate-model-access-not-just-maps.md) — 🔥 قوية
+- [Web cache poisoning via malformed Cookie parameter](../skills/web-cache-poisoning-via-malformed-cookie-parameter.md) — ⭐ جيدة
+- [Next.js Middleware / Proxy — dynamic route parameter injection can bypass path checks](../skills/nextjs-middleware-proxy-dynamic-route-parameter-injection-can-bypass-path-checks.md) — 🔥 قوية
+- [Authorization path parser differential — encoded semicolon, slash, and backslash](../skills/authorization-path-parser-differential-encoded-semicolon-slash-and-backslash.md) — 🔥 قوية
+- [Middleware vs Router URL Normalization — test duplicate slashes and semicolon delimiters](../skills/middleware-vs-router-url-normalization-test-duplicate-slashes-and-semicolon-delimiters.md) — 🔥 قوية
+- [Moby / Docker AuthZ — oversized request body omitted before policy evaluation](../skills/moby-docker-authz-oversized-request-body-omitted-before-policy-evaluation.md) — 🔥 قوية
+- [follow-redirects — regex metacharacters in sensitiveHeaders may evade stripping](../skills/follow-redirects-regex-metacharacters-in-sensitiveheaders-may-evade-stripping.md) — ⭐ جيدة
+- [follow-redirects — array-form headers can bypass cross-origin credential stripping](../skills/follow-redirects-array-form-headers-can-bypass-cross-origin-credential-stripping.md) — 🔥 قوية
+- [gRPC-Go — non-canonical HTTP/2 :path bypasses path-based deny rules](../skills/grpc-go-non-canonical-http2-path-bypasses-path-based-deny-rules.md) — 🔥 قوية
+- [n8n shared OAuth credential reconnect — read permission must not authorize token replacement](../skills/n8n-shared-oauth-credential-reconnect-read-permission-must-not-authorize-token-replacement.md) — 🔥 قوية
+- [Casdoor — token exchange must bind JWT identity to the target organization](../skills/casdoor-token-exchange-must-bind-jwt-identity-to-the-target-organization.md) — 🔥 قوية
+- [Angular HttpClient — URL parsing discrepancy may leak XSRF tokens](../skills/angular-httpclient-url-parsing-discrepancy-may-leak-xsrf-tokens.md) — 🔥 قوية
+- [n8n OAuth callback — bind the completing browser session to the flow initiator](../skills/n8n-oauth-callback-bind-the-completing-browser-session-to-the-flow-initiator.md) — 🔥 قوية
+- [Path policy vs execution parser: compare both views](../skills/path-policy-vs-execution-parser-compare-both-views.md) — 🔥 قوية
+- [Separate read access from state-changing authorization](../skills/separate-read-access-from-state-changing-authorization.md) — 🔥 قوية
+- [WSDL / SOAP Service Discovery + 403 Differential Fuzzing Across Authorized Hosts](../skills/wsdl-soap-service-discovery-403-differential-fuzzing-across-authorized-hosts.md) — 📌 للمراجعة
+- [Google API Key / Firebase Identity Toolkit — verify real auth impact, not key presence](../skills/google-api-key-firebase-identity-toolkit-verify-real-auth-impact-not-key-presence.md) — ⭐ جيدة
+- [Client-side role / isAdmin / price tampering — verify server-side enforcement](../skills/client-side-role-isadmin-price-tampering-verify-server-side-enforcement.md) — ⭐ جيدة
+- [Last-step authorization check in multi-step flows](../skills/last-step-authorization-check-in-multi-step-flows.md) — 🔥 قوية
+- [Authorization test: swap the target, not the session](../skills/authorization-test-swap-the-target-not-the-session.md) — 🔥 قوية
+- [200 OK is not proof of BOLA](../skills/200-ok-is-not-proof-of-bola.md) — 🔥 قوية
+- [Vibe-Coded Apps (Lovable / Bolt / v0 / Replit) → Backend Authorization & Data Exposure Review](../skills/vibe-coded-apps-lovable-bolt-v0-replit-backend-authorization-data-exposure-review.md) — ⭐ جيدة
+- [Azure DevOps Public Project Review → Pipeline Metadata & Accidental Secret Exposure](../skills/azure-devops-public-project-review-pipeline-metadata-accidental-secret-exposure.md) — ⭐ جيدة
+- [MQTT / WebSocket Chat Backend — Topic Authorization & Cross-Session Disclosure](../skills/mqtt-websocket-chat-backend-topic-authorization-cross-session-disclosure.md) — ⭐ جيدة
+- [Third-party widget IDOR (Intercom / chat / support)](../skills/third-party-widget-idor-intercom-chat-support.md) — 🔥 قوية
+- [Firebase Realtime DB open rules (read/write without auth)](../skills/firebase-realtime-db-open-rules-readwrite-without-auth.md) — 🔥 قوية
+- [GraphQL / GraphiQL / Playground open without auth](../skills/graphql-graphiql-playground-open-without-auth.md) — 🔥 قوية
+- [Dork (High Signal): API Docs & Swagger / GraphQL / Redoc](../skills/dork-high-signal-api-docs-swagger-graphql-redoc.md) — 🔥 قوية
+- [Different 404 Fingerprint → Look for a Separate Backend API Context](../skills/different-404-fingerprint-look-for-a-separate-backend-api-context.md) — ⭐ جيدة
+- [Redirect Hop → Custom Authorization Header Leak (HTTP Client Integrations)](../skills/redirect-hop-custom-authorization-header-leak-http-client-integrations.md) — 🔥 قوية
+- [Advanced Dork: Swagger / OpenAPI / GraphQL docs](../skills/advanced-dork-swagger-openapi-graphql-docs.md) — 🔥 قوية
+- [Hasura GraphQL engine → missing authorization on mutations](../skills/hasura-graphql-engine-missing-authorization-on-mutations.md) — ⭐ جيدة
+- [GraphQL unauthenticated → full user data leak (no token needed)](../skills/graphql-unauthenticated-full-user-data-leak-no-token-needed.md) — 🔥 قوية
+- [GraphQL introspection still open in production](../skills/graphql-introspection-still-open-in-production.md) — 🔥 قوية
+- [Swagger / OpenAPI /api-docs exposed → full API map](../skills/swagger-openapi-api-docs-exposed-full-api-map.md) — 🔥 قوية
+- [CORS null origin + Allow-Credentials: true → data theft](../skills/cors-null-origin-allow-credentials-true-data-theft.md) — 🔥 قوية
+- [Spring Actuator /actuator/env أو /actuator/health → env vars & secrets](../skills/spring-actuator-actuatorenv-أو-actuatorhealth-env-vars-secrets.md) — 🔥 قوية
+- [Firebase Realtime DB / Firestore open rules → full read/write (classic high impact)](../skills/firebase-realtime-db-firestore-open-rules-full-readwrite-classic-high-impact.md) — 🔥 قوية
+- [Empty API response subdomain → still try full Swagger paths](../skills/empty-api-response-subdomain-still-try-full-swagger-paths.md) — ⭐ جيدة
+- [Intercom chat widget identity verification missing → full support history leak](../skills/intercom-chat-widget-identity-verification-missing-full-support-history-leak.md) — 🔥 قوية
+- [Hardcoded third-party Analytics Write Key in JS → unauth data injection](../skills/hardcoded-third-party-analytics-write-key-in-js-unauth-data-injection.md) — 🔥 قوية
+- [Source map exposes client-side code or possible secrets](../skills/source-map-exposes-client-side-code-or-possible-secrets.md) — 📌 للمراجعة
+- [GraphQL Introspection Schema Leak → \$5,500 Bounty](../skills/graphql-introspection-schema-leak-5500-bounty.md) — 🔥 قوية
+- [API Debug /env /status endpoints → \$3,000 Bounty (Secret Hunter case)](../skills/api-debug-env-status-endpoints-3000-bounty-secret-hunter-case.md) — 🔥 قوية
+- [Katana JS collection → extract S3/GCS/Azure URLs → verify bucket exposure](../skills/katana-js-collection-extract-s3gcsazure-urls-verify-bucket-exposure.md) — ⭐ جيدة
+- [Source Maps → sourcemapper + metis (Intigriti 2026 tip)](../skills/source-maps-sourcemapper-metis-intigriti-2026-tip.md) — ⭐ جيدة
+- [Excessive API fields + GDPR/CCPA framing لرفع الـ Severity](../skills/excessive-api-fields-gdprccpa-framing-لرفع-الـ-severity.md) — 🔥 قوية
+- [Third-party AI Chat Widget IDOR → Sensitive Contact / PII Exposure](../skills/third-party-ai-chat-widget-idor-sensitive-contact-pii-exposure.md) — 🔥 قوية
+- [Swagger / OpenAPI UI → DOM XSS + Admin endpoints + leaked keys](../skills/swagger-openapi-ui-dom-xss-admin-endpoints-leaked-keys.md) — 🔥 قوية
+- [JS Miner (Burp) — secrets and API keys in static JavaScript](../skills/js-miner-burp-secrets-and-api-keys-in-static-javascript.md) — ⭐ جيدة
+- [Katana JS collection → extract S3 URLs → verify bucket exposure](../skills/katana-js-collection-extract-s3-urls-verify-bucket-exposure.md) — 🔥 قوية
+- [🗺️ Source Map Pivot — app.js → [app.js.map](http://app.js.map) → original routes/hosts/comments](../skills/source-map-pivot-appjs-appjsmaphttpappjsmap-original-routeshostscomments.md) — ⭐ جيدة
+- [🪟 JS Global Surface — لا تبحث فقط عن API URLs؛ فتّش عن Window Globals وHandlers](../skills/js-global-surface-لا-تبحث-فقط-عن-api-urls؛-فتّش-عن-window-globals-وhandlers.md) — ⭐ جيدة
+- [🗑️ Deletion Residue — البيانات المحذوفة قد تظل موجودة في Surface ثانوي](../skills/deletion-residue-البيانات-المحذوفة-قد-تظل-موجودة-في-surface-ثانوي.md) — 🔥 قوية
+- [🔍 Public JSON/Search Response — الـSearch endpoint قد يعرض Metadata أكثر من الصفحة](../skills/public-jsonsearch-response-الـsearch-endpoint-قد-يعرض-metadata-أكثر-من-الصفحة.md) — 🔥 قوية
+- [🚩 Disabled Feature → Live API — الـUI يقول Disabled لكن الـBackend قد يظل يقبل الطلب](../skills/disabled-feature-live-api-الـui-يقول-disabled-لكن-الـbackend-قد-يظل-يقبل-الطلب.md) — 🔥 قوية
+- [📦 Artifact Equivalence — قارن الـExport والDownload والـAPI لنفس الـObject](../skills/artifact-equivalence-قارن-الـexport-والdownload-والـapi-لنفس-الـobject.md) — 🔥 قوية
+- [✉️ Invitation-State Leakage — pending invitation قد يغيّر Visibility](../skills/invitation-state-leakage-pending-invitation-قد-يغيّر-visibility.md) — 🔥 قوية
+- [⏳ Historical API Drift — Wayback لاستخراج APIs القديمة ثم اختبار وجودها حاليًا](../skills/historical-api-drift-wayback-لاستخراج-apis-القديمة-ثم-اختبار-وجودها-حاليًا.md) — 🔥 قوية
+- [🧩 State-Conditioned Disclosure — جرّب نفس الـObject مع اختلاف الـState](../skills/state-conditioned-disclosure-جرّب-نفس-الـobject-مع-اختلاف-الـstate.md) — 🔥 قوية
+- [🧬 Error Grammar → Technology → Targeted Pivot](../skills/error-grammar-technology-targeted-pivot.md) — 🔥 قوية
+- [🔎 Representation Differential — نفس الـObject بصيغ مختلفة ممكن يكشف Fields زيادة](../skills/representation-differential-نفس-الـobject-بصيغ-مختلفة-ممكن-يكشف-fields-زيادة.md) — 🔥 قوية
+- [🔔 Bug Bounty Tip — File/Folder Delete Endpoints Need Separate Authorization Checks](../skills/bug-bounty-tip-filefolder-delete-endpoints-need-separate-authorization-checks.md) — 🔥 قوية
+- [🔔 Bug Bounty Tip — Parameter Swap → Unauthorized Workspace Access](../skills/bug-bounty-tip-parameter-swap-unauthorized-workspace-access.md) — 🔥 قوية
+- [🔔 Bug Bounty Tip — Subscription/Entitlement Checks Are Often Weaker Than UI Checks](../skills/bug-bounty-tip-subscriptionentitlement-checks-are-often-weaker-than-ui-checks.md) — ⭐ جيدة
+- [🔔 Bug Bounty Tip — Treat AI/Agent Findings as Hypotheses Until You Reproduce Impact](../skills/bug-bounty-tip-treat-aiagent-findings-as-hypotheses-until-you-reproduce-impact.md) — 🔥 قوية
+- [HEIF Upload → Image-Processing RCE → SSO Session Pivot](../skills/heif-upload-image-processing-rce-sso-session-pivot.md) — 🔥 قوية
+- [Cloudflare Worker/API Key Exposure → Edge JavaScript Supply-Chain Injection](../skills/cloudflare-workerapi-key-exposure-edge-javascript-supply-chain-injection.md) — ⭐ جيدة
+- [npm Remote Dependency URLs → CI/CD Secret Theft](../skills/npm-remote-dependency-urls-cicd-secret-theft.md) — 🔥 قوية
+- [MCP Cache Poisoning → Cross-User Prompt Injection via Cached Tool Instructions](../skills/mcp-cache-poisoning-cross-user-prompt-injection-via-cached-tool-instructions.md) — 📌 للمراجعة
+- [Stored Prompt Injection عبر Project Invite → Cross-User Code Execution](../skills/stored-prompt-injection-عبر-project-invite-cross-user-code-execution.md) — 🔥 قوية
+- [IDOR Checklist — Object & Function Authorization Testing](../skills/idor-checklist-object-function-authorization-testing.md) — 🔥 قوية
+- [403/401 Bypass — Path Normalization & Parser Differential](../skills/403401-bypass-path-normalization-parser-differential.md) — 🔥 قوية
+- [OAuth Token Leakage عبر Referer Header + redirect\_uri](../skills/oauth-token-leakage-عبر-referer-header-redirect-uri.md) — 🔥 قوية
+- [HTTP Request Smuggling — CL.TE / [TE.CL](http://TE.CL) + HTTP/2 Downgrade](../skills/http-request-smuggling-clte-teclhttptecl-http2-downgrade.md) — 🔥 قوية
+- [Race Condition على APIs — Double Spend / إعادة استخدام Coupons](../skills/race-condition-على-apis-double-spend-إعادة-استخدام-coupons.md) — 🔥 قوية
+- [صيد الأسرار (Secrets) بـ TruffleHog / gitleaks في JS والريبوز](../skills/صيد-الأسرار-secrets-بـ-trufflehog-gitleaks-في-js-والريبوز.md) — 🔥 قوية
+- [Prototype Pollution — من Client-Side لـ Server-Side RCE (Node.js)](../skills/prototype-pollution-من-client-side-لـ-server-side-rce-nodejs.md) — 🔥 قوية
+- [Fat GET Requests — تمرير Params في الـ Body لتجاوز Cache Key](../skills/fat-get-requests-تمرير-params-في-الـ-body-لتجاوز-cache-key.md) — 🔥 قوية
+- [Hidden Parameter Discovery بأداة Arjun](../skills/hidden-parameter-discovery-بأداة-arjun.md) — ⭐ جيدة
+- [SQL Injection داخل GraphQL Resolvers](../skills/sql-injection-داخل-graphql-resolvers.md) — 🔥 قوية
+- [Mass Assignment في REST APIs — إضافة حقول غير مسموحة](../skills/mass-assignment-في-rest-apis-إضافة-حقول-غير-مسموحة.md) — 🔥 قوية
+- [IDOR: متلفّش الـ ID، لفّه (wrap it)](../skills/idor-متلفّش-الـ-id،-لفّه-wrap-it.md) — 🔥 قوية
+- [API: جرّب تغيير نوع قيمة الـ UUID لـ ID أو Email](../skills/api-جرّب-تغيير-نوع-قيمة-الـ-uuid-لـ-id-أو-email.md) — ⭐ جيدة
+- [JSON: مفاتيح مكررة ممكن تفصل الـ Auth عن التنفيذ](../skills/json-مفاتيح-مكررة-ممكن-تفصل-الـ-auth-عن-التنفيذ.md) — 🔥 قوية

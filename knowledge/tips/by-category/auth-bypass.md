@@ -1,0 +1,64 @@
+# Category: Auth Bypass
+
+_Count: 60_
+
+- [AI Chat / Support Agent — conversationID / session UUID BOLA (unauthenticated or cross-user)](../skills/ai-chat-support-agent-conversationid-session-uuid-bola-unauthenticated-or-cross-user.md) — 🔥 قوية
+- [Disable JavaScript → legacy / forgotten form still live](../skills/disable-javascript-legacy-forgotten-form-still-live.md) — ⭐ جيدة
+- [Google / Firebase API key impact — not always Low](../skills/google-firebase-api-key-impact-not-always-low.md) — 🔥 قوية
+- [OTP / 2FA Bypass via Type Juggling (array / null / object)](../skills/otp-2fa-bypass-via-type-juggling-array-null-object.md) — 🔥 قوية
+- [CSRF token bypass via HTTP method override](../skills/csrf-token-bypass-via-http-method-override.md) — ⭐ جيدة
+- [Newline injection in JSON parameters (password-reset / email)](../skills/newline-injection-in-json-parameters-password-reset-email.md) — 🔥 قوية
+- [AI support agents as attack surface (IDOR / BAC / XSS)](../skills/ai-support-agents-as-attack-surface-idor-bac-xss.md) — 🔥 قوية
+- [X-Forwarded-Host open-redirect style host poisoning (JS/asset redirect chains)](../skills/x-forwarded-host-open-redirect-style-host-poisoning-jsasset-redirect-chains.md) — ⭐ جيدة
+- [AI support chatbot that renders model output in DOM → XSS → session theft / ATO](../skills/ai-support-chatbot-that-renders-model-output-in-dom-xss-session-theft-ato.md) — 🔥 قوية
+- [Basic Auth cancel spam — intermittent auth bypass on some panels](../skills/basic-auth-cancel-spam-intermittent-auth-bypass-on-some-panels.md) — 📌 للمراجعة
+- [Next.js Middleware / Proxy — dynamic route parameter injection can bypass path checks](../skills/nextjs-middleware-proxy-dynamic-route-parameter-injection-can-bypass-path-checks.md) — 🔥 قوية
+- [Authorization path parser differential — encoded semicolon, slash, and backslash](../skills/authorization-path-parser-differential-encoded-semicolon-slash-and-backslash.md) — 🔥 قوية
+- [Middleware vs Router URL Normalization — test duplicate slashes and semicolon delimiters](../skills/middleware-vs-router-url-normalization-test-duplicate-slashes-and-semicolon-delimiters.md) — 🔥 قوية
+- [Moby / Docker AuthZ — oversized request body omitted before policy evaluation](../skills/moby-docker-authz-oversized-request-body-omitted-before-policy-evaluation.md) — 🔥 قوية
+- [follow-redirects — regex metacharacters in sensitiveHeaders may evade stripping](../skills/follow-redirects-regex-metacharacters-in-sensitiveheaders-may-evade-stripping.md) — ⭐ جيدة
+- [follow-redirects — array-form headers can bypass cross-origin credential stripping](../skills/follow-redirects-array-form-headers-can-bypass-cross-origin-credential-stripping.md) — 🔥 قوية
+- [gRPC-Go — non-canonical HTTP/2 :path bypasses path-based deny rules](../skills/grpc-go-non-canonical-http2-path-bypasses-path-based-deny-rules.md) — 🔥 قوية
+- [n8n shared OAuth credential reconnect — read permission must not authorize token replacement](../skills/n8n-shared-oauth-credential-reconnect-read-permission-must-not-authorize-token-replacement.md) — 🔥 قوية
+- [Casdoor — token exchange must bind JWT identity to the target organization](../skills/casdoor-token-exchange-must-bind-jwt-identity-to-the-target-organization.md) — 🔥 قوية
+- [n8n OAuth callback — bind the completing browser session to the flow initiator](../skills/n8n-oauth-callback-bind-the-completing-browser-session-to-the-flow-initiator.md) — 🔥 قوية
+- [Path policy vs execution parser: compare both views](../skills/path-policy-vs-execution-parser-compare-both-views.md) — 🔥 قوية
+- [Treat negative parser cases as evidence](../skills/treat-negative-parser-cases-as-evidence.md) — ⭐ جيدة
+- [Separate read access from state-changing authorization](../skills/separate-read-access-from-state-changing-authorization.md) — 🔥 قوية
+- [Google API Key / Firebase Identity Toolkit — verify real auth impact, not key presence](../skills/google-api-key-firebase-identity-toolkit-verify-real-auth-impact-not-key-presence.md) — ⭐ جيدة
+- [Client-side role / isAdmin / price tampering — verify server-side enforcement](../skills/client-side-role-isadmin-price-tampering-verify-server-side-enforcement.md) — ⭐ جيدة
+- [Last-step authorization check in multi-step flows](../skills/last-step-authorization-check-in-multi-step-flows.md) — 🔥 قوية
+- [Broken Access: function-level (access admin endpoint as normal user)](../skills/broken-access-function-level-access-admin-endpoint-as-normal-user.md) — 🔥 قوية
+- [Mass Assignment + IDOR (hidden fields like is\_admin / role)](../skills/mass-assignment-idor-hidden-fields-like-is-admin-role.md) — 🔥 قوية
+- [Password Reset HPP (double email parameter)](../skills/password-reset-hpp-double-email-parameter.md) — 🔥 قوية
+- [Password Reset Race Condition (OTP / token generation)](../skills/password-reset-race-condition-otp-token-generation.md) — 🔥 قوية
+- [Password Reset Poisoning via Host Header](../skills/password-reset-poisoning-via-host-header.md) — 🔥 قوية
+- [Password Reset via X-Forwarded-Host / Forwarded headers](../skills/password-reset-via-x-forwarded-host-forwarded-headers.md) — 🔥 قوية
+- [Password-reset token leaks to third-party analytics via Referer / page URL](../skills/password-reset-token-leaks-to-third-party-analytics-via-referer-page-url.md) — ⭐ جيدة
+- [Hasura GraphQL engine → missing authorization on mutations](../skills/hasura-graphql-engine-missing-authorization-on-mutations.md) — ⭐ جيدة
+- [MFA flow validation: test for server-side enforcement](../skills/mfa-flow-validation-test-for-server-side-enforcement.md) — 📌 للمراجعة
+- [Amazon Cognito misconfig → Account Takeover](../skills/amazon-cognito-misconfig-account-takeover.md) — 🔥 قوية
+- [Elmah.axd /elmah → Session cookies → Employee ATO (\$6,000 escalation case)](../skills/elmahaxd-elmah-session-cookies-employee-ato-6000-escalation-case.md) — 📌 للمراجعة
+- [Forgotten Source Map → Enterprise SSO Bypass (Critical Auth Bypass)](../skills/forgotten-source-map-enterprise-sso-bypass-critical-auth-bypass.md) — 🔥 قوية
+- [Default-ish admin password pattern: admin / \[company\]12345](../skills/default-ish-admin-password-pattern-admin-company12345.md) — ⭐ جيدة
+- [🚩 Disabled Feature → Live API — الـUI يقول Disabled لكن الـBackend قد يظل يقبل الطلب](../skills/disabled-feature-live-api-الـui-يقول-disabled-لكن-الـbackend-قد-يظل-يقبل-الطلب.md) — 🔥 قوية
+- [✉️ Invitation-State Leakage — pending invitation قد يغيّر Visibility](../skills/invitation-state-leakage-pending-invitation-قد-يغيّر-visibility.md) — 🔥 قوية
+- [🔔 Bug Bounty Tip — File/Folder Delete Endpoints Need Separate Authorization Checks](../skills/bug-bounty-tip-filefolder-delete-endpoints-need-separate-authorization-checks.md) — 🔥 قوية
+- [🔔 Bug Bounty Tip — Subscription/Entitlement Checks Are Often Weaker Than UI Checks](../skills/bug-bounty-tip-subscriptionentitlement-checks-are-often-weaker-than-ui-checks.md) — ⭐ جيدة
+- [HEIF/HEIC Upload → Image Parser RCE → SSO Session Pivot](../skills/heifheic-upload-image-parser-rce-sso-session-pivot.md) — 🔥 قوية
+- [HEIF Upload → Image-Processing RCE → SSO Session Pivot](../skills/heif-upload-image-processing-rce-sso-session-pivot.md) — 🔥 قوية
+- [MCP Cache Poisoning → Cross-User Prompt Injection via Cached Tool Instructions](../skills/mcp-cache-poisoning-cross-user-prompt-injection-via-cached-tool-instructions.md) — 📌 للمراجعة
+- [Stored Prompt Injection عبر Project Invite → Cross-User Code Execution](../skills/stored-prompt-injection-عبر-project-invite-cross-user-code-execution.md) — 🔥 قوية
+- [Password Reset → Account Takeover — Parameter Parsing](../skills/password-reset-account-takeover-parameter-parsing.md) — 🔥 قوية
+- [403/401 Bypass — Path Normalization & Parser Differential](../skills/403401-bypass-path-normalization-parser-differential.md) — 🔥 قوية
+- [OAuth Token Leakage عبر Referer Header + redirect\_uri](../skills/oauth-token-leakage-عبر-referer-header-redirect-uri.md) — 🔥 قوية
+- [IDOR Chaining — تسريب Email من Profile + Password Reset = ATO](../skills/idor-chaining-تسريب-email-من-profile-password-reset-ato.md) — 🔥 قوية
+- [Autorize — أتمتة صيد IDOR / Broken Access Control](../skills/autorize-أتمتة-صيد-idor-broken-access-control.md) — 🔥 قوية
+- [Open Registrations على أدوات Third-Party (Jira/Jenkins/ServiceNow)](../skills/open-registrations-على-أدوات-third-party-jirajenkinsservicenow.md) — 🔥 قوية
+- [JWT: Key ID (kid) Injection Attack](../skills/jwt-key-id-kid-injection-attack.md) — 🔥 قوية
+- [JWT: هجوم 'None' Algorithm — Bypass Authentication](../skills/jwt-هجوم-none-algorithm-bypass-authentication.md) — 🔥 قوية
+- [JWT Algorithm Confusion — RS256 إلى HS256 باستخدام Public Key](../skills/jwt-algorithm-confusion-rs256-إلى-hs256-باستخدام-public-key.md) — 🔥 قوية
+- [SQLi: Payload تجاوز تسجيل الدخول بـ time-based sleep](../skills/sqli-payload-تجاوز-تسجيل-الدخول-بـ-time-based-sleep.md) — ⭐ جيدة
+- [Password Reset Vulnerabilities — قائمة تقنيات شاملة](../skills/password-reset-vulnerabilities-قائمة-تقنيات-شاملة.md) — 🔥 قوية
+- [JSON: مفاتيح مكررة ممكن تفصل الـ Auth عن التنفيذ](../skills/json-مفاتيح-مكررة-ممكن-تفصل-الـ-auth-عن-التنفيذ.md) — 🔥 قوية
+- [منطق SQL Injection: أولوية AND قبل OR (شرح تفصيلي)](../skills/منطق-sql-injection-أولوية-and-قبل-or-شرح-تفصيلي.md) — 🔥 قوية

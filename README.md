@@ -491,6 +491,7 @@ Every tool in the pipeline is gated on whether it's installed - missing tools ar
 ```
 Agentic-Bug-Hunter/
 │
+├── knowledge/                 # Reference corpora (333-tip bug-bounty corpus)
 ├── skills/                    # AI knowledge bases - loaded as /skill-name
 │   ├── bug-bounty/            # Master workflow - all vuln classes, LLM testing, chains
 │   ├── bb-methodology/        # Hunting mindset · 5-phase workflow · session discipline

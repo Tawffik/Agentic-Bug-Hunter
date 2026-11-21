@@ -115,6 +115,10 @@ See **`bughunter/tools/README.md`** for the full ~50-tool catalogue. Highlights:
 - Web3: `token_scanner.py` · `web3_evm_hazard_scan.py` · `defi_hack_search.sh` · `chain_audit_env.sh` · `xray_git_security.py` · `./install_tools.sh --with-web3` (Foundry/Slither/Medusa/Echidna/Halmos/Mythril/Wake/Solana best-effort) · MCP configs in `bughunter/mcp/web3-mcp/` (foundry, solidity-audit, evm-agent-toolkit, solodit)
 - Pro workflow: `browser_capture.py` · `patch_diff_hunt.sh` · `dom_xss_harness.py` · `auth_session.py` · `./install_tools.sh --with-pro` (Playwright/Chromium, AWS CLI, mitmproxy, adb, Frida)
 
+### Knowledge corpora
+
+- `knowledge/tips/` — 333-tip bug-bounty corpus (searchable, not auto-loaded)
+
 ### External tool references
 
 - `wordlists/REFERENCES.md` — pointers to SecLists / OneListForAll / fuzz4bounty / PayloadsAllTheThings

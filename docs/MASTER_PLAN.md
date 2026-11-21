@@ -228,9 +228,9 @@ score = payout_cap
 
 - [x] Fix VulnRadar runner/concurrency/fingerprint timeout; tests green.
 - [x] Add browser capture, patch-diff hunt, pro installer.
-- [x] Add GitHub OSINT monitor.
+- [x] Add GitHub OSINT monitor (`github_osint_monitor.py` + scheduled workflow).
 - [x] Add profile/README topics, license, CI badges (VulnRadar).
-- [ ] Merge `bb-*` + 333 tips into Agentic; archive/redirect standalones.
+- [x] Import 333-tip corpus into `knowledge/tips/` (bb-* still to merge).
 - [ ] Add program-intel adapter (H1/Bugcrowd scope/payout/known issues).
 - [ ] Add EPSS/OSV/PoC-in-GitHub to VulnRadar.
 

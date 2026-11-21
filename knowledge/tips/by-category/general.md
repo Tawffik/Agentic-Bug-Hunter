@@ -1,0 +1,54 @@
+# Category: General
+
+_Count: 50_
+
+- [Cache Poisoning via Unkeyed Headers (X-Forwarded-Host / X-Forwarded-Scheme)](../skills/cache-poisoning-via-unkeyed-headers-x-forwarded-host-x-forwarded-scheme.md) — 🔥 قوية
+- [X-Forwarded-Host open-redirect style host poisoning (JS/asset redirect chains)](../skills/x-forwarded-host-open-redirect-style-host-poisoning-jsasset-redirect-chains.md) — ⭐ جيدة
+- [Re-test after "Resolved" — regressions and silent reintroductions](../skills/re-test-after-resolved-regressions-and-silent-reintroductions.md) — ⭐ جيدة
+- [Escalate the finding: SSRF→RCE, Self-XSS→Clickjacking/CSRF, misconfig chains](../skills/escalate-the-finding-ssrfrce-self-xssclickjackingcsrf-misconfig-chains.md) — 🔥 قوية
+- [Web cache poisoning via malformed Cookie parameter](../skills/web-cache-poisoning-via-malformed-cookie-parameter.md) — ⭐ جيدة
+- [Treat negative parser cases as evidence](../skills/treat-negative-parser-cases-as-evidence.md) — ⭐ جيدة
+- [AWS App Recon Chain → Cognito Identifiers, S3 / DNS / Deployment Artifact Exposure (\$10K Case)](../skills/aws-app-recon-chain-cognito-identifiers-s3-dns-deployment-artifact-exposure-10k-case.md) — ⭐ جيدة
+- [AI Builder Project Visibility Regression → Source / Chat History Authorization Boundary](../skills/ai-builder-project-visibility-regression-source-chat-history-authorization-boundary.md) — 📌 للمراجعة
+- [Supabase Auth Misconfiguration Chain → Email Auto-Confirm + User Metadata Role Escalation (\$1,800 Case)](../skills/supabase-auth-misconfiguration-chain-email-auto-confirm-user-metadata-role-escalation-1800-case.md) — ⭐ جيدة
+- [Prometheus /metrics + /pprof Exposed → Infrastructure & Runtime Disclosure](../skills/prometheus-metrics-pprof-exposed-infrastructure-runtime-disclosure.md) — ⭐ جيدة
+- [Freshservice Customer Portal Open Signup → Helpdesk Data Exposure](../skills/freshservice-customer-portal-open-signup-helpdesk-data-exposure.md) — ⭐ جيدة
+- [Symfony Profiler / app\_dev.php Exposed → Debug Trace & Environment Disclosure](../skills/symfony-profiler-app-devphp-exposed-debug-trace-environment-disclosure.md) — ⭐ جيدة
+- [Laravel Telescope in Production → Request / Query / Exception Disclosure](../skills/laravel-telescope-in-production-request-query-exception-disclosure.md) — ⭐ جيدة
+- [📌 INDEX — Bug Bounty Tips: الفئات والأولوية](../skills/index-bug-bounty-tips-الفئات-والأولوية.md) — 📌 للمراجعة
+- [Business Logic: race on wallet / coupon / referral](../skills/business-logic-race-on-wallet-coupon-referral.md) — 🔥 قوية
+- [CORS origin reflection + credentials = data theft](../skills/cors-origin-reflection-credentials-data-theft.md) — 🔥 قوية
+- [معيار مراجعة وتقييم الـ Bug Bounty Tips](../skills/معيار-مراجعة-وتقييم-الـ-bug-bounty-tips.md) — 
+- [Java/Tomcat LFI filter bypass with ;/..;/..;/](../skills/javatomcat-lfi-filter-bypass-with.md) — ⭐ جيدة
+- [Excessive API fields + GDPR/CCPA framing لرفع الـ Severity](../skills/excessive-api-fields-gdprccpa-framing-لرفع-الـ-severity.md) — 🔥 قوية
+- [Array injection (\[\] or \[1,2,3\]) → Full Path / Stack Trace Disclosure](../skills/array-injection-or-123-full-path-stack-trace-disclosure.md) — ⭐ جيدة
+- [Discover quieter bug bounty programs via Slack dork](../skills/discover-quieter-bug-bounty-programs-via-slack-dork.md) — ⭐ جيدة
+- [Google Alerts on your dorks — monitor new indexed exposure](../skills/google-alerts-on-your-dorks-monitor-new-indexed-exposure.md) — ⭐ جيدة
+- [FindSomething browser extension for credential-shaped strings during recon](../skills/findsomething-browser-extension-for-credential-shaped-strings-during-recon.md) — ⭐ جيدة
+- [LFI Hunting — 3 تقنيات من اكتشافات حقيقية (GET/POST/Hidden Params)](../skills/lfi-hunting-3-تقنيات-من-اكتشافات-حقيقية-getposthidden-params.md) — 🔥 قوية
+- [Backup Disclosure عبر فزّ امتداد tar.gz على الدومين الرئيسي](../skills/backup-disclosure-عبر-فزّ-امتداد-targz-على-الدومين-الرئيسي.md) — 🔥 قوية
+- [🔁 Metadata Flow — Referer/Origin/Redirect قد يسرّب Identifier حساس](../skills/metadata-flow-refereroriginredirect-قد-يسرّب-identifier-حساس.md) — ⭐ جيدة
+- [🏗️ Public CI Metadata — الـCI المكشوف ليس Secrets فقط؛ هو Attack-Surface Graph](../skills/public-ci-metadata-الـci-المكشوف-ليس-secrets-فقط؛-هو-attack-surface-graph.md) — 🔥 قوية
+- [🔔 Bug Bounty Tip — Subscription/Entitlement Checks Are Often Weaker Than UI Checks](../skills/bug-bounty-tip-subscriptionentitlement-checks-are-often-weaker-than-ui-checks.md) — ⭐ جيدة
+- [🔔 Bug Bounty Tip — Treat AI/Agent Findings as Hypotheses Until You Reproduce Impact](../skills/bug-bounty-tip-treat-aiagent-findings-as-hypotheses-until-you-reproduce-impact.md) — 🔥 قوية
+- [Cloudflare Worker/API Key Exposure → Edge JavaScript Supply-Chain Injection](../skills/cloudflare-workerapi-key-exposure-edge-javascript-supply-chain-injection.md) — ⭐ جيدة
+- [npm Remote Dependency URLs → CI/CD Secret Theft](../skills/npm-remote-dependency-urls-cicd-secret-theft.md) — 🔥 قوية
+- [MCP Cache Poisoning → Cross-User Prompt Injection via Cached Tool Instructions](../skills/mcp-cache-poisoning-cross-user-prompt-injection-via-cached-tool-instructions.md) — 📌 للمراجعة
+- [Malicious Extension → AI Browser Agent Privilege Hijacking](../skills/malicious-extension-ai-browser-agent-privilege-hijacking.md) — ⭐ جيدة
+- [Stored Prompt Injection عبر Project Invite → Cross-User Code Execution](../skills/stored-prompt-injection-عبر-project-invite-cross-user-code-execution.md) — 🔥 قوية
+- [ScreenConnect Application Logs — Reconstruct Remote Session Activity](../skills/screenconnect-application-logs-reconstruct-remote-session-activity.md) — ⭐ جيدة
+- [Web Cache Deception — Path/Delimiter Confusion](../skills/web-cache-deception-pathdelimiter-confusion.md) — ⭐ جيدة
+- [ScreenConnect Relay Parameters — Detect Unseen Relay Destinations](../skills/screenconnect-relay-parameters-detect-unseen-relay-destinations.md) — ⭐ جيدة
+- [🐦 أفضل حسابات Twitter/X لمتابعة Bug Bounty](../skills/أفضل-حسابات-twitterx-لمتابعة-bug-bounty.md) — 🔥 قوية
+- [💬 أفضل قنوات Telegram لمتابعة Bug Bounty](../skills/أفضل-قنوات-telegram-لمتابعة-bug-bounty.md) — ⭐ جيدة
+- [Race Condition على APIs — Double Spend / إعادة استخدام Coupons](../skills/race-condition-على-apis-double-spend-إعادة-استخدام-coupons.md) — 🔥 قوية
+- [Bypass الدفع بالـ Test Cards المنسية في Production](../skills/bypass-الدفع-بالـ-test-cards-المنسية-في-production.md) — ⭐ جيدة
+- [Business Logic: Bypass الأسعار بتلاعب العملات (Currency Confusion)](../skills/business-logic-bypass-الأسعار-بتلاعب-العملات-currency-confusion.md) — 🔥 قوية
+- [Race Condition Attack — استخدام كوبون أكتر من مرة بالتوازي](../skills/race-condition-attack-استخدام-كوبون-أكتر-من-مرة-بالتوازي.md) — 🔥 قوية
+- [توليد PDFs خبيثة لاختبار ثغرات File Upload](../skills/توليد-pdfs-خبيثة-لاختبار-ثغرات-file-upload.md) — ⭐ جيدة
+- [XXE: Bypass الفلاتر عبر UTF-7 Charset Encoding](../skills/xxe-bypass-الفلاتر-عبر-utf-7-charset-encoding.md) — ⭐ جيدة
+- [CORS Bypass عبر Whitelisted Third-Party Origins](../skills/cors-bypass-عبر-whitelisted-third-party-origins.md) — 🔥 قوية
+- [Bypass File Upload Validation بـ Magic Bytes](../skills/bypass-file-upload-validation-بـ-magic-bytes.md) — 🔥 قوية
+- [Bypass فلاتر القيم بالـ Base64 Encoding (SQL/SSTI/XSS/LFI)](../skills/bypass-فلاتر-القيم-بالـ-base64-encoding-sqlsstixsslfi.md) — 🔥 قوية
+- [أداة HuntProxy: بديل لـ Burp مبني لـ AI Agents](../skills/أداة-huntproxy-بديل-لـ-burp-مبني-لـ-ai-agents.md) — 🔥 قوية
+- [Payload واحد لاختبار SQLi + XSS + SSTI مع بعض](../skills/payload-واحد-لاختبار-sqli-xss-ssti-مع-بعض.md) — 🔥 قوية
