@@ -12,6 +12,7 @@
 | `/autopilot` | Autonomous loop: scope → recon → hunt → validate → report |
 | `/browser-capture` | Playwright authenticated capture — network, storage, cookies, screenshot, HAR |
 | `/patch-diff` | Fix/CVE commit range → security hypotheses and pre-fix PoC plan |
+| `/osint-monitor` | Delta-first GitHub org OSINT monitor |
 
 ## Recon & Enumeration
 `/surface` `/scope-aggregate` `/cloud-recon` `/param-discover` `/secrets-hunt` `/takeover` `/scan-cves` `/bypass-403` `/exposure` `/dork`

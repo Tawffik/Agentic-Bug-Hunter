@@ -55,6 +55,7 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `/web3-audit` | `/web3-audit <contract.sol>` — smart contract audit |
 | `/web3-fuzz` | `/web3-fuzz <project>` — stateful Echidna/Medusa/Foundry fuzz suite |
 | `/browser-capture` | `/browser-capture <url>` — Playwright authenticated capture |
+| `/osint-monitor` | `/osint-monitor <org1,org2>` — GitHub OSINT delta monitor |
 | `/patch-diff` | `/patch-diff <repo> [--from REF] [--to REF]` — fix/CVE regression hunt |
 | `/autopilot` | `/autopilot target.com --normal` — autonomous hunt loop |
 | `/surface` | `/surface target.com` — ranked attack surface |
