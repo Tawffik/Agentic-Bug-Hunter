@@ -13,6 +13,7 @@
 | `/browser-capture` | Playwright authenticated capture — network, storage, cookies, screenshot, HAR |
 | `/patch-diff` | Fix/CVE commit range → security hypotheses and pre-fix PoC plan |
 | `/osint-monitor` | Delta-first GitHub org OSINT monitor |
+| `/program-intel` | Public program stats + target score |
 
 ## Recon & Enumeration
 `/surface` `/scope-aggregate` `/cloud-recon` `/param-discover` `/secrets-hunt` `/takeover` `/scan-cves` `/bypass-403` `/exposure` `/dork`
