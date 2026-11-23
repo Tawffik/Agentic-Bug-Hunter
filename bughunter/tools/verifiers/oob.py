@@ -23,11 +23,16 @@ _CLASS_MAP = {
     "xxe": "xxe", "xml external entity": "xxe",
     "rce": "rce", "command injection": "rce", "os command injection": "rce",
     "log4shell": "log4shell", "log4j": "log4shell",
+    "saml": "xxe", "saml acs": "xxe", "saml-acs": "xxe",
 }
 
 
 def payloads_for(domain: str, vuln_class: str) -> dict:
-    cls = _CLASS_MAP.get(vuln_class.lower(), vuln_class.lower())
+    raw = vuln_class.lower()
+    # SAML ACS is an XML parser -> emit a SAMLResponse XXE payload (base64)
+    if raw in ("saml", "saml acs", "saml-acs"):
+        return oob_payloads(domain, ["saml"])
+    cls = _CLASS_MAP.get(raw, raw)
     return oob_payloads(domain, [cls])
 
 

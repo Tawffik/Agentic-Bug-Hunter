@@ -192,3 +192,26 @@ def test_new_classes_are_registered_and_callable():
     assert normalize_class("web cache poisoning") == "cache-poisoning"
     assert normalize_class("server side template injection") == "ssti"
     assert normalize_class("graphql idor") == "graphql-idor"
+
+
+def test_saml_xxe_payloads_generated():
+    import base64
+    from tools.verifiers import oob
+    p = oob.payloads_for("oob.example", "saml")
+    assert "saml" in p and p["saml"]
+    item = p["saml"][0]
+    dec = base64.b64decode(item["payload"]).decode()
+    assert item["marker"] in dec and "SYSTEM" in dec and "evil.dtd" in dec
+
+
+def test_saml_verify_requires_callback_then_confirms():
+    from tools.verifiers import oob
+    p = oob.payloads_for("oob.example", "saml")
+    # no interactions -> skip (no callback means no confirmation)
+    r1 = oob.verify({"vuln_class": "saml", "oob_payloads": p, "oob_interactions": []})
+    assert r1.skipped is True
+    # matching interaction -> confirmed
+    m = p["saml"][0]["marker"]
+    r2 = oob.verify({"vuln_class": "saml", "oob_payloads": p,
+                     "oob_interactions": [{"full-id": m, "protocol": "dns"}]})
+    assert r2.confirmed is True
