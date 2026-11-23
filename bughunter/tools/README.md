@@ -168,6 +168,13 @@ adb, Frida; gcloud/az are printed as separate installs).
 | `validate_core.py` | Non-tty validation gate: kill-signals, Q8 identity, verifier, evidence contract, adversarial falsifier |
 | `evidence_contract.py` | Four-part reportability bar (proof · ownership · artifact · report_support) |
 | `adversarial_validator.py` | Tries to DISPROVE a confirmed finding (public/generic/own-object/login-page) |
+| `app_model.py` | Build a deduplicated `app-model/1` from URLs/JS/specs; marks object refs (IDOR surface) |
+| `prior_art_rag.py` | Offline TF-IDF prior-art search with a relevance gate (avoids misleading retrieval) |
+| `planning_ledger.py` | Hypothesis/commitment ledger (`held`/`converted`/`killed`) across fresh contexts |
+| `stage_handoff.py` | Fresh-context stage bundles (no chain-of-thought carry-over) |
+| `model_router.py` | Stage→tier model routing + `CostLedger` ($/solve) |
+| `process_metrics.py` | Grounded-verification rate, contract pass, falsification rate, stage credit |
+| `agent_supply_chain_scan.py` | Static audit of skills/agents/MCP configs (pipe-to-shell, secrets, injection) |
 | `safe_http.py` | Single SSRF-safe egress seam (redirect + metadata/private-host blocklist) |
 | `research_log.py` | Drafts learning entries from validation outcomes |
 | `prompt_safety.py` | Prompt-injection delimiting helpers for untrusted target content |

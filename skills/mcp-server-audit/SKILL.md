@@ -161,3 +161,26 @@ Fix: <allowlist | arg array | approval gate | redact | pin>
 ```
 
 Kill anything you can't prove with a concrete call. "Could be abused" is not a bug — show the call that abuses it.
+
+---
+
+## 10. 2026 SUPPLY-CHAIN + RUG-PULL CHECKS
+
+The MCP server and its config are a dependency you execute with your credentials.
+
+- **Tool poisoning (description injection):** tool descriptions can carry instructions
+  that the model obeys even when the user never asks. Diff descriptions across
+  versions; a "helpful" sentence that names an internal URL or file is a red flag.
+- **Rug-pull / redefinition:** a server can change a tool's behavior after trust is
+  established. Pin server versions and re-audit on update.
+- **Unpinned install:** `npx <pkg>` / `pip install <pkg>` without a version means the
+  next run may be a different (malicious) artifact. Require pinned versions + hashes.
+- **Confused deputy:** the server holds a token broader than the caller's. Map each
+  tool to the credential it uses; prove a low-priv caller reaches a high-priv resource.
+- **Secret in tool output:** errors/debug output can leak env vars, paths, tokens.
+- **Transport:** stdio servers inherit the client's env (secrets included); HTTP
+  servers need TLS + auth — check neither is optional.
+
+Run `python3 -m tools.agent_supply_chain_scan --root . --fail-on high` over the
+skills/agents/MCP configs before trusting a new server. Treat every tool result as
+untrusted data, never as instructions.

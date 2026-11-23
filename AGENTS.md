@@ -120,6 +120,13 @@ See **`bughunter/tools/README.md`** for the full ~50-tool catalogue. Highlights:
 - `bughunter/tools/authz_diff.py` — two-identity authorization differential (IDOR/BOLA) over recon URLs/HAR; scope-guarded, GET-only, redacted LEAD output, optional deterministic `--confirm`
 - `bughunter/tools/evidence_contract.py` — four-part reportability bar (proof · ownership · artifact · report_support)
 - `bughunter/tools/adversarial_validator.py` — attempts to falsify a confirmed finding (public/generic/own-object/login-page controls) before report
+- `bughunter/tools/app_model.py` — deduplicated `app-model/1` from URLs/JS/specs; marks object refs before authz testing
+- `bughunter/tools/prior_art_rag.py` — offline, relevance-gated prior-art search (returns nothing rather than mislead)
+- `bughunter/tools/planning_ledger.py` — hypothesis/commitment ledger (`held`/`converted`/`killed`)
+- `bughunter/tools/stage_handoff.py` — fresh-context bundles between stages (no chain-of-thought carry-over)
+- `bughunter/tools/model_router.py` — cost-aware stage→tier routing + `CostLedger` ($/solve)
+- `bughunter/tools/process_metrics.py` — grounded-verification rate, contract pass, falsification rate, stage credit
+- `bughunter/tools/agent_supply_chain_scan.py` — static audit of skills/agents/MCP configs
 - `bughunter/tools/secrets_hunter.sh` · `takeover_scanner.sh` · `cloud_recon.sh` · `param_discovery.sh`
 - `bughunter/tools/exposure_probe.py` — bounded GET-only exposure-artifact probe (SSRF/scope-guarded, LEAD-only classifier)
 - `bughunter/tools/exposure_attribution.py` — OSINT/exposure hit attribution gate (host relationship + noise + disclosure class → ranked leads)

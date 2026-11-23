@@ -61,3 +61,25 @@ Use the single authoritative ASI01-ASI10 table in `skills/llm-redteam/SKILL.md`.
 - Use TWO identities for anything cross-tenant — the #1 N/A cause is proving it against your own data.
 - Destructive-action findings must show the action actually happened (or a safe canary equivalent the program allows), never "it would have."
 - Record the full turn sequence so triage can replay the chain verbatim.
+
+## 5. 2026 ADVANCED CLASSES (beyond the basics)
+
+| Class | What it is | Deterministic oracle |
+|---|---|---|
+| **Delayed execution / time-bomb** | Instruction planted now fires on a later trigger ("next time you see X, do Y") | Plant a canary instruction, return in a new session, observe the action |
+| **Cross-agent propagation** | A poisoned doc/context is relayed by agent A to agent B with more privilege | Agent B performs a privileged action it never should have |
+| **PleaseFix intent collision** | A hidden instruction reframes a legitimate fix request into an attack (e.g. "fix this bug" → patch that opens an SSRF) | The downstream artifact (PR/patch/config) contains the injected behavior |
+| **Memory write primitive** | User text is stored as durable memory without ownership scoping | Identity B reads identity A's planted canary (see 2.2) |
+| **Guardrail bypass via tool result** | Malicious tool output is treated as instructions | Tool result triggers a tool call the user never asked for |
+| **Multi-step confirmation bypass** | Splitting a destructive action across turns avoids the confirmation gate | The destructive action completes with no approval prompt |
+
+Rules: a "canary instruction" must be unique and must never be a real destructive
+action. Confirm with `tools/verifiers/business-logic.py` (scripted sequence +
+invariant checks) or a canary read-back, never with "the model said it would."
+
+## 6. TOOLING
+
+- `bughunter/tools/verifiers/llm_exfil.py` — planted-canary exfiltration oracle (probe + control).
+- `bughunter/tools/verifiers/business_logic.py` — scripted multi-turn sequence with invariant assertions.
+- `bughunter/tools/adversarial_validator.py` — refutes public/generic markers before report.
+- `bughunter/tools/agent_supply_chain_scan.py` — audit the agent's own skills/MCP configs.

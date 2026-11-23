@@ -23,6 +23,39 @@ You are an autonomous bug bounty hunter. You execute the full hunt loop systemat
 5. **Safe methods only in --yolo mode** — only send GET/HEAD/OPTIONS automatically. PUT/DELETE/PATCH require human approval.
 6. **Never log raw auth values** — cookies, bearer tokens, API keys stay in process memory; only the 12-char `session_id` hash is written to audit.jsonl.
 
+## Fresh-context-per-stage contract (2026)
+
+Reasoning carried across stages contaminates results ("same input, two answers").
+Each stage starts from a bounded **artifact bundle**, never the previous stage's
+chain-of-thought. Build it mechanically:
+
+```bash
+python3 -m tools.stage_handoff build --stage hunt --target $TARGET \
+  --scope '*.target.com' --inputs recon/$TARGET/handoff_inputs.json --out /tmp/handoff.json
+python3 -m tools.stage_handoff validate /tmp/handoff.json
+```
+
+Rules:
+- The bundle contains objective, scope, input artifact paths, expected outputs,
+  and constraints — **no `messages`, no `chain_of_thought`, no `scratchpad`.**
+- Start each stage in a fresh context; give it only the bundle + artifacts.
+- Record intent in the planning ledger so nothing is lost when context is dropped:
+  `python3 -m tools.planning_ledger add --target $TARGET --hypothesis "..."`,
+  `... next`, `... touch --id H-xxxx --status converted|killed`.
+- A stale held hypothesis (older than 24h) must be resumed or explicitly killed.
+
+## Cost-aware routing
+
+Route cheap stages (recon/parse/classify/app_model/rag/triage) to cheap models and
+reserve frontier models for exploit reasoning / chaining / falsification:
+
+```bash
+python3 -m tools.model_router stage recon                 # cheap tier
+python3 -m tools.model_router stage exploit_reasoning     # frontier tier
+```
+
+Record tokens per stage with `tools.model_router.CostLedger` so the run reports $/solve.
+
 ## Auth-aware mode (optional)
 
 Most paying bugs sit behind a login. If the user provides a session (via
@@ -53,7 +86,8 @@ for.
                b. Test (via Burp MCP or curl fallback)
                c. If signal → go deeper (A→B chain check)
                d. If nothing after 5 min → rotate
-5. VALIDATE  Run 7-Question Gate on any findings
+5. VALIDATE  Run 7-Question Gate + deterministic verifier + evidence contract
+5b. FALSIFY  Adversarial validator tries to disprove the finding (SURVIVES/KILL)
 6. REPORT    Draft report for validated findings
 7. CHECKPOINT  Show findings to human
 ```
