@@ -56,6 +56,11 @@ Real runtime scanners exist for XSS/SQLi/SSTI/MFA/SAML (`vuln_scanner.sh`), IDOR
 
 **Missing capabilities:**
 
+- **Generic IDOR/BOLA authorization differential** — ✅ SHIPPED (`/authz-diff`,
+  `tools/authz_diff.py`): two-identity replay over recon URLs or HAR, anonymous
+  control, schema-aware similarity, marker oracle, and optional deterministic
+  IDOR-verifier confirmation. Persists no headers/bodies. Previously only a
+  HackerOne-specific scanner existed; generic object-level authz was manual.
 - **CORS misconfiguration** — ✅ SHIPPED (`/cors`, `tools/cors_scanner.py`). Previously [docs-only]. One of the most common real bugs; there's
   no automated ACAO-reflection / null-origin / wildcard-credentials tester.
 - **NoSQL injection (the "db" surface)** — ✅ SHIPPED (`/nosqli`, `tools/nosqli_scanner.py`):
@@ -116,6 +121,12 @@ deterministic `scope_checker.py`, audit log, pattern DB, 12-provider brain.
   leverage gap.)
 - **No Burp/Caido active-scan driving** — the MCP clients proxy traffic but the agent can't
   launch/consume an active scan.
+- **Dead advertised agent tools** — ✅ FIXED (2026-11-23): 11 of 13 network tools
+  had no `hunt.py` backend and silently returned TOOL UNAVAILABLE. JS analysis,
+  secret hunt, param discovery, CORS, JWT audit, CMS/RCE nuclei sweeps, sqlmap,
+  and two-identity authz diff are now wired; `self_audit.py` reports dead tools
+  and `tests/test_agent_tool_contract.py` prevents regression. The redundant
+  POST-param tool was removed rather than left advertised-but-dead.
 - **No browser automation** in `agent.py` (same gap as Web2).
 - **No parallel multi-host hunting** — the loop is sequential.
 - **No automatic PoC capture** (screenshot/HAR/video) for reports.

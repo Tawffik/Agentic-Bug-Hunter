@@ -68,3 +68,16 @@ def test_touch_unknown_lead_is_safe(isolated):
     lb.touch("t.example", "lb-doesnotexist", "killed", None)  # must not raise
     leads = lb.load_ledger("t.example")
     assert all(l["status"] != "killed" for l in leads)
+
+
+def test_path_object_id_and_authz_leads_route_to_idor(isolated):
+    rd = isolated / "recon2"
+    (rd / "urls").mkdir(parents=True)
+    (rd / "urls" / "all.txt").write_text("https://t.example/dashboard\n")
+    (rd / "authz").mkdir()
+    (rd / "authz" / "leads.txt").write_text("https://t.example/api/orders/12345\n")
+
+    leads = lb.ingest("t.example", str(rd))
+    idor = [l for l in leads if l["skill"] == "hunt-idor"]
+    assert idor, f"authz lead not routed; got {[l['skill'] for l in leads]}"
+    assert any(l["evidence"].endswith("/api/orders/12345") for l in idor)

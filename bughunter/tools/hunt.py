@@ -23,6 +23,7 @@ import ipaddress
 import json
 import os
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -609,11 +610,10 @@ def run_swarm(domain, workers=6):
     log("info", f"Swarm: fanning out verifiers for {domain} ({workers} workers)...")
     scope = (_SCOPE_CHECKER.domains if _SCOPE_CHECKER and getattr(_SCOPE_CHECKER, "domains", None)
              else [domain])
-    scope_args = " ".join(f'--scope-domain "{d}"' for d in scope)
-    ok, out = run_cmd(
-        f'python3 "{script}" "{domain}" --workers {int(workers)} {scope_args}',
-        timeout=1800,
-    )
+    cmd = [sys.executable, script, domain, "--workers", str(int(workers))]
+    for entry in scope:
+        cmd += ["--scope-domain", str(entry)]
+    ok, out = run_cmd(cmd, timeout=1800)
     if out.strip():
         print(out.rstrip())
     if not ok:
@@ -791,6 +791,350 @@ def run_vuln_scan(domain, quick=False):
         return False
 
 
+def _recon_files(domain, relpaths, limit=None):
+    recon_dir = _resolve_recon_dir(domain)
+    lines = []
+    for rel in relpaths:
+        path = os.path.join(recon_dir, rel)
+        if not os.path.isfile(path):
+            continue
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            lines.extend(ln.strip() for ln in fh if ln.strip())
+    seen, out = set(), []
+    for line in lines:
+        if line in seen:
+            continue
+        seen.add(line)
+        out.append(line)
+        if limit and len(out) >= limit:
+            break
+    return out
+
+
+def _write_react_findings(domain, subdir, filename, lines):
+    findings_dir = _resolve_findings_dir(domain, create=True)
+    out_dir = os.path.join(findings_dir, subdir)
+    os.makedirs(out_dir, exist_ok=True)
+    path = os.path.join(out_dir, filename)
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(lines) + ("\n" if lines else ""))
+    return path
+
+
+def run_js_analysis(domain):
+    """Run the deterministic offline JS analyzer over recon JS bundles."""
+    recon_dir = _resolve_recon_dir(domain)
+    js_dir = os.path.join(recon_dir, "js")
+    if not os.path.isdir(js_dir):
+        log("err", f"No fetched JS bundles for {domain} (run recon first).")
+        return False
+    out_dir = os.path.join(recon_dir, "js_analysis")
+    ok, output = run_cmd(
+        [sys.executable, os.path.join(TOOLS_DIR, "js_analyzer.py"),
+         "analyze", js_dir, "--out", out_dir, "--json"],
+        timeout=300,
+    )
+    if output.strip():
+        print(output.rstrip())
+    analysis_path = os.path.join(out_dir, "analysis.json")
+    lines = [f"js_analyzer ok={ok}"]
+    try:
+        with open(analysis_path, encoding="utf-8") as fh:
+            result = json.load(fh)
+        lines.append(f"sources={result.get('sources', 0)} endpoints={len(result.get('paths', []))} "
+                     f"params={len(result.get('params', []))} secrets={len(result.get('secrets', []))}")
+        for endpoint in result.get("paths", [])[:100]:
+            lines.append(f"[ENDPOINT] {endpoint}")
+        for secret in result.get("secrets", [])[:50]:
+            lines.append(f"[SECRET] {secret.get('kind')}: {secret.get('value')} ({secret.get('source')})")
+        for sink, count in (result.get("sinks") or {}).items():
+            lines.append(f"[SINK] {sink} x{count}")
+    except (OSError, ValueError) as exc:
+        lines.append(f"analysis.json unreadable: {exc}")
+    _write_react_findings(domain, "js", "js_analysis.txt", lines)
+    return ok
+
+
+def run_secret_hunt(domain):
+    """Scan recon JS bundles for leaked credentials."""
+    recon_dir = _resolve_recon_dir(domain)
+    if not os.path.isfile(os.path.join(recon_dir, "urls", "js_files.txt")):
+        log("err", f"No urls/js_files.txt for {domain} (run recon first).")
+        return False
+    out_dir = os.path.join(_resolve_findings_dir(domain, create=True), "secrets")
+    script = os.path.join(TOOLS_DIR, "secrets_hunter.sh")
+    ok, output = run_cmd(
+        ["bash", script, "--js-bundle", recon_dir, "--out", out_dir],
+        timeout=900,
+    )
+    if output.strip():
+        print(output.rstrip()[-4000:])
+    return ok
+
+
+def run_param_discovery(domain):
+    """Brute-force hidden GET parameters on recon URLs."""
+    urls = _recon_files(domain, ("urls/with_params.txt", "urls/all.txt"), limit=25)
+    if not urls:
+        log("err", f"No recon URLs for {domain}.")
+        return False
+    recon_dir = _resolve_recon_dir(domain)
+    list_path = os.path.join(recon_dir, "params", "param_scan_targets.txt")
+    os.makedirs(os.path.dirname(list_path), exist_ok=True)
+    with open(list_path, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(urls) + "\n")
+    env = os.environ.copy()
+    env["PARAM_OUT_DIR"] = os.path.join(recon_dir, "params")
+    ok, output = run_cmd(
+        ["bash", os.path.join(TOOLS_DIR, "param_discovery.sh"), "-l", list_path],
+        timeout=900,
+    )
+    findings = [ln for ln in output.splitlines() if "→" in ln or "hit" in ln.lower()]
+    _write_react_findings(domain, "params", "param_discovery.txt",
+                          findings or ["no hidden parameters reported"])
+    if output.strip():
+        print(output.rstrip()[-3000:])
+    return ok
+
+
+def run_cors_check(domain):
+    """Test recon URLs for credentialed CORS misconfiguration."""
+    urls = _recon_files(domain, ("live/urls.txt", "urls/all.txt"), limit=40)
+    if not urls:
+        log("err", f"No live hosts for {domain} (run recon first).")
+        return False
+    from tools import cors_scanner
+
+    cookie = None
+    if _AUTH_SESSION is not None and not _AUTH_SESSION.is_empty():
+        cookie = _AUTH_SESSION.headers_dict().get("Cookie") or None
+    summary = []
+    for url in urls:
+        try:
+            findings = cors_scanner.scan(url, cookie=cookie, timeout=15)
+        except Exception as exc:  # noqa: BLE001 - one host must not abort the sweep
+            log("warn", f"CORS scan failed for {url}: {type(exc).__name__}")
+            continue
+        for finding in findings:
+            if finding.severity == "INFO":
+                continue
+            summary.append(f"[{finding.severity}] {finding.title} {finding.url} "
+                           f"ACAO={finding.acao} ACAC={finding.acac}")
+    _write_react_findings(domain, "cors", "cors_findings.txt",
+                          summary or ["no actionable CORS finding"])
+    if summary:
+        for line in summary:
+            print(line)
+    return bool(urls)
+
+
+def run_jwt_audit(domain):
+    """Extract JWTs from recon artifacts and run the offline JWT analyzer."""
+    recon_dir = _resolve_recon_dir(domain)
+    token_re = re.compile(r"eyJ[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]*")
+    tokens = set()
+    scanned = 0
+    scanned_paths = 0
+    for root, _, files in os.walk(recon_dir):
+        if os.path.basename(root) == "js_analysis":
+            continue
+        for name in files:
+            scanned_paths += 1
+            if scanned_paths > 3000:
+                break
+            path = os.path.join(root, name)
+            try:
+                if os.path.getsize(path) > 2_000_000:
+                    continue
+                with open(path, encoding="utf-8", errors="replace") as fh:
+                    text = fh.read()
+            except OSError:
+                continue
+            scanned += 1
+            tokens.update(token_re.findall(text))
+            if len(tokens) >= 50:
+                break
+        if len(tokens) >= 50 or scanned_paths > 3000:
+            break
+    if not tokens:
+        _write_react_findings(domain, "jwt", "jwt_audit.txt", ["no JWT found in recon artifacts"])
+        return False
+
+    from tools import jwt_scanner
+
+    lines = []
+    for token in sorted(tokens)[:20]:
+        try:
+            for issue in jwt_scanner.analyze(token):
+                lines.append(f"[{issue.severity}] {issue.title} — {issue.detail}")
+        except Exception as exc:  # noqa: BLE001
+            lines.append(f"[error] token analysis failed: {type(exc).__name__}")
+    _write_react_findings(domain, "jwt", "jwt_audit.txt",
+                          [f"scanned_files={scanned} tokens={len(tokens)}"] + lines)
+    if lines:
+        print("\n".join(lines[:20]))
+    return True
+
+
+def _nuclei_sweep(domain, tags, subdir, filename, limit=40, severity="high,critical"):
+    urls = _recon_files(domain, ("live/urls.txt", "urls/all.txt"), limit=limit)
+    if not urls:
+        log("err", f"No live hosts for {domain} (run recon first).")
+        return False
+    recon_dir = _resolve_recon_dir(domain)
+    list_path = os.path.join(recon_dir, f"nuclei_{subdir}_targets.txt")
+    with open(list_path, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(urls) + "\n")
+    out_dir = os.path.join(_resolve_findings_dir(domain, create=True), subdir)
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, filename)
+    cmd = ["nuclei", "-l", list_path, "-tags", tags, "-severity", severity,
+           "-silent", "-jsonl", "-o", out_path]
+    ok, output = run_cmd(cmd, timeout=1200)
+    if output.strip():
+        print(output.rstrip()[-3000:])
+    hits = 0
+    try:
+        with open(out_path, encoding="utf-8", errors="replace") as fh:
+            hits = sum(1 for line in fh if line.strip())
+    except OSError:
+        pass
+    log("info", f"nuclei {tags}: {hits} hit(s) → {out_path}")
+    return ok
+
+
+def run_cms_exploit(domain):
+    return _nuclei_sweep(domain, "cms,wordpress,drupal,joomla,magento", "cms", "nuclei_cms.jsonl")
+
+
+def run_rce_scan(domain):
+    return _nuclei_sweep(domain, "rce,log4j,jndi", "rce", "nuclei_rce.jsonl")
+
+
+def _sqlmap_available():
+    return shutil.which("sqlmap") is not None
+
+
+def _sqlmap_confirmed(output):
+    """True only on sqlmap's positive wording; 'not injectable' must not match."""
+    text = (output or "").lower()
+    if "not injectable" in text or "do not appear to be injectable" in text:
+        return False
+    return "is vulnerable" in text
+
+
+def run_sqlmap_targeted(domain):
+    """Run sqlmap against the parameterized URLs from recon."""
+    if not _sqlmap_available():
+        log("err", "sqlmap not installed — see ./tools/external_arsenal.sh --install-hint sqlmap")
+        return False
+    urls = _recon_files(domain, ("urls/with_params.txt",), limit=10)
+    if not urls:
+        log("err", f"No parameterized URLs for {domain}.")
+        return False
+    out_dir = os.path.join(_resolve_findings_dir(domain, create=True), "sqlmap")
+    os.makedirs(out_dir, exist_ok=True)
+    inj = []
+    for url in urls:
+        ok, output = run_cmd(
+            ["sqlmap", "-u", url, "--batch", "--smart", "--level", "2", "--risk", "1",
+             "--timeout", "15", "--output-dir", out_dir, "--flush-session"],
+            timeout=180,
+        )
+        if _sqlmap_confirmed(output):
+            inj.append(url)
+            print(f"[VULN] sqlmap injectable: {url}")
+    _write_react_findings(domain, "sqlmap", "sqlmap_injectable.txt",
+                          inj or ["no injectable parameter confirmed"])
+    return True
+
+
+def run_sqlmap_request_file(request_file, domain=None, level=5, risk=3):
+    """Run sqlmap against one raw HTTP request file (human-approved path)."""
+    if not _sqlmap_available():
+        log("err", "sqlmap not installed — see ./tools/external_arsenal.sh --install-hint sqlmap")
+        return False
+    if not request_file or not os.path.isfile(request_file):
+        log("err", f"request file not found: {request_file}")
+        return False
+    label = domain or "request-file"
+    try:
+        label = _validate_domain_for_path(label)
+    except ValueError:
+        label = "request-file"
+    out_dir = os.path.join(_resolve_findings_dir(label, create=True), "sqlmap")
+    os.makedirs(out_dir, exist_ok=True)
+    ok, output = run_cmd(
+        ["sqlmap", "-r", request_file, "--batch", "--level", str(int(level)),
+         "--risk", str(int(risk)), "--output-dir", out_dir, "--flush-session"],
+        timeout=900,
+    )
+    vulnerable = _sqlmap_confirmed(output)
+    _write_react_findings(label, "sqlmap", "sqlmap_request_file.txt",
+                          [f"request_file={os.path.basename(request_file)}",
+                           f"vulnerable={vulnerable}"])
+    if output.strip():
+        print(output.rstrip()[-4000:])
+    return ok
+
+
+def run_authz_diff(domain, headers_a="", headers_b="", victim_marker="",
+                   attacker_marker="", max_urls=200, confirm=False):
+    """Two-identity IDOR/BOLA differential over recon endpoints (LEAD-only)."""
+    if _SCOPE_CHECKER is None:
+        log("err", "authz diff requires a configured scope (--scope-domain) — refusing.")
+        return False
+    if not headers_b:
+        log("err", "authz diff needs identity B headers file (--headers-b).")
+        return False
+    from tools import authz_diff
+
+    try:
+        identity_a = authz_diff.load_identity("a", headers_a or None)
+        identity_b = authz_diff.load_identity("b", headers_b)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        log("err", f"authz identity file error: {exc}")
+        return False
+    recon_dir = _resolve_recon_dir(domain)
+    urls = authz_diff.urls_from_recon(recon_dir, _SCOPE_CHECKER)
+    if not urls:
+        urls = authz_diff._absolute_urls(
+            _recon_files(domain, ("urls/all.txt",)), _SCOPE_CHECKER
+        )
+    urls = urls[:max(1, int(max_urls))]
+    if not urls:
+        log("err", f"No in-scope recon URLs for {domain}.")
+        return False
+    scanner = authz_diff.Scanner(
+        identity_a=identity_a if identity_a.headers else None,
+        identity_b=identity_b,
+        marker_a=victim_marker, marker_b=attacker_marker,
+        include_html=False, scope_checker=_SCOPE_CHECKER, confirm=bool(confirm),
+    )
+    cases = [scanner.scan(url) for url in urls]
+    out_dir = os.path.join(_resolve_findings_dir(domain, create=True), "authz")
+    results = authz_diff._write_results(out_dir, cases, {
+        "identity_b": identity_b.redacted(),
+        "identity_a": identity_a.redacted() if identity_a.headers else None,
+        "lead_only": True,
+    })
+    leads = [c for c in cases if c.verdict in {
+        "CROSS_USER_MARKER", "IDENTICAL_ACROSS_IDENTITIES", "SAME_SCHEMA_DIFFERENT_DATA"}]
+    for case in leads:
+        log("warn", f"[{case.confidence}] {case.verdict} {case.url}")
+    _write_react_findings(domain, "authz", "authz_leads.txt",
+                          [f"[{c.confidence.upper()}] {c.verdict} {c.url} "
+                           f"(sim={c.similarity:.2f})" for c in leads]
+                          or ["no authorization differential lead"])
+    recon_authz = os.path.join(_resolve_recon_dir(domain), "authz")
+    os.makedirs(recon_authz, exist_ok=True)
+    with open(os.path.join(recon_authz, "leads.txt"), "w", encoding="utf-8") as fh:
+        for case in leads:
+            fh.write(case.url + "\n")
+    log("info", f"authz diff: {len(cases)} tested, {len(leads)} lead(s) → {results}")
+    return True
+
+
 def generate_reports(domain):
     """Generate reports for findings."""
     log("warn", "report_generator.py has been removed. Use /report in Claude Code to generate reports.")
@@ -798,7 +1142,6 @@ def generate_reports(domain):
 
 
 def show_status():
-    """Show current pipeline status."""
     print(f"\n{BOLD}{'='*50}{NC}")
     print(f"{BOLD}  Bug Bounty Pipeline Status{NC}")
     print(f"{BOLD}{'='*50}{NC}\n")

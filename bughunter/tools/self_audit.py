@@ -25,6 +25,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import os
 import re
@@ -94,6 +95,41 @@ def _documented_tools(repo: Path) -> set[str]:
     return {m.group(1) for m in _README_TOOL.finditer(readme.read_text(errors="ignore"))}
 
 
+def agent_tool_wiring(repo: Path = REPO) -> dict:
+    """Compare advertised agent tool backends with functions that exist.
+
+    The ReAct agent once advertised 13 network tools while only 2 had a
+    backend, so most of its capability silently returned TOOL UNAVAILABLE.
+    Static AST parsing keeps this check independent of optional dependencies.
+    """
+    agent_path = repo / "bughunter" / "agent.py"
+    hunt_path = repo / "bughunter" / "tools" / "hunt.py"
+    if not agent_path.is_file() or not hunt_path.is_file():
+        return {"agent_backends": 0, "agent_dead_tools": []}
+    try:
+        agent_tree = ast.parse(agent_path.read_text(encoding="utf-8", errors="replace"))
+        hunt_tree = ast.parse(hunt_path.read_text(encoding="utf-8", errors="replace"))
+    except SyntaxError as exc:
+        return {"agent_backends": 0,
+                "agent_dead_tools": [{"tool": "<parse>", "backend": str(exc)}]}
+    hunt_defs = {
+        node.name for node in ast.walk(hunt_tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    backends: dict[str, str] = {}
+    for node in ast.walk(agent_tree):
+        if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Dict):
+            continue
+        if not any(isinstance(t, ast.Name) and t.id == "TOOL_BACKENDS" for t in node.targets):
+            continue
+        for key, value in zip(node.value.keys, node.value.values):
+            if isinstance(key, ast.Constant) and isinstance(value, ast.Constant):
+                backends[str(key.value)] = str(value.value)
+    dead = [{"tool": tool, "backend": backend}
+            for tool, backend in backends.items() if backend not in hunt_defs]
+    return {"agent_backends": len(backends), "agent_dead_tools": dead}
+
+
 def collect_inventory(repo: Path = REPO, which=shutil.which) -> dict:
     skills = sorted(p.parent.name for p in (repo / "skills").glob("*/SKILL.md"))
     commands = sorted(p.name for p in (repo / "commands").glob("*.md"))
@@ -126,6 +162,7 @@ def collect_inventory(repo: Path = REPO, which=shutil.which) -> dict:
         "external_missing": missing,
         "documented_tools": sorted(documented),
         "undocumented_tools": undocumented,
+        **agent_tool_wiring(repo),
     }
 
 
@@ -149,6 +186,16 @@ def detect_gaps(inv: dict) -> list[dict]:
                 "fix": "bash bughunter/tools/external_arsenal.sh --install-hint <tool>",
                 "items": names,
             })
+
+    dead = inv.get("agent_dead_tools", [])
+    if dead:
+        gaps.append({
+            "kind": "dead_agent_tool",
+            "severity": "high",
+            "summary": f"{len(dead)} advertised agent tool(s) have no backend",
+            "fix": "implement the hunt.py backend or remove the advertised tool",
+            "items": [f"{d['tool']} -> {d['backend']}" for d in dead],
+        })
 
     undoc = inv.get("undocumented_tools", [])
     if undoc:
@@ -364,6 +411,8 @@ def cmd_audit(args, home: Path) -> int:
             "tests": len(inv["tests"]),
             "external_installed": len(inv["external_installed"]),
             "external_missing": len(inv["external_missing"]),
+            "agent_backends": inv.get("agent_backends", 0),
+            "agent_dead_tools": len(inv.get("agent_dead_tools", [])),
         },
         "gaps": gaps,
         "tests": tests,
@@ -379,6 +428,8 @@ def cmd_audit(args, home: Path) -> int:
           f"| tools {cap['tools']} | tests {cap['tests']}")
     print(f"  external tools: {cap['external_installed']} installed, "
           f"{cap['external_missing']} missing")
+    print(f"  agent tool backends: {cap['agent_backends']} wired, "
+          f"{cap['agent_dead_tools']} dead")
     if tests:
         print(f"  tests: {tests.get('passed')} passed, {tests.get('failed')} failed, "
               f"{tests.get('errors')} errors")

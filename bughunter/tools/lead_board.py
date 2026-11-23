@@ -51,6 +51,8 @@ ROUTES = [
      "url", "hunt-open-redirect", P_MED, "redirect param", "open redirect; chains to OAuth token theft"),
     (R(r"[?&](id|uid|user_id|userid|account|account_id|order|order_id|invoice|doc|doc_id|file_id|record|profile|customer|cid|pid|num|no|key)=\d", re.I),
      "url", "hunt-idor", P_HIGH, "numeric object ref", "sequential ID -> IDOR/BOLA; swap to other tenant"),
+    (R(r"/(?:users?|accounts?|orders?|invoices?|reports?|profiles?|customers?|tickets?|documents?|files?|payments?|transactions?|projects?|members?)/\d+(?:[/?#]|$)", re.I),
+     "url", "hunt-idor", P_HIGH, "object path ID", "path object ref -> replay as second identity (/authz-diff)"),
     (R(r"/graph(i?ql|iql)|/api/graphql|/gql\b", re.I),
      "url", "hunt-graphql", P_HIGH, "GraphQL endpoint", "introspection/batching/alias-IDOR -> graphql-audit"),
     (R(r"/(v\d|api|rest)/|/api\b", re.I),
@@ -236,7 +238,8 @@ def gather_recon(recon_dir):
     g = lambda pat: [f for f in glob.glob(os.path.join(recon_dir, pat), recursive=True)]
     urls, hostlines, nuclei = [], [], []
     for pat in ("urls/all.txt", "urls/with_params.txt", "urls/api_endpoints.txt",
-                "urls/js_files.txt", "js/endpoints.txt", "urls.txt", "**/urls.txt"):
+                "urls/js_files.txt", "js/endpoints.txt", "authz/leads.txt",
+                "urls.txt", "**/urls.txt"):
         for f in g(pat):
             urls += _read(f)
     for pat in ("live/httpx_full.txt", "live/urls.txt", "live-hosts.txt",

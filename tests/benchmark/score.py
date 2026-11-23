@@ -26,8 +26,10 @@ import sys
 import time
 
 _REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-if _REPO not in sys.path:
-    sys.path.insert(0, _REPO)
+_PKG = os.path.join(_REPO, "bughunter")
+for _path in (_REPO, _PKG):
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
 
 from tools.validate_core import verify_finding_programmatic  # noqa: E402
 from tests.benchmark import cases as bench_cases  # noqa: E402

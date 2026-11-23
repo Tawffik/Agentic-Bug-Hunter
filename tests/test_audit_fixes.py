@@ -173,6 +173,7 @@ def test_dispatch_run_vuln_scan_matches_real_signature(memory, monkeypatch):
 
 def test_dispatch_unwired_tool_reports_unavailable(memory, monkeypatch):
     monkeypatch.setattr(agent, "_h", lambda: hunt)
+    monkeypatch.setitem(ToolDispatcher.TOOL_BACKENDS, "run_secret_hunt", "missing_backend")
     d = ToolDispatcher("target.com", memory, scope_checker=_checker())
     out = d.dispatch("run_secret_hunt", {})
     assert out.startswith("TOOL UNAVAILABLE")

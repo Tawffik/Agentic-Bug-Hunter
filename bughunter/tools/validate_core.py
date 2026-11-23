@@ -239,9 +239,11 @@ def verify_finding_programmatic(
     if write_dir:
         import json
 
+        from memory.redaction import redact_obj
+
         os.makedirs(write_dir, exist_ok=True)
         with open(os.path.join(write_dir, "validation.json"), "w", encoding="utf-8") as fh:
-            json.dump(payload, fh, indent=2, sort_keys=True)
+            json.dump(redact_obj(payload), fh, indent=2, sort_keys=True)
             fh.write("\n")
 
     return payload

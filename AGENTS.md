@@ -75,6 +75,7 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `/js-analyze` | `/js-analyze <file\|dir>` — offline JS endpoints/secrets/sinks/source-maps |
 | `/bypass-403` | `/bypass-403 <url>` — try header/method/encoding tricks against a 403/401 |
 | `/exposure` | `/exposure <url> [--in-scope target.com]` — bounded artifact probe + visibility validation (LEAD-only) |
+| `/authz-diff` | `/authz-diff --recon-dir recon/t.com --headers-a a.h --headers-b b.h --victim-marker a@x --scope t.com` — two-identity IDOR/BOLA differential (LEAD-only; `--confirm` via IDOR verifier) |
 | `/csrf` | `/csrf <url> -p k=v [--json ...]` — generate CSRF PoCs + SameSite analysis |
 | `/xxe` | `/xxe --kind file\|ssrf\|oob\|xinclude\|svg\|php-filter\|utf7` — build/send bounded XXE payloads |
 | `/dork` | `/dork target.com [--category ...]` — scoped Google/Bing/GitHub/Shodan query generation + attribution gate |
@@ -115,6 +116,7 @@ See **`bughunter/tools/README.md`** for the full ~50-tool catalogue. Highlights:
 - `bughunter/tools/graphql_audit.sh` · `cicd_scanner.sh` · `cve_scan.sh` · `eol_check.py`
 - `bughunter/tools/waf_encoder.py` · `waf_response_analyzer.py` · `multipart_mutator.py` · `bypass_403.sh`
 - `bughunter/tools/external_arsenal.sh` — installed-tool registry (~50 tools); `_have <tool>` gate
+- `bughunter/tools/authz_diff.py` — two-identity authorization differential (IDOR/BOLA) over recon URLs/HAR; scope-guarded, GET-only, redacted LEAD output, optional deterministic `--confirm`
 - `bughunter/tools/secrets_hunter.sh` · `takeover_scanner.sh` · `cloud_recon.sh` · `param_discovery.sh`
 - `bughunter/tools/exposure_probe.py` — bounded GET-only exposure-artifact probe (SSRF/scope-guarded, LEAD-only classifier)
 - `bughunter/tools/exposure_attribution.py` — OSINT/exposure hit attribution gate (host relationship + noise + disclosure class → ranked leads)
