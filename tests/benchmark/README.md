@@ -30,7 +30,23 @@ python3 tests/benchmark/score.py            # scoreboard; exits non-zero on FP o
 python3 tests/benchmark/score.py --json
 python3 tests/benchmark/demo.py             # assert the shipped demo is hardened
 pytest tests/test_benchmark.py -q           # CI smoke test
+
+python3 tests/benchmark/authz_score.py      # two-identity IDOR/BOLA discovery + confirmation
+pytest tests/test_authz_benchmark.py -q     # CI smoke test for authz differential
 ```
+
+### Authz differential benchmark
+
+`authz_score.py` boots a two-user target with one real cross-tenant BOLA and six
+authorization controls (`/api/me` per-user, shared team object, enforced admin,
+public status, HTML shell, A-denied baseline). It scores:
+
+- **recall** — the real BOLA is confirmed by the deterministic IDOR verifier
+- **confirmed_fp** — no safe endpoint is confirmed
+- **marker_lead_fp** — no safe endpoint is classified `CROSS_USER_MARKER`
+- **verdict_accuracy** — every control maps to its intended verdict
+
+Current baseline: recall 1.0, confirmed_fp 0, marker_lead_fp 0, verdict_accuracy 1.0.
 
 ## External suites (opt-in — not in CI)
 

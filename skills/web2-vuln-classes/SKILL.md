@@ -26,6 +26,7 @@ Root cause, pattern, bypass table, chaining opportunity, real paid examples.
 | Topic | Reference |
 |---|---|
 | BOLA/IDOR edge cases (wrapped, array, batch, wildcard, GraphQL mutations, artifacts) | [references/authorization-edge-cases.md](references/authorization-edge-cases.md) |
+| Two-identity differential workflow + FP controls (`/authz-diff`) | [references/authz-differential-testing.md](references/authz-differential-testing.md) |
 | Parser differential / routing auth bypass / 403 | [references/parser-differential-bypass.md](references/parser-differential-bypass.md) |
 | CVE/advisory-derived reusable patterns | [references/framework-advisory-patterns.md](references/framework-advisory-patterns.md) |
 | SSRF validator/requester desync, inner parsers, evidence ladder | [references/ssrf-validator-desync.md](references/ssrf-validator-desync.md) |

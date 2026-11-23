@@ -73,6 +73,12 @@ bash bughunter/tools/external_arsenal.sh                     # what's installed 
 | `hai_probe.py` | Fingerprint HackerOne AI Copilot / Hai API surface |
 | `hai_browser_recon.js` | Browser-side Hai recon helper |
 
+## Authorization Differential (generic IDOR/BOLA)
+
+| Tool | Purpose |
+|:---|:---|
+| `authz_diff.py` | Two-identity differential over recon URLs/HAR: replay A-owned object URLs as B + anonymous control, schema-aware similarity, marker oracle, `--confirm` via the IDOR verifier. LEAD-only output; persists no headers/bodies. |
+
 ## IDOR / Auth / Race (H1-style dual-session)
 
 | Tool | Purpose |

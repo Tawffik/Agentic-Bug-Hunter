@@ -843,8 +843,10 @@ def write_validation_json(output_dir: str, info: dict, gate_notes: dict) -> str:
             "not_duplicate":{"passed": info.get("gate4_pass"), "notes": gate_notes["gate4"]},
         },
     }
+    from memory.redaction import redact_obj
+
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2, sort_keys=True)
+        json.dump(redact_obj(payload), f, indent=2, sort_keys=True)
         f.write("\n")
     return path
 

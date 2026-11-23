@@ -226,37 +226,33 @@ TOOLS: list[dict] = [
     {
         "type": "function",
         "function": {
-            "name": "run_post_param_discovery",
+            "name": "run_authz_diff",
             "description": (
-                "Discover POST form endpoints and their parameter names using lightpanda "
-                "(JS-rendered HTML) + arjun POST brute-force. "
-                "Mandatory for JSP/Java/Spring apps, ASP.NET WebForms, any app with login forms. "
-                "Then runs sqlmap on discovered POST endpoints automatically. "
-                "Pass cookies if the forms are behind authentication."
+                "Two-identity authorization differential (IDOR/BOLA) over recon endpoints. "
+                "Replays each object URL as identity B and compares with identity A and an "
+                "anonymous control. Requires two captured session header files; emits "
+                "LEAD-only results and optionally runs the deterministic IDOR verifier. "
+                "Use whenever object IDs, API endpoints, or a second test account exist."
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "cookies": {
-                        "type": "string",
-                        "description": "Session cookie string e.g. 'JSESSIONID=abc; token=xyz'",
-                        "default": "",
-                    },
+                    "headers_a": {"type": "string",
+                                  "description": "Path to identity A (owner) header file.",
+                                  "default": ""},
+                    "headers_b": {"type": "string",
+                                  "description": "Path to identity B (attacker) header file."},
+                    "victim_marker": {"type": "string",
+                                      "description": "Unique value belonging to A (e.g. A's email).",
+                                      "default": ""},
+                    "attacker_marker": {"type": "string",
+                                        "description": "Unique value belonging to B (FP control).",
+                                        "default": ""},
+                    "max_urls": {"type": "integer", "default": 200},
+                    "confirm": {"type": "boolean", "default": False},
                 },
-                "required": [],
+                "required": ["headers_b"],
             },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "run_api_fuzz",
-            "description": (
-                "Fuzz API endpoints for IDOR, auth bypass, privilege escalation, "
-                "and unauthenticated access. Tests REST + GraphQL + gRPC. "
-                "Use when API endpoints or numeric IDs were found in recon."
-            ),
-            "parameters": {"type": "object", "properties": {}, "required": []},
         },
     },
     {
@@ -428,8 +424,8 @@ PHASE_TOOLS = {
     "scan": ("run_vuln_scan",),
     "js_analysis": ("run_js_analysis",),
     "secret_hunt": ("run_secret_hunt",),
-    "param_discovery": ("run_param_discovery", "run_post_param_discovery"),
-    "api_fuzz": ("run_api_fuzz",),
+    "param_discovery": ("run_param_discovery",),
+    "authz_diff": ("run_authz_diff",),
     "cors": ("run_cors_check",),
     "cms_exploit": ("run_cms_exploit",),
     "rce_scan": ("run_rce_scan",),
@@ -618,7 +614,7 @@ class ToolDispatcher:
     # session state on disk, never the network.
     NETWORK_TOOLS = {
         "run_recon", "run_vuln_scan", "run_js_analysis", "run_secret_hunt",
-        "run_param_discovery", "run_post_param_discovery", "run_api_fuzz",
+        "run_param_discovery", "run_authz_diff",
         "run_cors_check", "run_cms_exploit", "run_rce_scan",
         "run_sqlmap_targeted", "run_sqlmap_on_file", "run_jwt_audit",
     }
@@ -634,9 +630,8 @@ class ToolDispatcher:
         "run_js_analysis": "GET",
         "run_secret_hunt": "GET",
         "run_param_discovery": "GET",
+        "run_authz_diff": "GET",
         "run_cors_check": "GET",
-        "run_post_param_discovery": "POST",
-        "run_api_fuzz": "POST",
         "run_cms_exploit": "POST",
         "run_rce_scan": "POST",
         "run_sqlmap_targeted": "POST",
@@ -653,8 +648,7 @@ class ToolDispatcher:
         "run_js_analysis": "run_js_analysis",
         "run_secret_hunt": "run_secret_hunt",
         "run_param_discovery": "run_param_discovery",
-        "run_post_param_discovery": "run_post_param_discovery",
-        "run_api_fuzz": "run_api_fuzz",
+        "run_authz_diff": "run_authz_diff",
         "run_cors_check": "run_cors_check",
         "run_cms_exploit": "run_cms_exploit",
         "run_rce_scan": "run_rce_scan",
@@ -888,14 +882,17 @@ class ToolDispatcher:
                 ok = h.run_param_discovery(domain)
                 obs = self._summarize_params(domain, ok)
 
-            elif name == "run_post_param_discovery":
-                cookies = args.get("cookies", self.default_cookies)
-                ok = h.run_post_param_discovery(domain, cookies=cookies)
-                obs = self._summarize_post_params(domain, ok)
-
-            elif name == "run_api_fuzz":
-                ok = h.run_api_fuzz(domain)
-                obs = self._summarize_findings(domain, "api", ok)
+            elif name == "run_authz_diff":
+                ok = h.run_authz_diff(
+                    domain,
+                    headers_a=str(args.get("headers_a", "")),
+                    headers_b=str(args.get("headers_b", "")),
+                    victim_marker=str(args.get("victim_marker", "")),
+                    attacker_marker=str(args.get("attacker_marker", "")),
+                    max_urls=int(args.get("max_urls", 200)),
+                    confirm=bool(args.get("confirm", False)),
+                )
+                obs = self._summarize_findings(domain, "authz", ok)
 
             elif name == "run_cors_check":
                 ok = h.run_cors_check(domain)
@@ -1140,7 +1137,8 @@ class ToolDispatcher:
                         content = Path(fp).read_text(errors="replace")
                         if any(kw in content.lower() for kw in
                                ("critical", "high", "vulnerable", "injectable",
-                                "rce", "sqli", "open redirect", "exposed", "default cred")):
+                                "rce", "sqli", "open redirect", "exposed", "default cred",
+                                "idor", "bola", "cross_user_marker", "identical_across")):
                             head = content[:400].replace("\n", " ")
                             lines.append(f"  [{fn}] {delimit_untrusted(f'findings:{fn}', head)}")
                     except Exception:
@@ -1241,6 +1239,8 @@ class ToolDispatcher:
         ("exposed", "MEDIUM", "hunt-source-leak"),
         ("ssrf", "HIGH", "hunt-ssrf"),
         ("idor", "HIGH", "hunt-idor"),
+        ("cross_user_marker", "HIGH", "hunt-idor"),
+        ("identical_across", "MEDIUM", "hunt-idor"),
         ("xss", "MEDIUM", "hunt-xss"),
     ]
 
@@ -1474,12 +1474,13 @@ CORE RULES:
 2. After recon, read_recon_summary to understand the attack surface before choosing next tool.
 3. Prioritize by impact: CMS exploits > RCE > SQLi > IDOR > secrets > info.
 4. If Drupal or WordPress is detected → run_cms_exploit immediately.
-5. If Java/Tomcat/JBoss/Spring is detected → run_rce_scan + run_post_param_discovery.
+5. If Java/Tomcat/JBoss/Spring is detected → run_rce_scan.
 6. If parameterized URLs found → run_sqlmap_targeted.
 7. If JWT tokens appear in any recon data → run_jwt_audit.
-8. Maintain your notes via update_working_memory after each significant discovery.
-9. Call finish when: all high-priority tools done, time running low, or no new attack surface.
-10. DO NOT repeat a tool that already completed in this session unless explicitly justified.
+8. If two test accounts exist, run_authz_diff on object-bearing recon URLs — IDOR/BOLA is the highest-paid class.
+9. Maintain your notes via update_working_memory after each significant discovery.
+10. Call finish when: all high-priority tools done, time running low, or no new attack surface.
+11. DO NOT repeat a tool that already completed in this session unless explicitly justified.
 
 Think step by step. Pick the highest-impact next action given what you know."""
 

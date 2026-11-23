@@ -36,10 +36,6 @@ def fake_hunt(monkeypatch, tmp_path):
             self.calls.append(("run_vuln_scan", domain, kwargs))
             return True
 
-        def run_post_param_discovery(self, domain, **kwargs):
-            self.calls.append(("run_post_param_discovery", domain, kwargs))
-            return True
-
         def run_sqlmap_request_file(self, request_file, **kwargs):
             self.calls.append(("run_sqlmap_request_file", request_file, kwargs))
             return True
@@ -149,7 +145,7 @@ class TestMethodPolicyEnforced:
     def test_state_changing_tool_requires_approval(self, memory, fake_hunt):
         checker = ScopeChecker(domains=["target.com"])
         dispatcher = ToolDispatcher("target.com", memory, scope_checker=checker)
-        result = dispatcher.dispatch("run_post_param_discovery", {})
+        result = dispatcher.dispatch("run_cms_exploit", {})
         assert "APPROVAL" in result.upper() or "require_approval" in result.lower()
         assert not fake_hunt.calls  # never actually ran without approval
 

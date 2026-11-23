@@ -127,3 +127,23 @@ def test_validate_cli_can_load_scanner_summary(tmp_path, monkeypatch):
     )
     loaded = validate.load_json_file(str(summary_path))
     assert loaded["counts"]["confirmed"]["sqli"] == 1
+
+
+def test_validation_json_redacts_cookie_in_poc(tmp_path):
+    """validation.json is durable: a session cookie in the PoC must not persist."""
+    info = {
+        "target": "target-program",
+        "vuln_type": "IDOR",
+        "endpoint": "/api/users/456",
+        "impact": "victim PII read",
+        "curl_poc": "curl -s https://target/api/users/456 -H 'Cookie: sess=SUPERSECRET'",
+        "gate1_pass": True,
+        "gate2_pass": True,
+        "gate3_pass": True,
+        "gate4_pass": True,
+    }
+    gate_notes = {f"gate{i}": {"rejection_reason": None} for i in range(1, 5)}
+    path = validate.write_validation_json(str(tmp_path), info, gate_notes)
+    text = Path(path).read_text()
+    assert "SUPERSECRET" not in text
+    assert json.loads(text)["finding"]["curl_poc"]

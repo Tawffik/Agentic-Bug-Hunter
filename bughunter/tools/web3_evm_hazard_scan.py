@@ -170,8 +170,9 @@ def render_markdown(findings: list[Finding], root: Path) -> str:
         return "\n".join(out) + "\n"
     out += ["| Rule | Location | Signal | Verify |", "|---|---|---|---|"]
     for item in findings:
+        signal = item.signal.replace("|", "\\|")
         out.append(
-            f"| `{item.rule}` | `{item.file}:{item.line}` | {item.signal.replace('|', '\\|')} | {item.verify} |"
+            f"| `{item.rule}` | `{item.file}:{item.line}` | {signal} | {item.verify} |"
         )
     out += ["", "## Matched lines", ""]
     for item in findings:
