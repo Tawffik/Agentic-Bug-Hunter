@@ -642,13 +642,26 @@ if command -v ffuf &>/dev/null && [ -s "$RECON_DIR/live/urls.txt" ]; then
 
         # The ffuf results above were written to dirs/ffuf_*.json but never read
         # back, so discovered paths never became leads. Merge them into the URL
-        # set that lead_board ingests.
+        # set that lead_board ingests — but only after a per-host baseline
+        # response-diff (fuzz_diff.py): an SPA/WAF catch-all answers 200 for
+        # every path, so raw hits are mostly noise. UNKNOWN (no baseline) is
+        # kept to stay fail-safe; NOISE/DUPLICATE/SPA_FALLBACK are dropped.
         FFUF_JSONS=$(ls "$RECON_DIR"/dirs/ffuf_*.json 2>/dev/null || true)
-        if [ -n "$FFUF_JSONS" ] && [ -f "$(dirname "$0")/parse_ffuf.py" ]; then
-            python3 "$(dirname "$0")/parse_ffuf.py" $FFUF_JSONS 2>/dev/null \
-                >> "$RECON_DIR/urls/all.txt" || true
+        if [ -n "$FFUF_JSONS" ]; then
+            if [ -f "$(dirname "$0")/fuzz_diff.py" ]; then
+                python3 "$(dirname "$0")/fuzz_diff.py" --ffuf-dir "$RECON_DIR/dirs" \
+                    --out "$RECON_DIR/dirs/interesting.txt" --include-unknown \
+                    --scope-domain "$TARGET" --scope-domain "*.$TARGET" >/dev/null 2>&1 || true
+            fi
+            if [ -s "$RECON_DIR/dirs/interesting.txt" ]; then
+                cat "$RECON_DIR/dirs/interesting.txt" >> "$RECON_DIR/urls/all.txt"
+                log_done "Merged ffuf signals (baseline-diffed) into urls/all.txt"
+            elif [ -f "$(dirname "$0")/parse_ffuf.py" ]; then
+                python3 "$(dirname "$0")/parse_ffuf.py" $FFUF_JSONS 2>/dev/null \
+                    >> "$RECON_DIR/urls/all.txt" || true
+                log_done "Merged ffuf discoveries (no baseline; raw) into urls/all.txt"
+            fi
             sort -u "$RECON_DIR/urls/all.txt" -o "$RECON_DIR/urls/all.txt" 2>/dev/null || true
-            log_done "Merged ffuf discoveries into urls/all.txt"
         fi
 
         # Multi-segment discovery: single-segment fuzzing never finds nested
