@@ -161,9 +161,12 @@ def run_worker(lead: dict, target: str, scope_domains: list[str],
     finding = finding_from_lead(lead, target)
     canon = normalize_class(skill.replace("hunt-", "").replace("-", " "))
     if not canon:
-        lead_board.touch(target, lead_id, "parked", f"no verifier for {skill}")
+        # Actionable park: name the skill(s) to load rather than a dead end.
+        mapped = ",".join(lead_board.skills_for(skill)) or "?"
+        note = f"no deterministic verifier for {skill} -> load skill(s): {mapped}"
+        lead_board.touch(target, lead_id, "parked", note[:160])
         return {"lead_id": lead_id, "skill": skill, "outcome": "parked",
-                "reason": f"no deterministic verifier for {skill}"}
+                "reason": note}
 
     if scope_checker is None:
         scope_checker = _scope_checker(scope_domains)

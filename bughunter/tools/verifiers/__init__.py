@@ -95,6 +95,12 @@ _ALIASES = {
     "prompt exfiltration": "llm-exfil",
     "system prompt leak": "llm-exfil",
     "canary exfiltration": "llm-exfil",
+    # routing label hunt-llm-ai -> llm-exfil (canary oracle; skips without marker)
+    "llm ai": "llm-exfil",
+    "llm": "llm-exfil",
+    # SAML ACS is an XML parser -> the OOB/XXE oracle (skips without payloads)
+    "saml": "xxe",
+    "saml acs": "xxe",
     "business logic": "business-logic",
     "business-logic error": "business-logic",
     "logic flaw": "business-logic",

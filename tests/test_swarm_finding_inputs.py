@@ -51,3 +51,14 @@ def test_no_invented_auth_marker_or_ssrf_target():
 def test_verifier_inputs_only_sqli():
     assert _verifier_inputs("open-redirect", "http://h/go?next=x") == {}
     assert "sleep_payload" in _verifier_inputs("sqli", "http://h/s?q=1")
+
+
+def test_class_mapping_gaps_closed():
+    from tools.verifiers import normalize_class
+    # parked classes that DO have a verifier must map (was: 'no verifier')
+    assert normalize_class("llm-ai") == "llm-exfil"
+    assert normalize_class("llm ai") == "llm-exfil"
+    assert normalize_class("saml") == "xxe"
+    # genuinely verifier-less classes stay honest (park, not fake-confirm)
+    assert normalize_class("oauth") == ""
+    assert normalize_class("mfa-bypass") == ""
