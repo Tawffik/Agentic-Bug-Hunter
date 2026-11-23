@@ -165,6 +165,13 @@ adb, Frida; gcloud/az are printed as separate installs).
 | `poc_bundler.py` | Bundle PoC + evidence into a submission artifact |
 | `oracle.py` | Deterministic oracle helpers backing verification gates |
 | `verifier.py` | Per-lead deterministic verifier used by swarm workers |
+| `validate_core.py` | Non-tty validation gate: kill-signals, Q8 identity, verifier, evidence contract, adversarial falsifier |
+| `evidence_contract.py` | Four-part reportability bar (proof · ownership · artifact · report_support) |
+| `adversarial_validator.py` | Tries to DISPROVE a confirmed finding (public/generic/own-object/login-page) |
+| `safe_http.py` | Single SSRF-safe egress seam (redirect + metadata/private-host blocklist) |
+| `research_log.py` | Drafts learning entries from validation outcomes |
+| `prompt_safety.py` | Prompt-injection delimiting helpers for untrusted target content |
+| `google_oauth.py` | Google OAuth login flow for Gemini AI Pro providers |
 | `swarm.py` | Parallel ephemeral verifiers over the lead board |
 | `memory_migrate.py` | Migrate/rotate hunt-memory JSONL between schemas |
 | `hunt_dashboard.py` | Live ANSI dashboard for hunt state |

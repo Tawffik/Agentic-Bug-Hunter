@@ -1,6 +1,6 @@
 # Agents
 
-Nine specialized AI agents, each built for exactly one job in the hunt pipeline.
+Ten specialized AI agents, each built for exactly one job in the hunt pipeline.
 
 | Agent | Job |
 |:---|:---|
@@ -8,6 +8,7 @@ Nine specialized AI agents, each built for exactly one job in the hunt pipeline.
 | `recon-ranker` | Ranks attack surface by highest-value targets first |
 | `report-writer` | Writes impact-first reports that get paid, not N/A'd |
 | `validator` | Runs the 7-Question Gate and 4 pre-submission gates |
+| `falsifier` | Adversarial validator — tries to DISPROVE a confirmed finding before report |
 | `web3-auditor` | Smart contract audit across 10 bug classes |
 | `chain-builder` | Bug A → finds bugs B and C that chain with it |
 | `autopilot` | Full autonomous hunt loop with safety checkpoints |

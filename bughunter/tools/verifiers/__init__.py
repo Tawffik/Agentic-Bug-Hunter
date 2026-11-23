@@ -17,6 +17,8 @@ from __future__ import annotations
 from tools.verifiers.base import VerifyResult, skipped
 from tools.verifiers import (
     redirect, sensitive_file, auth_bypass, sqli, idor, oob, xss,
+    cors, mass_assignment, ssti, graphql_idor, ssrf, llm_exfil,
+    business_logic, cache_poison,
 )
 
 # canonical class -> verify callable
@@ -27,10 +29,17 @@ REGISTRY = {
     "sqli": sqli.verify,
     "idor": idor.verify,
     "xss": xss.verify,
-    "ssrf": oob.verify,
+    "ssrf": ssrf.verify,          # OOB or in-band, routed by available evidence
     "xxe": oob.verify,
     "rce": oob.verify,
     "log4shell": oob.verify,
+    "cors": cors.verify,
+    "mass-assignment": mass_assignment.verify,
+    "ssti": ssti.verify,
+    "graphql-idor": graphql_idor.verify,
+    "llm-exfil": llm_exfil.verify,
+    "business-logic": business_logic.verify,
+    "cache-poisoning": cache_poison.verify,
 }
 
 # alias -> canonical class (lowercased, punctuation-insensitive match applied)
@@ -69,6 +78,29 @@ _ALIASES = {
     "os command injection": "rce",
     "remote code execution": "rce",
     "log4j": "log4shell",
+    # 2026 additions
+    "cors misconfiguration": "cors",
+    "cross-origin resource sharing": "cors",
+    "mass assignment": "mass-assignment",
+    "parameter pollution / over-posting": "mass-assignment",
+    "over-posting": "mass-assignment",
+    "autobinding": "mass-assignment",
+    "server-side template injection": "ssti",
+    "template injection": "ssti",
+    "graphql idor": "graphql-idor",
+    "graphql bola": "graphql-idor",
+    "graphql broken object level authorization": "graphql-idor",
+    "graphql object access": "graphql-idor",
+    "llm exfiltration": "llm-exfil",
+    "prompt exfiltration": "llm-exfil",
+    "system prompt leak": "llm-exfil",
+    "canary exfiltration": "llm-exfil",
+    "business logic": "business-logic",
+    "business-logic error": "business-logic",
+    "logic flaw": "business-logic",
+    "cache poisoning": "cache-poisoning",
+    "web cache poisoning": "cache-poisoning",
+    "cache deception": "cache-poisoning",
 }
 
 

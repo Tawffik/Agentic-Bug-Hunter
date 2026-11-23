@@ -162,6 +162,42 @@ def verify_finding_programmatic(
     # "confirmed" for reporting = oracle fired AND no outstanding chain requirement.
     confirmed = technically_confirmed and not chain_block
 
+    # Gate F — adversarial falsifier (opt-in, opposite objective) -----------
+    # Runs only when a verifier confirmed and the caller asked for it, so it
+    # never adds network calls to the fast path. FALSIFIED hard-kills the report.
+    adversarial = None
+    if technically_confirmed and finding.get("adversarial"):
+        try:
+            from tools.adversarial_validator import falsify
+
+            adversarial = falsify(finding, scope_checker=scope_checker)
+            if adversarial.get("verdict") == "FALSIFIED":
+                confirmed = False
+                rejection_reasons.append(
+                    "adversarial validator falsified: " + "; ".join(adversarial.get("reasons", []))
+                )
+                gate_verdict = "kill"
+        except Exception as exc:  # noqa: BLE001 - falsifier must never crash the gate
+            adversarial = {"verdict": "INCONCLUSIVE", "reasons": [f"falsifier error: {exc}"],
+                           "checks_run": 0}
+
+    # Gate G — evidence contract (strict opt-in) ----------------------------
+    contract_required = bool(finding.get("strict_contract"))
+    try:
+        from tools.evidence_contract import assess as assess_contract
+
+        contract = assess_contract(finding, verifier)
+    except Exception as exc:  # noqa: BLE001
+        contract = {"schema": "evidence-contract/1", "satisfied": False,
+                    "missing": [f"contract error: {exc}"], "parts": {}}
+    if contract_required and not contract.get("satisfied"):
+        confirmed = False
+        rejection_reasons.append(
+            "evidence contract unsatisfied: " + ", ".join(contract.get("missing", []))
+        )
+        if gate_verdict != "kill":
+            gate_verdict = "downgrade"
+
     # Gate E — link reproducible evidence -------------------------------------
     finding_id = None
     evidence_id = None
@@ -203,6 +239,10 @@ def verify_finding_programmatic(
         "gate_verdict": gate_verdict,
         "technically_confirmed": technically_confirmed,
         "chain_required_unproven": chain_block,
+        "contract_required": contract_required,
+        "contract_satisfied": bool(contract.get("satisfied")),
+        "evidence_contract": contract,
+        "adversarial": adversarial,
         "vuln_class": canon or str(raw_class),
         "finding_id": finding_id,
         "evidence_id": evidence_id,
@@ -255,6 +295,11 @@ def is_report_ready(validation: dict) -> bool:
     if not isinstance(validation, dict):
         return False
     if validation.get("status") != "validated_finding":
+        return False
+    if validation.get("contract_required") and not validation.get("contract_satisfied"):
+        return False
+    adv = validation.get("adversarial") or {}
+    if adv.get("verdict") == "FALSIFIED":
         return False
     v = validation.get("verifier") or {}
     return bool(v.get("confirmed"))

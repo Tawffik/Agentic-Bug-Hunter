@@ -87,11 +87,12 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `/spray` | `/spray <url> --mode http-form\|oauth\|o365\|okta --users <f> --passes <f>` — password spray with hard guards |
 | `/graphql-audit` | `/graphql-audit <url>` — full GraphQL audit |
 
-### Agents (9 specialized agents)
+### Agents (10 specialized agents)
 
 - `recon-agent` — subdomain enum + live host discovery
 - `report-writer` — generates H1/Bugcrowd/Immunefi reports
 - `validator` — 4-gate checklist on a finding
+- `falsifier` — adversarial validator: tries to DISPROVE a confirmed finding before report
 - `web3-auditor` — smart contract bug class analysis
 - `chain-builder` — builds A→B→C exploit chains
 - `autopilot` — autonomous hunt loop (scope→recon→rank→hunt→validate→report)
@@ -117,6 +118,8 @@ See **`bughunter/tools/README.md`** for the full ~50-tool catalogue. Highlights:
 - `bughunter/tools/waf_encoder.py` · `waf_response_analyzer.py` · `multipart_mutator.py` · `bypass_403.sh`
 - `bughunter/tools/external_arsenal.sh` — installed-tool registry (~50 tools); `_have <tool>` gate
 - `bughunter/tools/authz_diff.py` — two-identity authorization differential (IDOR/BOLA) over recon URLs/HAR; scope-guarded, GET-only, redacted LEAD output, optional deterministic `--confirm`
+- `bughunter/tools/evidence_contract.py` — four-part reportability bar (proof · ownership · artifact · report_support)
+- `bughunter/tools/adversarial_validator.py` — attempts to falsify a confirmed finding (public/generic/own-object/login-page controls) before report
 - `bughunter/tools/secrets_hunter.sh` · `takeover_scanner.sh` · `cloud_recon.sh` · `param_discovery.sh`
 - `bughunter/tools/exposure_probe.py` — bounded GET-only exposure-artifact probe (SSRF/scope-guarded, LEAD-only classifier)
 - `bughunter/tools/exposure_attribution.py` — OSINT/exposure hit attribution gate (host relationship + noise + disclosure class → ranked leads)
