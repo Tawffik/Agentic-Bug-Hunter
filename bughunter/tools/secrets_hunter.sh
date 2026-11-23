@@ -101,15 +101,23 @@ case "$MODE" in
     # trufflehog filesystem mode. Recon stores raw contents inline only for the
     # secrets-grep step, so we re-fetch top JS bundles here for verification.
     JS_LIST="$TARGET/urls/js_files.txt"
-    [ -s "$JS_LIST" ] || { err "no js_files.txt under $TARGET"; exit 1; }
     JS_DIR="$OUT_DIR/js_bundles"
     mkdir -p "$JS_DIR"
-    log "Downloading top 100 JS bundles for offline scanning..."
-    head -100 "$JS_LIST" | while IFS= read -r url; do
-      [ -z "$url" ] && continue
-      fname=$(echo "$url" | tr '/?:&=#' '_' | head -c 200)
-      curl -sk --max-time 10 "$url" -o "$JS_DIR/$fname.js" 2>/dev/null || true
-    done
+    if [ -s "$JS_LIST" ]; then
+      log "Downloading top 100 JS bundles for offline scanning..."
+      head -100 "$JS_LIST" | while IFS= read -r url; do
+        [ -z "$url" ] && continue
+        fname=$(echo "$url" | tr '/?:&=#' '_' | head -c 200)
+        curl -sk --max-time 10 "$url" -o "$JS_DIR/$fname.js" 2>/dev/null || true
+      done
+    else
+      # Fallback: scan JS already fetched during recon (no js_files.txt, e.g. a
+      # run that timed out before the URL phase). Never exit empty-handed.
+      EXIST=$(find "$TARGET/js" -type f -name '*.js' 2>/dev/null | head -200)
+      [ -n "$EXIST" ] || { err "no js_files.txt and no js/*.js under $TARGET"; exit 1; }
+      log "No js_files.txt — scanning $(printf '%s\n' "$EXIST" | wc -l | tr -d ' ') already-fetched JS under $TARGET/js"
+      JS_DIR="$TARGET/js"
+    fi
     _have trufflehog  && _run_trufflehog  "$JS_DIR" filesystem
     _have noseyparker && _run_noseyparker "$JS_DIR"
     # Fallback regex pass — runs even without trufflehog/noseyparker installed
