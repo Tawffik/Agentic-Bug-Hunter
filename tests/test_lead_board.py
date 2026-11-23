@@ -216,3 +216,16 @@ def test_every_routing_label_maps_to_a_real_skill(isolated):
 def test_skills_for_returns_known_targets(isolated):
     assert "graphql-audit" in lb.skills_for("hunt-graphql")
     assert lb.skills_for("hunt-nonexistent") == []
+
+
+def test_content_pages_not_routed_as_vulns(isolated):
+    """Docs/blog/marketing slugs must not become vuln leads (aiven.io case)."""
+    rd = _make_recon(isolated, [
+        "https://t.example/docs/platform/howto/saml/add-okta-idp",
+        "https://t.example/blog/category/ai",
+        "https://t.example/resources?type=demo",
+        "https://t.example/oauth/authorize",
+    ])
+    ev = [l["evidence"] for l in lb.ingest("t.example", rd)]
+    assert not any("/docs/" in e or "/blog/" in e or "/resources" in e for e in ev), ev
+    assert any("/oauth/" in e for e in ev), ev

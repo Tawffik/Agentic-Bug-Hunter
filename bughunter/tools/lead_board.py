@@ -31,6 +31,7 @@ import json
 import os
 import re
 import secrets
+from urllib.parse import urlparse
 from datetime import datetime, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -410,6 +411,27 @@ def _attributable_url(u):
     return bool(re.match(r"^[A-Za-z0-9.-]+(:\d+)?(/|$)", u)) and "." in u
 
 
+# Documentation / blog / marketing paths are content, not attack surface. On a
+# real target (aiven.io) the router matched "saml"/"ai"/"password" inside docs
+# and blog slugs, producing ~26 junk leads for 3 real endpoints. Suppress
+# URL-source vuln routing for these path roots (the URL is still kept in recon).
+_CONTENT_SEGMENTS = {
+    "docs", "documentation", "blog", "blog-post", "resources", "learn",
+    "academy", "guides", "guide", "tutorials", "tutorial", "whitepapers",
+    "whitepaper", "webinars", "webinar", "glossary", "news", "events",
+    "case-studies", "case-study", "customers", "careers", "pricing",
+    "changelog", "release-notes", "faq",
+}
+
+
+def _is_content_page(url: str) -> bool:
+    try:
+        path = urlparse(str(url)).path.lower()
+    except Exception:  # noqa: BLE001
+        return False
+    return any(seg in _CONTENT_SEGMENTS for seg in path.split("/") if seg)
+
+
 def route_observation(text, source):
     """Yield (skill, priority, label, why) for one observation."""
     for rule in ROUTES:
@@ -464,6 +486,8 @@ def ingest(target, recon_dir):
             added += 1
 
         for u in rec["urls"]:
+            if _is_content_page(u):
+                continue
             for skill, prio, label, why in route_observation(u, "url"):
                 upsert(skill, prio, label, why, u, "url")
         for line in rec["hostlines"]:
