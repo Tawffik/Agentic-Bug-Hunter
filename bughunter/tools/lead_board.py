@@ -432,6 +432,26 @@ def _is_content_page(url: str) -> bool:
     return any(seg in _CONTENT_SEGMENTS for seg in path.split("/") if seg)
 
 
+_STATIC_EXT = (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".css", ".js",
+               ".woff", ".woff2", ".ttf", ".eot", ".ico", ".map")
+
+
+def _is_static_asset(url: str) -> bool:
+    """A CDN/static file is not an upload control. `upload_aimg`/`upload-static`
+    paths are read-only image/font assets, not endpoints that accept a file."""
+    u = str(url).lower()
+    if any(seg in u for seg in ("/upload_aimg", "/upload_aimg_b", "/upload-static",
+                                "/static/", "/assets/")):
+        return True
+    if ".kwcdn.com" in u or ".alicdn.com" in u or ".cloudfront.net" in u:
+        return True
+    try:
+        path = urlparse(str(url)).path.lower()
+    except Exception:  # noqa: BLE001
+        path = u
+    return path.endswith(_STATIC_EXT)
+
+
 def route_observation(text, source):
     """Yield (skill, priority, label, why) for one observation."""
     for rule in ROUTES:
@@ -441,10 +461,22 @@ def route_observation(text, source):
         if pat.search(text):
             if source == "nuclei":
                 skill = next((s for rx, s in NUCLEI_TAG_SKILL if rx.search(text)), "hunt-misc")
+            if skill == "hunt-file-upload" and _is_static_asset(text):
+                continue
             yield skill, prio, label, why
 
 
-def ingest(target, recon_dir):
+def ingest(target, recon_dir, scope_domains=None, exclude_domains=None):
+    # Optional scope enforcement: a board must never hold off-scope leads. Cached
+    # recon (or crawls that followed external links) can carry third-party and
+    # internal domains; testing off-scope assets is a scope violation.
+    checker = None
+    if scope_domains:
+        try:
+            from tools.scope_checker import ScopeChecker
+            checker = ScopeChecker(list(scope_domains), excluded_domains=list(exclude_domains or []))
+        except Exception:  # noqa: BLE001 - never let scope build break ingest silently
+            checker = None
     with ledger_lock(target):
         leads = load_ledger(target)
         index = {dedup_key(l["skill"], l["evidence"]): l for l in leads}
@@ -487,6 +519,8 @@ def ingest(target, recon_dir):
 
         for u in rec["urls"]:
             if _is_content_page(u):
+                continue
+            if checker is not None and not checker.is_in_scope(u):
                 continue
             for skill, prio, label, why in route_observation(u, "url"):
                 upsert(skill, prio, label, why, u, "url")

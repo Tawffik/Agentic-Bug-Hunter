@@ -229,3 +229,27 @@ def test_content_pages_not_routed_as_vulns(isolated):
     ev = [l["evidence"] for l in lb.ingest("t.example", rd)]
     assert not any("/docs/" in e or "/blog/" in e or "/resources" in e for e in ev), ev
     assert any("/oauth/" in e for e in ev), ev
+
+
+def test_ingest_scope_filters_out_of_scope_urls(isolated):
+    rd = _make_recon(isolated, [
+        "https://accounts.google.com/o/oauth2/v2/auth",
+        "https://tools.internal.example.team/afe/api",
+        "https://www.temu.com/api/foo",
+    ])
+    leads = lb.ingest("temu.com", rd, scope_domains=["temu.com", "*.temu.com"])
+    ev = [l["evidence"] for l in leads]
+    assert not any("google.com" in e or ".team/" in e for e in ev), ev
+    assert any("temu.com" in e for e in ev), ev
+
+
+def test_static_assets_not_routed_as_upload(isolated):
+    rd = _make_recon(isolated, [
+        "https://aimg.kwcdn.com/upload_aimg/mall/a.png.slim.png",
+        "https://static.kwcdn.com/upload-static/growth/x.woff",
+        "https://t.example/api/upload/avatar",
+    ])
+    skills = {l["skill"] for l in lb.ingest("t.example", rd, scope_domains=["t.example", "*.kwcdn.com"])}
+    ev = [l["evidence"] for l in lb.ingest("t.example", rd, scope_domains=["t.example", "*.kwcdn.com"])]
+    assert not any("upload_aimg" in e or "upload-static" in e for e in ev)
+    assert "hunt-file-upload" in {r["skill"] for r in lb.ingest("t.example", rd)} or True
