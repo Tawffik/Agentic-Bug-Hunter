@@ -47,7 +47,7 @@ ROUTES = [
     # ---- URL parameter / path signals ----
     (R(r"[?&](url|uri|dest|destination|domain|site|callback|fetch|load|proxy|feed|host|to|out|image_url|imageurl|continue_url)=https?", re.I),
      "url", "hunt-ssrf", P_HIGH, "URL-valued param", "server may fetch attacker URL -> SSRF/IMDS"),
-    (R(r"[?&](next|redirect|redirect_uri|return|returnurl|return_to|continue|goto|rurl|checkout_url|success_url|back)=", re.I),
+    (R(r"[?&](next|redirect|redirect_uri|return|returnurl|return_to|continue|goto|rurl|checkout_url|success_url|back|url|uri|dest|destination|forward|link)=", re.I),
      "url", "hunt-open-redirect", P_MED, "redirect param", "open redirect; chains to OAuth token theft"),
     (R(r"[?&](id|uid|user_id|userid|account|account_id|order|order_id|invoice|doc|doc_id|file_id|record|profile|customer|cid|pid|num|no|key)=\d", re.I),
      "url", "hunt-idor", P_HIGH, "numeric object ref", "sequential ID -> IDOR/BOLA; swap to other tenant"),
@@ -55,7 +55,7 @@ ROUTES = [
      "url", "hunt-idor", P_HIGH, "object path ID", "path object ref -> replay as second identity (/authz-diff)"),
     (R(r"/graph(i?ql|iql)|/api/graphql|/gql\b", re.I),
      "url", "hunt-graphql", P_HIGH, "GraphQL endpoint", "introspection/batching/alias-IDOR -> graphql-audit"),
-    (R(r"/(v\d|api|rest)/|/api\b", re.I),
+    (R(r"/(?:v\d|api|rest)(?=[/?#]|$)", re.I),
      "url", "hunt-api-misconfig", P_MED, "REST API surface", "auth gaps, mass-assignment, verb tampering"),
     (R(r"upload|/files?/|attachment|/import\b|avatar|/media/upload|presign", re.I),
      "url", "hunt-file-upload", P_HIGH, "upload surface", "unrestricted upload -> stored XSS/RCE/SSRF"),
@@ -67,7 +67,7 @@ ROUTES = [
      "url", "hunt-lfi", P_MED, "path-valued param", "LFI/path-traversal; chain to source disclosure"),
     (R(r"[?&](template|tpl|preview|render|name|greeting|msg)=", re.I),
      "url", "hunt-ssti", P_LOW, "template-ish param", "SSTI if server-side templating reflects it"),
-    (R(r"/(login|signin|sign-in|auth|sso|oauth|authorize|connect|openid)\b|response_type=|client_id=", re.I),
+    (R(r"/(?:login|signin|sign-in|auth|sso|oauth|authorize|connect|openid)(?=[/?#]|$)|response_type=|client_id=", re.I),
      "url", "hunt-oauth", P_HIGH, "OAuth/SSO flow", "redirect_uri validation, state, PKCE, code leak"),
     (R(r"saml|SAMLResponse|/saml2?\b|/acs\b|/sso/saml", re.I),
      "url", "hunt-saml", P_HIGH, "SAML endpoint", "signature wrapping / XSW / IdP confusion"),
@@ -77,13 +77,13 @@ ROUTES = [
      "url", "hunt-ato", P_HIGH, "account-recovery flow", "ATO via reset/OTP/email-change weakness"),
     (R(r"otp|2fa|/mfa|totp|authenticator|verify.?code", re.I),
      "url", "hunt-mfa-bypass", P_MED, "MFA surface", "MFA bypass: response-tamper, rate-limit, backup-code"),
-    (R(r"wss?://|/ws\b|/socket|/cable|/live\b|/realtime|sockjs", re.I),
+    (R(r"wss?://|/ws(?=[/?#]|$)|/socket(?=[/?#]|$)|/cable(?=[/?#]|$)|/realtime|sockjs", re.I),
      "url", "hunt-websocket", P_MED, "WebSocket", "cross-site WS hijack, origin check, auth-over-WS"),
     (R(r"\.git\b|/\.env\b|\.svn|\.map(\?|$)|/backup|\.bak\b|\.old\b|\.sql(\?|$)|\.zip(\?|$)|\.tar|/_next/static", re.I),
      "url", "hunt-source-leak", P_HIGH, "exposed source/artifact", "source map / .git / backup -> secrets+logic"),
     (R(r"/wp-(json|admin|content|login)|xmlrpc\.php", re.I),
      "url", "hunt-misc", P_MED, "WordPress", "plugin CVEs, xmlrpc, user enum"),
-    (R(r"/(chat|completions|assistant|copilot|llm|ai|embeddings|generate|conversation)\b|/v1/(chat|messages)|/mcp\b", re.I),
+    (R(r"/(?:chat|completions|assistant|copilot|llm|ai|embeddings|generate|conversation)(?=[/?#]|$)|/v1/(?:chat|messages)(?=[/?#]|$)|/mcp(?=[/?#]|$)", re.I),
      "url", "hunt-llm-ai", P_HIGH, "AI/LLM endpoint", "prompt-injection/exfil -> ai_surface.py + ai_gauntlet.sh"),
     (R(r"webhook|/hook\b|callback_url|notify_url|ping_url", re.I),
      "url", "hunt-ssrf", P_MED, "webhook config", "server-side fetch of user URL -> blind SSRF"),
@@ -117,8 +117,8 @@ ROUTES = [
      "tech", "hunt-cloud-misconfig", P_HIGH, "cloud bucket", "public read/write, listable, takeover"),
     (R(r"www-authenticate:\s*ntlm|ntlm", re.I),
      "tech", "hunt-ntlm-info", P_LOW, "NTLM endpoint", "internal name/version leak via NTLM type-2"),
-    (R(r"nginx|apache|haproxy|envoy|varnish|akamai|cloudflare|fastly", re.I),
-     "tech", "hunt-http-smuggling", P_LOW, "proxy/CDN chain", "CL.TE/TE.CL desync if origin disagrees"),
+    (R(r"haproxy|envoy|varnish", re.I),
+     "tech", "hunt-http-smuggling", P_LOW, "reverse-proxy chain", "CL.TE/TE.CL desync if origin disagrees"),
 
     # ---- nuclei findings -> always a high lead (already-confirmed weakness) ----
     (R(r".+"), "nuclei", None, P_HIGH, "nuclei finding", "confirmed by nuclei — verify + weaponize"),
@@ -138,6 +138,55 @@ NUCLEI_TAG_SKILL = [
 HIGH_VALUE = {"hunt-idor", "hunt-graphql", "hunt-ssrf", "hunt-llm-ai",
               "hunt-source-leak", "hunt-oauth", "hunt-ato", "hunt-auth-bypass"}
 PRIO_RANK = {P_HIGH: 0, P_MED: 1, P_LOW: 2}
+
+# Canonical routing-label -> loadable skill(s). The router emits internal
+# `hunt-*` labels, which are NOT skill files; without this map a boarded lead's
+# label dangles and the agent has no skill to load. This is the single source of
+# truth mapping each label to the domain skill(s) that cover it, and it is
+# regression-tested against skills/*/SKILL.md so a label can never go stale.
+HUNT_SKILL_MAP = {
+    "hunt-idor": ["web2-vuln-classes", "security-arsenal"],
+    "hunt-ssrf": ["web2-vuln-classes", "argus", "cloud-pentest"],
+    "hunt-graphql": ["graphql-audit"],
+    "hunt-llm-ai": ["llm-redteam", "agentic-app-audit", "mcp-server-audit"],
+    "hunt-file-upload": ["web2-vuln-classes", "security-arsenal"],
+    "hunt-source-leak": ["web2-exposure", "jsmax"],
+    "hunt-oauth": ["web2-vuln-classes", "bug-bounty"],
+    "hunt-auth-bypass": ["web2-vuln-classes", "security-arsenal"],
+    "hunt-saml": ["web2-vuln-classes"],
+    "hunt-xss": ["web2-vuln-classes", "security-arsenal", "argus"],
+    "hunt-sqli": ["web2-vuln-classes", "security-arsenal", "argus"],
+    "hunt-lfi": ["web2-vuln-classes", "security-arsenal"],
+    "hunt-ssti": ["web2-vuln-classes", "security-arsenal"],
+    "hunt-rce": ["web2-vuln-classes", "security-arsenal"],
+    "hunt-xxe": ["web2-vuln-classes", "security-arsenal"],
+    "hunt-cors": ["argus", "web2-vuln-classes"],
+    "hunt-open-redirect": ["web2-vuln-classes", "security-arsenal"],
+    "hunt-mfa-bypass": ["web2-vuln-classes", "credential-attack"],
+    "hunt-ato": ["web2-vuln-classes", "bug-bounty"],
+    "hunt-api-misconfig": ["web2-vuln-classes", "bug-bounty"],
+    "hunt-http-smuggling": ["web2-vuln-classes"],
+    "hunt-cloud-misconfig": ["cloud-pentest", "dorking-osint"],
+    "hunt-nodejs": ["web2-vuln-classes"],
+    "hunt-nextjs": ["web2-vuln-classes"],
+    "hunt-springboot": ["web2-vuln-classes"],
+    "hunt-laravel": ["web2-vuln-classes"],
+    "hunt-aspnet": ["web2-vuln-classes"],
+    "hunt-sharepoint": ["web2-vuln-classes"],
+    "hunt-k8s": ["cloud-pentest"],
+    "hunt-websocket": ["web2-vuln-classes"],
+    "hunt-grpc": ["web2-vuln-classes"],
+    "hunt-ntlm-info": ["web2-exposure"],
+    "hunt-subdomain": ["web2-recon"],
+    "hunt-business-logic": ["web2-vuln-classes", "bug-chaining"],
+    "hunt-misc": ["bb-methodology", "triage-validation"],
+}
+
+
+def skills_for(label):
+    """Loadable skill(s) for a routing label (empty if unmapped)."""
+    return list(HUNT_SKILL_MAP.get(label, []))
+
 STATUS_ICON = {"new": "•", "investigating": "🔬", "killed": "☠️ ",
                "reported": "📤", "parked": "⏸ "}
 
@@ -222,6 +271,32 @@ def dedup_key(skill, evidence):
     return (skill or "", norm_evidence(evidence))
 
 
+# Near-duplicate folding. A path segment that is a pure object ID (numeric) or
+# a high-entropy token (>=12 chars containing a digit/uppercase — e.g. share
+# keys, hashes) is dynamic. Collapsing it lets …/share/<id> x12 fold into one
+# boarded lead. Hostnames are never touched, and query strings are dropped.
+def _norm_path(path):
+    out = []
+    for seg in path.split("/"):
+        if seg.isdigit() and len(seg) >= 2:
+            out.append("<id>")
+        elif (len(seg) >= 12 and seg.isascii()
+              and any(c.isdigit() or c.isupper() for c in seg)):
+            out.append("<id>")
+        else:
+            out.append(seg)
+    return "/".join(out)
+
+
+def pattern_key(skill, evidence):
+    ev = re.sub(r"[?#].*$", "", norm_evidence(evidence))
+    scheme, sep, rest = ev.partition("://")
+    if not sep:
+        return (skill or "", ev)
+    host, slash, path = rest.partition("/")
+    return (skill or "", f"{scheme}://{host}/{_norm_path(path)}" if slash else f"{scheme}://{host}")
+
+
 # ---------------------------------------------------------------------------
 # Recon ingestion — robust to recon_engine.sh's real layout AND flat/nested.
 # ---------------------------------------------------------------------------
@@ -233,22 +308,76 @@ def _read(path):
         return []
 
 
+def _nuclei_findings_from_jsonl(path):
+    """Compact text per nuclei finding so NUCLEI_TAG_SKILL can route it.
+
+    Turns one JSONL finding into "template-id tags name severity matched-at".
+    Target lists are never parsed here (they are not findings).
+    """
+    out = []
+    try:
+        with open(path, errors="replace") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except ValueError:
+                    continue
+                info = obj.get("info") or {}
+                tags = info.get("tags")
+                if isinstance(tags, list):
+                    tags = ",".join(str(t) for t in tags)
+                text = " ".join(str(x) for x in (
+                    obj.get("template-id") or obj.get("template_id") or "",
+                    tags or "",
+                    info.get("name") or "",
+                    info.get("severity") or "",
+                    obj.get("matched-at") or obj.get("host") or obj.get("url") or "",
+                ) if x)
+                if text.strip():
+                    out.append(text.strip())
+    except OSError:
+        pass
+    return out
+
+
 def gather_recon(recon_dir):
     """Return dict with urls, hosts(+tech lines), nuclei, ai endpoints."""
     g = lambda pat: [f for f in glob.glob(os.path.join(recon_dir, pat), recursive=True)]
     urls, hostlines, nuclei = [], [], []
     for pat in ("urls/all.txt", "urls/with_params.txt", "urls/api_endpoints.txt",
                 "urls/js_files.txt", "js/endpoints.txt", "authz/leads.txt",
+                "dirs/with_params_probe.txt",
                 "urls.txt", "**/urls.txt"):
         for f in g(pat):
             urls += _read(f)
+    # ffuf content-discovery output lives in dirs/*.json and was never read back,
+    # so every fuzzed path (incl. .env, .git, nested API routes) was dropped and
+    # never became a lead. Parse it too, so existing/cached recon benefits.
+    try:
+        from tools.parse_ffuf import urls_from_files
+        dirs_json = sorted(set(g("dirs/*.json") + g("**/dirs/*.json")))
+        if dirs_json:
+            urls += urls_from_files(dirs_json)
+    except Exception:  # noqa: BLE001 - never let an optional parse break ingest
+        pass
     for pat in ("live/httpx_full.txt", "live/urls.txt", "live-hosts.txt",
                 "technologies.txt", "**/httpx_full.txt"):
         for f in g(pat):
             hostlines += _read(f)
-    for pat in ("nuclei.txt", "nuclei/*.txt", "**/nuclei.txt"):
+    # Nuclei FINDINGS only. The old `nuclei/*.txt` glob matched the scan TARGET
+    # lists (targets.txt / targets_200.txt), so every host that was merely
+    # scanned became a HIGH "nuclei finding" lead (72 junk leads on the real
+    # TikTok board). Read real findings: text finding files and the *.jsonl
+    # results the engine writes.
+    for pat in ("nuclei.txt", "nuclei/findings*.txt", "**/nuclei.txt"):
         for f in g(pat):
             nuclei += _read(f)
+    for pat in ("nuclei/findings*.jsonl", "**/nuclei/findings*.jsonl"):
+        for f in g(pat):
+            nuclei += _nuclei_findings_from_jsonl(f)
     ai = []
     for pat in ("ai_surface.json", "**/ai-surface/**/ai_surface.json", "**/ai_surface.json"):
         for f in g(pat):
@@ -259,8 +388,26 @@ def gather_recon(recon_dir):
                             ai.append(item.get("url", ""))
             except (OSError, ValueError):
                 pass
-    return {"urls": sorted(set(urls)), "hostlines": sorted(set(hostlines)),
+    return {"urls": sorted({u for u in urls if _attributable_url(u)}),
+            "hostlines": sorted(set(hostlines)),
             "nuclei": sorted(set(nuclei)), "ai": sorted(set(filter(None, ai)))}
+
+
+def _attributable_url(u):
+    """A URL we can actually test: absolute http(s) or a host-like string.
+
+    Bare relative paths (e.g. "/api/v2/pixel" scraped from JS) have no host and
+    cannot be probed or attributed to a scope, so they must not board as leads.
+    """
+    u = (u or "").strip()
+    if u.startswith(("http://", "https://")):
+        return True
+    if u.startswith("/") or " " in u:
+        return False
+    if re.match(r"^\d{1,3}(\.\d{1,3}){3}/\d+$", u):  # CIDR block, not a host
+        return False
+    # host[:port][/path] with a dotted name or an IP
+    return bool(re.match(r"^[A-Za-z0-9.-]+(:\d+)?(/|$)", u)) and "." in u
 
 
 def route_observation(text, source):
@@ -279,11 +426,14 @@ def ingest(target, recon_dir):
     with ledger_lock(target):
         leads = load_ledger(target)
         index = {dedup_key(l["skill"], l["evidence"]): l for l in leads}
+        # Second index keyed by normalized *pattern* so near-duplicates
+        # (…/share/<id> x12) fold into one boarded lead instead of bloating it.
+        pindex = {pattern_key(l["skill"], l["evidence"]) for l in leads}
         rec = gather_recon(recon_dir)
-        added = updated = rejected = 0
+        added = updated = rejected = merged = 0
 
         def upsert(skill, prio, label, why, evidence, source):
-            nonlocal added, updated, rejected
+            nonlocal added, updated, rejected, merged
             if not skill:
                 return
             key = dedup_key(skill, evidence)
@@ -292,6 +442,10 @@ def ingest(target, recon_dir):
                 ld["last_seen"] = now_iso()
                 ld["seen_count"] = ld.get("seen_count", 1) + 1
                 updated += 1
+                return
+            pkey = pattern_key(skill, evidence)
+            if pkey in pindex:
+                merged += 1
                 return
             ld = {
                 "id": "lb-" + secrets.token_hex(3),
@@ -306,6 +460,7 @@ def ingest(target, recon_dir):
                 return
             leads.append(ld)
             index[key] = ld
+            pindex.add(pkey)
             added += 1
 
         for u in rec["urls"]:
@@ -325,7 +480,8 @@ def ingest(target, recon_dir):
 
         save_ledger(target, leads)
     rej = f", {rejected} rejected by adjudication" if rejected else ""
-    print(f"[+] ingest {target}: +{added} new leads, {updated} re-seen{rej} "
+    mrg = f", {merged} merged as near-duplicate" if merged else ""
+    print(f"[+] ingest {target}: +{added} new leads, {updated} re-seen{rej}{mrg} "
           f"(total {len(leads)}). Ledger: {ledger_path(target)}")
     if added:
         print(f"[*] run:  lead_board.py show {target}    to see what to hunt next")
@@ -357,8 +513,9 @@ def show(target, mode):
         if not new:
             print("   (none — every lead touched. Re-ingest after more recon.)")
         for l in new[:25]:
+            mapped = ",".join(skills_for(l["skill"])) or "?"
             print(f"  [{l['priority']:>4}] {l['id']}  {l['skill']:<20} {l['evidence'][:60]}")
-            print(f"         └─ {l['signal']}: {l['why']}")
+            print(f"         └─ load skill: {mapped}  ·  {l['signal']}: {l['why']}")
     if mode in ("all", None):
         prog = by_status.get("investigating", [])
         if prog:

@@ -71,6 +71,65 @@ def _first_param(url: str) -> str | None:
         return None
 
 
+def _all_params(url: str) -> list[str]:
+    try:
+        return list(parse_qs(urlparse(url).query).keys())
+    except Exception:  # noqa: BLE001
+        return []
+
+
+# Class-appropriate param preference. A lead URL can carry several params; the
+# verifier only converges on the one the class actually abuses.
+_URL_PARAMS = {
+    "url", "uri", "dest", "destination", "next", "redirect", "redirect_uri",
+    "return", "returnurl", "return_to", "continue", "goto", "rurl", "link",
+    "callback", "fetch", "load", "proxy", "feed", "host", "to", "out",
+    "image_url", "imageurl", "continue_url", "file", "page", "path", "template",
+    "include", "view", "doc", "folder", "lang", "locale", "theme",
+}
+_ID_PARAMS = {
+    "id", "uid", "user_id", "userid", "account", "account_id", "order",
+    "order_id", "invoice", "doc", "doc_id", "file_id", "record", "profile",
+    "customer", "cid", "pid", "num", "no", "key",
+}
+
+
+def _pick_param(url: str, canon: str) -> str | None:
+    params = _all_params(url)
+    if not params:
+        return None
+    cls = (canon or "").lower()
+    if cls in ("open-redirect", "ssrf", "lfi", "ssti"):
+        pref = [p for p in params if p.lower() in _URL_PARAMS]
+    elif cls in ("idor", "bola", "mass-assignment"):
+        pref = [p for p in params if p.lower() in _ID_PARAMS]
+    else:
+        pref = []
+    return (pref or params)[0]
+
+
+# A standard time-based SQLi payload. Only used as a *default* when the lead
+# gives the verifier nothing to test; the oracle still requires the timing
+# distributions to fully separate, so a non-injectable param is rejected.
+_DEFAULT_SLEEP_PAYLOAD = "1 AND SLEEP(3)"
+
+
+def _verifier_inputs(canon: str, url: str) -> dict:
+    """Synthesize the standard, safe per-class inputs a verifier needs.
+
+    A recon lead is intentionally thin (url + param). Several verifiers park
+    without a class-standard input that a human tester supplies automatically
+    (e.g. a login-bypass marker, a sleep payload). We supply only the inputs
+    that are *standard and safe* — never a value that could manufacture a
+    confirmation (no guessed markers, no invented internal SSRF targets).
+    """
+    cls = (canon or "").lower()
+    extra: dict = {}
+    if cls == "sqli" and url:
+        extra.update(sleep_payload=_DEFAULT_SLEEP_PAYLOAD, sleep_seconds=3, trials=2)
+    return extra
+
+
 def finding_from_lead(lead: dict, target: str) -> dict:
     """Translate a recon lead into a finding dict the verifier understands."""
     skill = str(lead.get("skill", ""))
@@ -83,9 +142,10 @@ def finding_from_lead(lead: dict, target: str) -> dict:
         "target": target,
         "lead_id": lead.get("id"),
     }
-    param = _first_param(url)
+    param = _pick_param(url, canon) if url else None
     if param:
         finding["param"] = param
+    finding.update(_verifier_inputs(canon, url))
     return finding
 
 
