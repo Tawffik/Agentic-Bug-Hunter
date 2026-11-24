@@ -228,6 +228,12 @@ ORDERED_SCAN="$FINDINGS_DIR/ordered_scan_targets.txt"
 for f in "$PRIORITY_DIR/critical_hosts.txt" "$PRIORITY_DIR/high_hosts.txt" "$PRIORITY_DIR/prioritized_hosts.txt" "$RECON_DIR/live/urls.txt"; do
     [ -s "$f" ] && cat "$f" >> "$ORDERED_SCAN"
 done
+# Drop ASN/netblock/CIDR artifacts (e.g. asnmap-enriched httpx lines such as
+# "https://35.245.16.0/20 (Netblock) --> ..."). Scanning a CDN IP range is a
+# scope/noise hazard, not a target.
+grep -vE '^https?://[0-9]{1,3}(\.[0-9]{1,3}){3}/[0-9]{1,2}/?$' "$ORDERED_SCAN" 2>/dev/null \
+  | grep -vE '\(Netblock\)|--> contains -->' > "${ORDERED_SCAN}.clean" 2>/dev/null || true
+[ -s "${ORDERED_SCAN}.clean" ] && mv "${ORDERED_SCAN}.clean" "$ORDERED_SCAN"
 # Clean and uniqify
 awk '!seen[$0]++' "$ORDERED_SCAN" > "${ORDERED_SCAN}.tmp" && mv "${ORDERED_SCAN}.tmp" "$ORDERED_SCAN"
 [ ! -s "$ORDERED_SCAN" ] && log_err "No scan targets found" && exit 1

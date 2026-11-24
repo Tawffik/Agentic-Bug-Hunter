@@ -439,7 +439,12 @@ if [ -x "$HTTPX_BIN" ] && [ -s "$RECON_DIR/subdomains/all.txt" ]; then
         -o "$RECON_DIR/live/httpx_full.txt" 2>/dev/null || true
 
     # Extract just the URLs for other tools
-    awk '{print $1}' "$RECON_DIR/live/httpx_full.txt" > "$RECON_DIR/live/urls.txt" 2>/dev/null || true
+    # `httpx` output can include asnmap-enriched netblock lines
+    # (e.g. "https://35.245.16.0/20 (Netblock) --> ..."); keep only real host URLs
+    # so a CDN IP range never becomes a scan/crawl target.
+    awk '{print $1}' "$RECON_DIR/live/httpx_full.txt" 2>/dev/null \
+      | grep -vE '^https?://[0-9]{1,3}(\.[0-9]{1,3}){3}/[0-9]{1,2}/?$' \
+      | grep -vE '\(Netblock\)|-->' > "$RECON_DIR/live/urls.txt" 2>/dev/null || true
 
     LIVE_COUNT=$(wc -l < "$RECON_DIR/live/urls.txt" 2>/dev/null || echo 0)
     log_done "Live hosts: $LIVE_COUNT"
