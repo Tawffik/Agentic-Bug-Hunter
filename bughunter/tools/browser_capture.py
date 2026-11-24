@@ -25,7 +25,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -39,6 +39,9 @@ class RequestRecord:
     resource_type: str
     status: int | None = None
     content_type: str = ""
+    # API-capture (XHR/fetch) fields; populated when --capture-api is set.
+    post_data: str = ""
+    api_headers: dict = field(default_factory=dict)
 
 
 def redact_headers(headers: dict[str, str]) -> dict[str, str]:
@@ -129,7 +132,22 @@ def run(args) -> dict:
         page = context.new_page()
 
         def on_request(request):
-            requests.append(RequestRecord(request.method, request.url, request.resource_type))
+            rec = RequestRecord(request.method, request.url, request.resource_type)
+            if args.capture_api and request.resource_type in {"xhr", "fetch"}:
+                try:
+                    pd = request.post_data
+                    if pd:
+                        rec.post_data = pd[:800]
+                except Exception:  # noqa: BLE001
+                    pass
+                try:
+                    rec.api_headers = {
+                        k: v for k, v in request.headers.items()
+                        if k.lower() not in SECRET_HEADERS
+                    }
+                except Exception:  # noqa: BLE001
+                    pass
+            requests.append(rec)
 
         def on_response(response):
             for record in reversed(requests):
@@ -186,6 +204,8 @@ def main() -> int:
     parser.add_argument("--screenshot", default="page.png", help="Screenshot file name")
     parser.add_argument("--full-page", action="store_true", help="Full-page screenshot")
     parser.add_argument("--har", action="store_true", help="Write network.har")
+    parser.add_argument("--capture-api", action="store_true",
+                        help="Record XHR/fetch request bodies + non-secret headers (e.g. anti-content)")
     parser.add_argument("--wait", type=int, default=1500, help="Extra wait after load (ms)")
     parser.add_argument("--timeout", type=int, default=30, help="Navigation timeout (seconds)")
     parser.add_argument("--wait-until", default="networkidle", choices=["load", "domcontentloaded", "networkidle"])

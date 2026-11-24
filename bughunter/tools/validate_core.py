@@ -20,6 +20,19 @@ from datetime import datetime
 
 from tools.verifiers import verify_finding, normalize_class
 
+# Imported eagerly, NOT lazily inside the gate. The swarm runs many verify
+# workers in parallel; if each thread triggers the first import of the `memory`
+# package at the same time, CPython's import lock deadlocks ("deadlock detected
+# by _ModuleLock('memory.hunt_journal')") and a genuinely confirmed finding is
+# recorded as scanner_hit. Importing once, before any thread starts, removes the
+# race. If it fails for any reason, evidence linking degrades gracefully below.
+try:
+    from memory.evidence import EvidenceStore, new_finding_id
+except Exception:  # noqa: BLE001 - evidence must never block the gate
+    EvidenceStore = None  # type: ignore[assignment]
+    new_finding_id = None  # type: ignore[assignment]
+
+
 # ---------------------------------------------------------------------------
 # NEVER-SUBMIT / kill-signal predicates (skills/triage-validation/SKILL.md)
 # Each predicate returns a kill reason string, or None if it does not fire.
@@ -204,8 +217,6 @@ def verify_finding_programmatic(
     evidence_linked = False
     if session_dir and (technically_confirmed or finding.get("always_capture")):
         try:
-            from memory.evidence import EvidenceStore, new_finding_id
-
             store = EvidenceStore(session_dir)
             finding_id = new_finding_id()
             first = verifier.trace[0] if (verifier and verifier.trace) else None

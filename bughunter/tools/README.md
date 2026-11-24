@@ -33,6 +33,12 @@ bash bughunter/tools/external_arsenal.sh                     # what's installed 
 | `scope_aggregator.sh` | Multi-platform scope pull (bbscope + bounty-targets-data) |
 | `recon_adapter.py` | Normalize recon output across nested/flat layouts |
 | `param_discovery.sh` | Hidden HTTP parameters via Arjun · x8 |
+| `param_probe.py` | Built-in GET-only hidden-param discovery (fallback when arjun/x8 absent) |
+| `parse_ffuf.py` | Parse ffuf JSON content-discovery output into URLs (was dropped) |
+| `fuzz_diff.py` | Per-host baseline response-diff: classify ffuf hits (INTERESTING/NOISE/DUPLICATE/SPA_FALLBACK) |
+| `api_probe.py` | Deep API tester over the app-model (per-host baseline; PUBLIC/AUTH/BLOCKED_SHELL/METHOD_*) + coverage ledger |
+| `pipeline_plan.py` | Chunked work plan from lead boards (auto/authz/ai lanes + next command) |
+| `skill_registry.py` | Skill/knowledge lifecycle: routing-label coverage, gap + dead-knowledge report, RAG index, lifecycle audit |
 | `js_analyzer.py` | Offline JS-bundle analysis — endpoints, params, secrets (cloud/SaaS/Auth/CI/JWT/keys), client sinks, source maps (`analyze <file\|dir\|->`) |
 | `cloud_recon.sh` | S3Scanner · cloud_enum · CloudFail for public bucket exposure |
 | `takeover_scanner.sh` | Subdomain takeover via dnsReaper · subjack |
@@ -180,6 +186,7 @@ adb, Frida; gcloud/az are printed as separate installs).
 | `prompt_safety.py` | Prompt-injection delimiting helpers for untrusted target content |
 | `google_oauth.py` | Google OAuth login flow for Gemini AI Pro providers |
 | `swarm.py` | Parallel ephemeral verifiers over the lead board |
+| `hunt_outcome.py` | Classify WHY a run ended where it did (zero-finding root cause + next action) |
 | `memory_migrate.py` | Migrate/rotate hunt-memory JSONL between schemas |
 | `hunt_dashboard.py` | Live ANSI dashboard for hunt state |
 | `target_normalize.py` | Safe target/dir-name normalization (path-traversal guard) |

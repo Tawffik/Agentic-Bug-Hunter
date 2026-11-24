@@ -97,7 +97,87 @@ def first_loop_with(body: str, needle: re.Pattern[str]) -> bool:
     return False
 
 
-def scan_file(path: Path, root: Path, chains: set[str]) -> list[Finding]:
+
+# --- Access-control heuristic (missing authorization on privileged functions) ---
+# The #2 most common smart-contract bug class. Static LEAD; confirm with a Foundry
+# PoC that calls the function from a non-owner address and asserts the state change.
+PRIV_NAMES = re.compile(
+    r"^(set_?owner|transfer_?ownership|renounce_?ownership|mint|mint_?to|burn|"
+    r"set_?admin|add_?admin|set_?fee(_?recipient)?|set_?price|set_?implementation|"
+    r"upgrade(_?to)?|pause|unpause|set_?treasury|set_?operator|grant_?role|"
+    r"revoke_?role|initialize|init|withdraw_?all|sweep|rescue|set_?oracle|"
+    r"set_?router|set_?limit)$", re.I)
+WRITE_RE = re.compile(
+    r"(\b[A-Za-z_]\w*(\[[^\]]*\])?\s*(?:\+=|-=|\|=|&=|\*=|=(?!=))|"
+    r"_mint\s*\(|_burn\s*\(|selfdestruct\s*\(|transferOwnership\s*\(|"
+    r"_setupRole\s*\(|\bdelete\s+\w+)", re.S)
+# A one-shot initializer (owner==0 / !initialized guard) is not missing auth.
+INIT_GUARD_RE = re.compile(
+    r"(address\(0\)|_initialized|\binitialized\b|require\s*\(\s*!|"
+    r"require\s*\(\s*owner\s*==)", re.I)
+ACCESS_MOD_RE = re.compile(
+    r"(onlyOwner|onlyAdmin|onlyRole|onlyMinter|onlyGovernance|onlyOperator|"
+    r"onlyKeeper|onlyGuardian|requiresAuth|auth)", re.I)
+SENDER_CHECK_RE = re.compile(
+    r"(msg\.sender\s*==|msg\.sender\s*!=|hasRole\s*\(|_checkRole\s*\(|"
+    r"_checkOwner\s*\(|require\s*\([^;]*msg\.sender)", re.S)
+
+
+def _access_control_findings(text, rel, lines):
+    out = []
+    for name, signature, body, start_line in function_blocks(text):
+        lsign = signature.lower()
+        if "internal" in lsign or "private" in lsign or "view" in lsign or "pure" in lsign:
+            continue
+        if not PRIV_NAMES.match(name):
+            continue
+        if not WRITE_RE.search(body):
+            continue
+        if ACCESS_MOD_RE.search(signature) or SENDER_CHECK_RE.search(body):
+            continue
+        if name.lower() in ("initialize", "init") and INIT_GUARD_RE.search(body):
+            continue
+        out.append(Finding(
+            "ACCESS-CONTROL-01", "high", rel, start_line, _snippet(lines, start_line),
+            f"`{name}()` is externally callable and writes privileged state with no "
+            "access modifier and no msg.sender check — anyone can call it.",
+            "PoC: Foundry test calls it from a non-owner address and asserts the state change.",
+        ))
+    return out
+
+
+
+# --- Reentrancy heuristic (external call before state update, no guard) ---
+# Classic CEI violation: a value/ETH external call precedes a state mutation and
+# there is no nonReentrant guard. `.transfer`/`.send` are 2300-gas and excluded.
+CALL_RE = re.compile(r"\.call\s*[{(]")
+STATE_WRITE_RE = re.compile(
+    r"\b[A-Za-z_]\w*(\[[^\]]*\])?\s*(?:-=|\+=|=(?!=)|\|\|=)")
+
+
+def _reentrancy_findings(text, rel, lines):
+    out = []
+    for name, signature, body, start_line in function_blocks(text):
+        lsign = signature.lower()
+        if "view" in lsign or "pure" in lsign:
+            continue
+        if re.search(r"nonReentrant", signature, re.I):
+            continue
+        m = CALL_RE.search(body)
+        if not m:
+            continue
+        if STATE_WRITE_RE.search(body[m.end():]):
+            out.append(Finding(
+                "REENTRANCY-01", "high", rel, start_line, _snippet(lines, start_line),
+                f"`{name}()` performs an external call before a state update with no "
+                "reentrancy guard (CEI violation) — a re-entrant callee can drain.",
+                "PoC: Foundry test with an attacker contract that re-enters and drains; assert profit.",
+            ))
+    return out
+
+
+def scan_file(path, root, chains: set[str]) -> list[Finding]:
+    path, root = Path(path), Path(root)   # tolerate str callers
     raw = path.read_text(encoding="utf-8", errors="ignore")
     text = strip_comments(raw)
     rel = str(path.relative_to(root))
@@ -127,6 +207,9 @@ def scan_file(path: Path, root: Path, chains: set[str]) -> list[Finding]:
                 f"`{name}()` reads msg.value inside a loop; every iteration sees the full value.",
                 "Check whether the loop forwards/spends msg.value more than once; PoC the excess.",
             ))
+
+    findings.extend(_access_control_findings(text, rel, lines))
+    findings.extend(_reentrancy_findings(text, rel, lines))
 
     for rule, chain, pattern, signal in L2_CHECKS:
         if chains and chain not in chains and "all-l2" not in chains:

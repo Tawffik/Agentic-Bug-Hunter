@@ -43,8 +43,10 @@ def test_verifier_goes_through_base_fetch_or_skips(path):
     # Either it fetches via the shared seam, or it is an orchestrator that
     # delegates (ssrf -> oob), which is acceptable.
     assert "from tools.verifiers.base import" in src
-    assert ("fetch" in src) or ("oob" in src) or ("dom_xss_harness" in src), \
-        f"{os.path.basename(path)} has no data path"
+    # fetch = network seam; oob/dom = delegated network harnesses;
+    # forge = local Foundry PoC oracle via subprocess (no network egress).
+    assert ("fetch" in src) or ("oob" in src) or ("dom_xss_harness" in src) \
+        or ("forge" in src), f"{os.path.basename(path)} has no data path"
 
 
 def test_gate_modules_use_choke_points():

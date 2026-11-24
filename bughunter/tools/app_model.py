@@ -44,6 +44,12 @@ _PATH_RE = re.compile(r'["\'`](/[A-Za-z0-9_\-./{}:]{2,})["\'`]')
 _URL_RE = re.compile(r"https?://[^\s\"'<>)]+")
 
 
+try:
+    from tools.lead_board import _is_content_page
+except Exception:  # pragma: no cover
+    def _is_content_page(_u):
+        return False
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
@@ -121,6 +127,8 @@ def extract_from_urls(urls: list[str], endpoints: dict | None = None) -> dict:
         raw = raw.strip()
         if not raw or raw.startswith("#"):
             continue
+        if _is_content_page(raw):
+            continue  # docs/blog/marketing are content, not an IDOR/object surface
         if not raw.startswith("http"):
             _add(endpoints, "GET", raw, "url")
             continue

@@ -18,7 +18,7 @@ from tools.verifiers.base import VerifyResult, skipped
 from tools.verifiers import (
     redirect, sensitive_file, auth_bypass, sqli, idor, oob, xss,
     cors, mass_assignment, ssti, graphql_idor, ssrf, llm_exfil,
-    business_logic, cache_poison,
+    business_logic, cache_poison, ssi, web3_poc,
 )
 
 # canonical class -> verify callable
@@ -40,6 +40,8 @@ REGISTRY = {
     "llm-exfil": llm_exfil.verify,
     "business-logic": business_logic.verify,
     "cache-poisoning": cache_poison.verify,
+    "ssi": ssi.verify,
+    "web3-poc": web3_poc.verify,
 }
 
 # alias -> canonical class (lowercased, punctuation-insensitive match applied)
@@ -95,12 +97,27 @@ _ALIASES = {
     "prompt exfiltration": "llm-exfil",
     "system prompt leak": "llm-exfil",
     "canary exfiltration": "llm-exfil",
+    # routing label hunt-llm-ai -> llm-exfil (canary oracle; skips without marker)
+    "llm ai": "llm-exfil",
+    "llm": "llm-exfil",
+    # SAML ACS is an XML parser -> the OOB/XXE oracle (skips without payloads)
+    "saml": "xxe",
+    "saml acs": "xxe",
     "business logic": "business-logic",
     "business-logic error": "business-logic",
     "logic flaw": "business-logic",
     "cache poisoning": "cache-poisoning",
     "web cache poisoning": "cache-poisoning",
     "cache deception": "cache-poisoning",
+    "ssi injection": "ssi",
+    "server-side includes": "ssi",
+    "server side include": "ssi",
+    "server-side include injection": "ssi",
+    "web3 poc": "web3-poc",
+    "web3-poc": "web3-poc",
+    "smart contract poc": "web3-poc",
+    "missing access control": "web3-poc",
+    "reentrancy": "web3-poc",
 }
 
 

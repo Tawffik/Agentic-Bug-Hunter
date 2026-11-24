@@ -1141,6 +1141,27 @@ def generate_reports(domain):
     return 0
 
 
+def run_hunt_outcome(domain):
+    """Print why the run ended where it did (never a silent '0 findings').
+
+    Read-only, network-free. Never fails the pipeline: any error is logged and
+    the run continues.
+    """
+    script = os.path.join(TOOLS_DIR, "hunt_outcome.py")
+    if not os.path.isfile(script):
+        return False
+    try:
+        sys.path.insert(0, os.path.dirname(TOOLS_DIR))
+        from tools.hunt_outcome import analyze, render  # noqa: E402
+
+        print()
+        print(render(analyze(domain)))
+        return True
+    except Exception as exc:  # noqa: BLE001 - observability must not break the run
+        log("warn", f"hunt_outcome skipped: {exc}")
+        return False
+
+
 def show_status():
     print(f"\n{BOLD}{'='*50}{NC}")
     print(f"{BOLD}  Bug Bounty Pipeline Status{NC}")
@@ -1355,6 +1376,10 @@ def hunt_target(
         run_zero_day_fuzzer(domain, deep=not quick)
 
     result["reports"] = generate_reports(domain)
+
+    # Final observability: state WHY the run ended where it did (lead board +
+    # validations), so a zero-finding target is never a silent dead end.
+    run_hunt_outcome(domain)
 
     return result
 

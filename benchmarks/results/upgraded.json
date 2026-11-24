@@ -1,0 +1,82 @@
+{
+  "label": "upgraded",
+  "repo": "/workspaces/Agentic-Bug-Hunter",
+  "stages": {
+    "pytest": {
+      "rc": 0,
+      "summary": "1593 passed, 2 skipped in 23.25s",
+      "sec": 24.19
+    },
+    "verifier_bench": {
+      "counts": {
+        "TP": 6,
+        "FN": 0,
+        "FP": 0,
+        "TN": 5
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "fp_rate": 0.0,
+      "sec": 4.48
+    },
+    "authz_bench": {
+      "recall": 1.0,
+      "confirmed_fp": 0,
+      "verdict_accuracy": 1.0,
+      "sec": 0.81
+    },
+    "web3_access_control": {
+      "fixtures": {
+        "seen_bad.sol": {
+          "expected": "detect",
+          "detections": 3,
+          "pass": true
+        },
+        "unseen_bad.sol": {
+          "expected": "detect",
+          "detections": 4,
+          "pass": true
+        },
+        "seen_good.sol": {
+          "expected": "clean",
+          "detections": 0,
+          "pass": true
+        },
+        "unseen_good.sol": {
+          "expected": "clean",
+          "detections": 0,
+          "pass": true
+        }
+      },
+      "passed": 4,
+      "total": 4
+    },
+    "web3_reentrancy": {
+      "fixtures": {
+        "seen_bad.sol": {
+          "expected": "detect",
+          "detections": 1,
+          "pass": true
+        },
+        "unseen_bad.sol": {
+          "expected": "detect",
+          "detections": 1,
+          "pass": true
+        },
+        "seen_good.sol": {
+          "expected": "clean",
+          "detections": 0,
+          "pass": true
+        },
+        "unseen_good.sol": {
+          "expected": "clean",
+          "detections": 0,
+          "pass": true
+        }
+      },
+      "passed": 4,
+      "total": 4
+    }
+  },
+  "verdict": "5/5 gates"
+}

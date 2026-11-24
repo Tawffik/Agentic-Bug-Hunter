@@ -69,3 +69,14 @@ def test_spec_ingestion_is_best_effort(tmp_path):
     p.write_text(json.dumps(spec))
     eps = app_model.extract_from_spec(str(p))
     assert any("{userId}" in k for k in eps)
+
+
+def test_content_pages_excluded_from_object_surface():
+    """Docs/blog content is not an IDOR/object surface (aiven/tiktok case)."""
+    m = app_model.build("acme.com", urls=[
+        "https://acme.com/blog/howto/{id}",
+        "https://acme.com/docs/page/{id}",
+        "https://acme.com/api/orders/1",
+    ])
+    assert m["stats"]["object_endpoints"] == 1
+    assert any("/api/orders" in e["key"] for e in m["endpoints"])

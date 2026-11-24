@@ -379,6 +379,32 @@ sort -u -o "$RECON_DIR/subdomains/all.txt" "$RECON_DIR/subdomains/all.txt"
 TOTAL_SUBS=$(wc -l < "$RECON_DIR/subdomains/all.txt" 2>/dev/null || echo 0)
 log_ok "Seed host included; probe list now: $TOTAL_SUBS host(s)"
 
+# Enforce the wildcard suppression the pre-check only *documented*. A wildcard
+# zone makes thousands of brute-forced names resolve to one IP; left in, they
+# reach httpx/dirsearch and the lead board as junk (e.g. real TikTok board had
+# dozens of `resetw.*.developer-sg.tiktok.com` ATO leads). Drop brute-forced
+# hosts whose A record collapses to the wildcard IP, always keeping the apex.
+if [ "${WILDCARD_DNS:-0}" = "1" ] && [ -n "${WILDCARD_DNS_IP:-}" ] \
+        && [ -s "$RECON_DIR/subdomains/all.txt" ]; then
+    SEED="${TARGET}${TARGET_PORT:+:$TARGET_PORT}"
+    if command -v dnsx &>/dev/null; then
+        log_step "Suppressing wildcard-collapsing hosts (A -> $WILDCARD_DNS_IP)..."
+        dnsx -silent -a -resp -l "$RECON_DIR/subdomains/all.txt" 2>/dev/null \
+          | awk -v w="$WILDCARD_DNS_IP" -v seed="$SEED" '
+              { drop=0; for(i=2;i<=NF;i++){ t=$i; gsub(/[][]/,"",t); if(t==w) drop=1 }
+                if(!drop || $1==seed) print $1 }' \
+          | sort -u > "$RECON_DIR/subdomains/all.real.txt" || true
+        echo "$SEED" >> "$RECON_DIR/subdomains/all.real.txt"
+        sort -u -o "$RECON_DIR/subdomains/all.real.txt" "$RECON_DIR/subdomains/all.real.txt" 2>/dev/null || true
+        if [ -s "$RECON_DIR/subdomains/all.real.txt" ]; then
+            mv "$RECON_DIR/subdomains/all.real.txt" "$RECON_DIR/subdomains/all.txt"
+            log_done "Wildcard-filtered probe list: $(wc -l < "$RECON_DIR/subdomains/all.txt" 2>/dev/null || echo 0) host(s)"
+        fi
+    else
+        log_warn "Wildcard detected but dnsx missing — cannot drop collapsing hosts"
+    fi
+fi
+
 fi  # end of domain-only subdomain enum block
 
 # ============================================================
@@ -413,7 +439,12 @@ if [ -x "$HTTPX_BIN" ] && [ -s "$RECON_DIR/subdomains/all.txt" ]; then
         -o "$RECON_DIR/live/httpx_full.txt" 2>/dev/null || true
 
     # Extract just the URLs for other tools
-    awk '{print $1}' "$RECON_DIR/live/httpx_full.txt" > "$RECON_DIR/live/urls.txt" 2>/dev/null || true
+    # `httpx` output can include asnmap-enriched netblock lines
+    # (e.g. "https://35.245.16.0/20 (Netblock) --> ..."); keep only real host URLs
+    # so a CDN IP range never becomes a scan/crawl target.
+    awk '{print $1}' "$RECON_DIR/live/httpx_full.txt" 2>/dev/null \
+      | grep -vE '^https?://[0-9]{1,3}(\.[0-9]{1,3}){3}/[0-9]{1,2}/?$' \
+      | grep -vE '\(Netblock\)|-->' > "$RECON_DIR/live/urls.txt" 2>/dev/null || true
 
     LIVE_COUNT=$(wc -l < "$RECON_DIR/live/urls.txt" 2>/dev/null || echo 0)
     log_done "Live hosts: $LIVE_COUNT"
@@ -498,6 +529,23 @@ fi
 # Merge all collected URLs
 cat "$RECON_DIR/urls/"*.txt 2>/dev/null | sort -u > "$RECON_DIR/urls/all.txt" 2>/dev/null || true
 log_done "Total unique URLs: $(wc -l < "$RECON_DIR/urls/all.txt" 2>/dev/null || echo 0)"
+
+# Scope-filter the merged URL set. katana/gau follow external links, so without
+# this an off-scope host (e.g. a vendor doc linked from the target's blog) lands
+# in urls/all.txt and becomes an out-of-scope lead. Reuses the ONE authoritative
+# ScopeChecker so all entrypoints agree. Skipped for IP/CIDR/local targets.
+if [ -s "$RECON_DIR/urls/all.txt" ] && [ "${TARGET_TYPE:-domain}" = "domain" ] \
+        && [ -f "$BASE_DIR/tools/scope_checker.py" ]; then
+    python3 "$BASE_DIR/tools/scope_checker.py" \
+        --domain "$TARGET" --domain "*.$TARGET" \
+        --input-file "$RECON_DIR/urls/all.txt" \
+        --output "$RECON_DIR/urls/all.scoped.txt" >/dev/null 2>&1 || true
+    if [ -s "$RECON_DIR/urls/all.scoped.txt" ]; then
+        mv "$RECON_DIR/urls/all.scoped.txt" "$RECON_DIR/urls/all.txt"
+        rm -f "$RECON_DIR/urls/all.scoped.txt"
+        log_done "Scope-filtered URLs: $(wc -l < "$RECON_DIR/urls/all.txt" 2>/dev/null || echo 0)"
+    fi
+fi
 
 # Filter interesting URLs
 if [ -s "$RECON_DIR/urls/all.txt" ]; then
@@ -596,6 +644,54 @@ if command -v ffuf &>/dev/null && [ -s "$RECON_DIR/live/urls.txt" ]; then
         done < "$RECON_DIR/live/urls.txt"
 
         log_done "Directory fuzzing complete ($FUZZ_COUNT hosts)"
+
+        # The ffuf results above were written to dirs/ffuf_*.json but never read
+        # back, so discovered paths never became leads. Merge them into the URL
+        # set that lead_board ingests — but only after a per-host baseline
+        # response-diff (fuzz_diff.py): an SPA/WAF catch-all answers 200 for
+        # every path, so raw hits are mostly noise. UNKNOWN (no baseline) is
+        # kept to stay fail-safe; NOISE/DUPLICATE/SPA_FALLBACK are dropped.
+        FFUF_JSONS=$(ls "$RECON_DIR"/dirs/ffuf_*.json 2>/dev/null || true)
+        if [ -n "$FFUF_JSONS" ]; then
+            if [ -f "$(dirname "$0")/fuzz_diff.py" ]; then
+                python3 "$(dirname "$0")/fuzz_diff.py" --ffuf-dir "$RECON_DIR/dirs" \
+                    --out "$RECON_DIR/dirs/interesting.txt" --include-unknown \
+                    --scope-domain "$TARGET" --scope-domain "*.$TARGET" >/dev/null 2>&1 || true
+            fi
+            if [ -s "$RECON_DIR/dirs/interesting.txt" ]; then
+                cat "$RECON_DIR/dirs/interesting.txt" >> "$RECON_DIR/urls/all.txt"
+                log_done "Merged ffuf signals (baseline-diffed) into urls/all.txt"
+            elif [ -f "$(dirname "$0")/parse_ffuf.py" ]; then
+                python3 "$(dirname "$0")/parse_ffuf.py" $FFUF_JSONS 2>/dev/null \
+                    >> "$RECON_DIR/urls/all.txt" || true
+                log_done "Merged ffuf discoveries (no baseline; raw) into urls/all.txt"
+            fi
+            sort -u "$RECON_DIR/urls/all.txt" -o "$RECON_DIR/urls/all.txt" 2>/dev/null || true
+        fi
+
+        # Multi-segment discovery: single-segment fuzzing never finds nested
+        # routes (api/v1/users, api/account) whose parent 404s. Fuzz a curated
+        # nested-API list too; 401/403 are included because an auth-gated route
+        # is still a lead (401 on /api/account == IDOR surface).
+        NESTED="$WORDLIST_DIR/api-nested.txt"
+        [ -f "$NESTED" ] || NESTED="$LEGACY_WORDLIST_DIR/api-nested.txt"
+        if [ -f "$NESTED" ]; then
+            NESTED_COUNT=0
+            MAX_NESTED=$([ "$QUICK_MODE" = "--quick" ] && echo 1 || echo 3)
+            while IFS= read -r url && [ "$NESTED_COUNT" -lt "$MAX_NESTED" ]; do
+                domain=$(echo "$url" | sed 's|https\?://||;s|[/:].*||')
+                ffuf -u "${url}/FUZZ" -w "$NESTED" \
+                    -mc 200,201,204,301,302,307,308,401,403,405 \
+                    -t "$THREADS" -rate "$RATE_LIMIT" -sf -timeout 10 \
+                    ${BB_AUTH_ARGS[@]+"${BB_AUTH_ARGS[@]}"} \
+                    -o "$RECON_DIR/dirs/nested_${domain}.json" -of json 2>/dev/null || true
+                python3 "$(dirname "$0")/parse_ffuf.py" "$RECON_DIR/dirs/nested_${domain}.json" 2>/dev/null \
+                    >> "$RECON_DIR/urls/all.txt" || true
+                ((NESTED_COUNT++))
+            done < "$RECON_DIR/live/urls.txt"
+            sort -u "$RECON_DIR/urls/all.txt" -o "$RECON_DIR/urls/all.txt" 2>/dev/null || true
+            log_done "Nested-route discovery merged"
+        fi
     else
         log_warn "No wordlist found — run: python3 tools/hunt.py --setup-wordlists"
     fi
@@ -679,6 +775,34 @@ if [ -s "$RECON_DIR/urls/with_params.txt" ]; then
     fi
 else
     log_warn "No parameterized URLs found — skipping"
+fi
+
+# Fallback ACTIVE parameter discovery. The block above only *extracts* params
+# that crawling already exposed, so a param-less endpoint (where SSRF / open-
+# redirect / SQLi / XSS actually live) is never probed. When arjun/x8 are both
+# absent, use the built-in GET-only prober as a bounded fallback so param-class
+# leads still get routed. Bounded by PARAM_PROBE_MAX; disable with PARAM_PROBE=0.
+PARAM_PROBE="${PARAM_PROBE:-1}"
+PARAM_PROBE_MAX="${PARAM_PROBE_MAX:-20}"
+if [ "$PARAM_PROBE" = "1" ] && ! command -v arjun >/dev/null 2>&1 && ! command -v x8 >/dev/null 2>&1; then
+    PROBER="$(dirname "$0")/param_probe.py"
+    if [ -f "$PROBER" ] && [ -s "$RECON_DIR/urls/all.txt" ]; then
+        log_step "Hidden-parameter discovery (built-in fallback; arjun/x8 absent)..."
+        grep -E '^https?://' "$RECON_DIR/urls/all.txt" 2>/dev/null \
+            | grep -v '?' | sort -u | head -n "$PARAM_PROBE_MAX" \
+            > "$RECON_DIR/params/probe_targets.txt" 2>/dev/null || true
+        if [ -s "$RECON_DIR/params/probe_targets.txt" ]; then
+            python3 "$PROBER" --list "$RECON_DIR/params/probe_targets.txt" \
+                --out "$RECON_DIR/params/with_params_probe.txt" \
+                --scope-domain "$TARGET" --scope-domain "*.$TARGET" \
+                --max-urls "$PARAM_PROBE_MAX" --delay 0.1 >/dev/null 2>&1 || true
+            if [ -s "$RECON_DIR/params/with_params_probe.txt" ]; then
+                cat "$RECON_DIR/params/with_params_probe.txt" >> "$RECON_DIR/urls/with_params.txt"
+                sort -u "$RECON_DIR/urls/with_params.txt" -o "$RECON_DIR/urls/with_params.txt"
+                log_done "Discovered hidden params: $(wc -l < "$RECON_DIR/params/with_params_probe.txt")"
+            fi
+        fi
+    fi
 fi
 
 # ============================================================

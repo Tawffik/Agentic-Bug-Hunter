@@ -89,7 +89,9 @@ for.
 5. VALIDATE  Run 7-Question Gate + deterministic verifier + evidence contract
 5b. FALSIFY  Adversarial validator tries to disprove the finding (SURVIVES/KILL)
 6. REPORT    Draft report for validated findings
-7. CHECKPOINT  Show findings to human
+7. OUTCOME   Classify WHY the run produced its result (never end at a silent
+             "0 findings" — state the root cause and the next action)
+8. CHECKPOINT  Show findings + outcome to human
 ```
 
 ## Checkpoint Modes
@@ -193,7 +195,35 @@ KILL weak findings immediately. Don't accumulate noise.
 Draft reports for validated findings using the report-writer format.
 Do NOT submit — queue for human review.
 
-## Step 7: Checkpoint
+## Step 7: Outcome (why the run ended where it did)
+
+A run that ends at 0 findings is only honest if it also says **why**. A silent
+zero gets repeated on the next target. After hunting, always classify the
+outcome from local artifacts (no network) and report the root cause:
+
+```bash
+python3 -m tools.hunt_outcome <target>          # human summary
+python3 -m tools.hunt_outcome <target> --json   # machine summary
+```
+
+It returns one verdict with a ranked next action:
+
+| verdict | meaning | next action |
+|---|---|---|
+| `report_ready_unsubmitted` | a validated finding exists but no report draft | **run `/report` and submit — this is a done bug** |
+| `unattempted_leads` | leads are still `new`; the loop never ran | run the swarm over the board |
+| `auth_blocked` | leads stalled on a session | supply `--auth-file`/`--cookie`; two identities via `/authz-diff` |
+| `capability_gap` | leads parked with no deterministic verifier | route to an AI skill or add a verifier |
+| `chain_required` | oracle fired but a chain is needed | run `/chain` |
+| `hardened` | leads tested and killed | pivot (deepen recon / JS / new asset) |
+
+Rules:
+- Never end a session with a bare "0 findings" — emit the outcome verdict and its
+  next action, or say explicitly that recon has not been ingested yet.
+- A `report_ready_unsubmitted` verdict outranks everything: an unsubmitted,
+  validated bug is a pure loss. Surface it first.
+
+## Step 8: Checkpoint
 
 Present findings based on checkpoint mode. Wait for human decision.
 
@@ -246,7 +276,12 @@ Requests:   142 total (142 in-scope, 0 blocked)
 Endpoints:  23 tested, 14 remaining
 Findings:   2 validated, 1 killed, 3 partial
 
-Next:       14 untested endpoints — run /pickup target.com to continue
+Outcome:    hardened — surface tested and killed, no soft routes
+Next:       run python3 -m tools.hunt_outcome target.com, then the action it names
 ```
+
+The `Outcome` line comes from `tools/hunt_outcome.py` (Step 7). If the session
+produced 0 findings, the Outcome line is mandatory — a bare "0 findings" with no
+root cause is the failure this step exists to prevent.
 
 Then **auto-log a session summary to hunt memory** by running `/remember` — no user action needed. The entry is tagged `auto_logged` and `session_summary` so `/pickup` can pick it up next time.
