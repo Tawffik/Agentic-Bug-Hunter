@@ -18,7 +18,7 @@ from tools.verifiers.base import VerifyResult, skipped
 from tools.verifiers import (
     redirect, sensitive_file, auth_bypass, sqli, idor, oob, xss,
     cors, mass_assignment, ssti, graphql_idor, ssrf, llm_exfil,
-    business_logic, cache_poison, ssi,
+    business_logic, cache_poison, ssi, web3_poc,
 )
 
 # canonical class -> verify callable
@@ -41,6 +41,7 @@ REGISTRY = {
     "business-logic": business_logic.verify,
     "cache-poisoning": cache_poison.verify,
     "ssi": ssi.verify,
+    "web3-poc": web3_poc.verify,
 }
 
 # alias -> canonical class (lowercased, punctuation-insensitive match applied)
@@ -112,6 +113,11 @@ _ALIASES = {
     "server-side includes": "ssi",
     "server side include": "ssi",
     "server-side include injection": "ssi",
+    "web3 poc": "web3-poc",
+    "web3-poc": "web3-poc",
+    "smart contract poc": "web3-poc",
+    "missing access control": "web3-poc",
+    "reentrancy": "web3-poc",
 }
 
 
