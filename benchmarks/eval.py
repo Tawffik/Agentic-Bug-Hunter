@@ -3,6 +3,7 @@
 import argparse, json, os, subprocess, sys, time
 
 FIX = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "web3")
+REFIX = os.path.join(FIX, "reentrancy")
 EXPECT = {"seen_bad.sol": "detect", "unseen_bad.sol": "detect",
           "seen_good.sol": "clean", "unseen_good.sol": "clean"}
 
@@ -55,6 +56,21 @@ def run(repo, label):
     res["stages"]["web3_access_control"] = {
         "fixtures": w3, "passed": sum(v["pass"] for v in w3.values()), "total": len(w3)}
 
+    # 5) web3 reentrancy detection on fixed fixtures (seen + UNSEEN)
+    re_res = {}
+    for f, want in EXPECT.items():
+        path = os.path.join(REFIX, f)
+        rc, out, err, dt = sh([py, scanner, "--json", path], repo)
+        try:
+            rules = [x.get("rule") for x in json.loads(out)]
+        except Exception:
+            rules = []
+        hit = rules.count("REENTRANCY-01")
+        re_res[f] = {"expected": want, "detections": hit,
+                     "pass": (hit > 0) if want == "detect" else (hit == 0)}
+    res["stages"]["web3_reentrancy"] = {
+        "fixtures": re_res, "passed": sum(v["pass"] for v in re_res.values()), "total": len(re_res)}
+
     res["verdict"] = _verdict(res)
     return res
 
@@ -66,7 +82,8 @@ def _verdict(r):
     if (st.get("verifier_bench") or {}).get("recall") == 1.0 and (st["verifier_bench"].get("counts", {}).get("FP") == 0): s += 1
     if (st.get("authz_bench") or {}).get("recall") == 1.0 and st["authz_bench"].get("confirmed_fp") == 0: s += 1
     if st["web3_access_control"]["passed"] == st["web3_access_control"]["total"]: s += 1
-    return f"{s}/4 gates"
+    if (st.get("web3_reentrancy") or {}).get("passed") == st.get("web3_reentrancy", {}).get("total"): s += 1
+    return f"{s}/5 gates"
 
 
 def main():

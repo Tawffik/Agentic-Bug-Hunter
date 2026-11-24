@@ -4,8 +4,8 @@
   "stages": {
     "pytest": {
       "rc": 0,
-      "summary": "1495 passed in 16.51s",
-      "sec": 17.22
+      "summary": "1495 passed in 17.46s",
+      "sec": 18.36
     },
     "verifier_bench": {
       "counts": {
@@ -17,13 +17,13 @@
       "precision": 1.0,
       "recall": 1.0,
       "fp_rate": 0.0,
-      "sec": 4.3
+      "sec": 4.44
     },
     "authz_bench": {
       "recall": 1.0,
       "confirmed_fp": 0,
       "verdict_accuracy": 1.0,
-      "sec": 0.74
+      "sec": 0.77
     },
     "web3_access_control": {
       "fixtures": {
@@ -50,7 +50,33 @@
       },
       "passed": 2,
       "total": 4
+    },
+    "web3_reentrancy": {
+      "fixtures": {
+        "seen_bad.sol": {
+          "expected": "detect",
+          "detections": 0,
+          "pass": false
+        },
+        "unseen_bad.sol": {
+          "expected": "detect",
+          "detections": 0,
+          "pass": false
+        },
+        "seen_good.sol": {
+          "expected": "clean",
+          "detections": 0,
+          "pass": true
+        },
+        "unseen_good.sol": {
+          "expected": "clean",
+          "detections": 0,
+          "pass": true
+        }
+      },
+      "passed": 2,
+      "total": 4
     }
   },
-  "verdict": "3/4 gates"
+  "verdict": "3/5 gates"
 }

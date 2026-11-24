@@ -146,7 +146,38 @@ def _access_control_findings(text, rel, lines):
     return out
 
 
-def scan_file(path: Path, root: Path, chains: set[str]) -> list[Finding]:
+
+# --- Reentrancy heuristic (external call before state update, no guard) ---
+# Classic CEI violation: a value/ETH external call precedes a state mutation and
+# there is no nonReentrant guard. `.transfer`/`.send` are 2300-gas and excluded.
+CALL_RE = re.compile(r"\.call\s*[{(]")
+STATE_WRITE_RE = re.compile(
+    r"\b[A-Za-z_]\w*(\[[^\]]*\])?\s*(?:-=|\+=|=(?!=)|\|\|=)")
+
+
+def _reentrancy_findings(text, rel, lines):
+    out = []
+    for name, signature, body, start_line in function_blocks(text):
+        lsign = signature.lower()
+        if "view" in lsign or "pure" in lsign:
+            continue
+        if re.search(r"nonReentrant", signature, re.I):
+            continue
+        m = CALL_RE.search(body)
+        if not m:
+            continue
+        if STATE_WRITE_RE.search(body[m.end():]):
+            out.append(Finding(
+                "REENTRANCY-01", "high", rel, start_line, _snippet(lines, start_line),
+                f"`{name}()` performs an external call before a state update with no "
+                "reentrancy guard (CEI violation) — a re-entrant callee can drain.",
+                "PoC: Foundry test with an attacker contract that re-enters and drains; assert profit.",
+            ))
+    return out
+
+
+def scan_file(path, root, chains: set[str]) -> list[Finding]:
+    path, root = Path(path), Path(root)   # tolerate str callers
     raw = path.read_text(encoding="utf-8", errors="ignore")
     text = strip_comments(raw)
     rel = str(path.relative_to(root))
@@ -178,6 +209,7 @@ def scan_file(path: Path, root: Path, chains: set[str]) -> list[Finding]:
             ))
 
     findings.extend(_access_control_findings(text, rel, lines))
+    findings.extend(_reentrancy_findings(text, rel, lines))
 
     for rule, chain, pattern, signal in L2_CHECKS:
         if chains and chain not in chains and "all-l2" not in chains:

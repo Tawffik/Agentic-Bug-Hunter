@@ -12,12 +12,19 @@ Reproducible, evidence-based. Baseline is the **actual pre-upgrade commit**, not
 ## Headline: baseline vs upgraded (actual numbers)
 | Stage | Baseline (699fc31) | Upgraded (HEAD) |
 |---|---|---|
-| Unit suite | **1495 passed** | **1589 passed, 1 skipped** |
+| Unit suite | **1495 passed** | **1593 passed, 2 skipped** |
 | Verifier gate | TP 6 / FN 0 / FP 0 / TN 5 · precision 1.0 · recall 1.0 | **same (1.0 / 1.0 / FP 0)** |
 | Authz gate | recall 1.0 · confirmed_fp 0 · verdict_acc 1.0 | **same** |
 | Web3 access-control (seen) | bad 0/2 detected, good 2/2 clean | **bad 2/2, good 2/2** |
 | Web3 access-control (**unseen**) | 0/2 detected | **2/2 detected** (unseen_bad → 4 hits) |
-| Gate verdict | **3/4** | **4/4** |
+| Web3 reentrancy (seen) | bad **0/2** | **2/2** |
+| Web3 reentrancy (**unseen**) | **0/2** | **2/2** (unseen_bad → 1 hit) |
+| Gate verdict | **3/5** | **5/5** |
+
+## Web3 reentrancy (new cycle)
+- **Detector** `REENTRANCY-01`: external `.call{...}` before a state update, no reentrancy guard (`.transfer`/`.send` excluded → no gas-limit FP). Detection: seen_bad 1 · unseen_bad 1 · seen_good 0 · unseen_good 0.
+- **Deterministic PoC** (`tests/benchmark/web3_reentrancy/`): attacker deposits 1 ETH, re-enters, **drains the bank → ends with 6 ETH, bank balance 0** (`forge test` PASS). `web3_poc` oracle → **confirmed=True**.
+- **Robustness fix:** `scan_file` now coerces str→Path (found via the new test — a real caller bug).
 
 ## Overfitting check (unseen fixtures)
 `unseen_bad.sol` uses function names **not** used during development (`pause`, `withdrawAll`, `setOracle`, `mint`) → upgraded detects **4**; baseline detects **0**. `unseen_good.sol` guarded (`onlyOwner`/`onlyRole`/initializer-guard) → **0 FP**. The rule generalizes; it was not tuned to the dev fixture.
@@ -50,7 +57,7 @@ Verified by `benchmarks/new_caps.py` and targeted suites (64 passed, 1 skipped):
 
 ## Remaining weaknesses / priorities
 1. **Web3 detector is static (LEAD)**; end-to-end auto-link (scanner → generated PoC → `web3_poc` confirm) is not wired yet — confirmation is manual/local.
-2. **Reentrancy / oracle-manipulation / accounting-desync** have no automated detector or PoC lab.
+2. Reentrancy now detected + PoC'd; **oracle-manipulation / accounting-desync** still have no automated detector.
 3. **Mobile/Cloud/Network** remain skill+recon only — **unverified**, need device/emulator/creds.
 4. **Severity accuracy** not independently benchmarked (verifiers emit class+confidence, not graded severity) — **unverified**.
 5. Real-world (production) validation of Web3/Web paths still **0 confirmed** in this environment (authorized labs only).
@@ -64,4 +71,4 @@ python3 benchmarks/new_caps.py
 ```
 
 ## Verdict
-The upgrade delivers a **real, measured improvement** where it can be tested: **Web3 access-control detection 0→100% (incl. unseen cases), a deterministic Foundry PoC oracle, +94 tests, and all existing gates preserved (verifier 1.0/FP0, authz 1.0/FP0)** — moving the benchmark from **3/4 to 4/4 gates** with **no regression**. Mobile/Cloud/Network/severity remain **unverified** and are the honest next priorities. No baseline data was fabricated; every number above is in `benchmarks/results/`.
+The upgrade delivers a **real, measured improvement** where it can be tested: **Web3 access-control AND reentrancy detection 0→100% (incl. unseen cases), deterministic Foundry PoC oracles (access-control drain + reentrancy drain), +98 tests, and all existing gates preserved (verifier 1.0/FP0, authz 1.0/FP0)** — moving the benchmark from **3/5 to 5/5 gates** with **no regression**. Mobile/Cloud/Network/severity remain **unverified** and are the honest next priorities. No baseline data was fabricated; every number above is in `benchmarks/results/`.
