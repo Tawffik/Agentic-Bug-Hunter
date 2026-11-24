@@ -36,6 +36,7 @@ bash bughunter/tools/external_arsenal.sh                     # what's installed 
 | `param_probe.py` | Built-in GET-only hidden-param discovery (fallback when arjun/x8 absent) |
 | `parse_ffuf.py` | Parse ffuf JSON content-discovery output into URLs (was dropped) |
 | `fuzz_diff.py` | Per-host baseline response-diff: classify ffuf hits (INTERESTING/NOISE/DUPLICATE/SPA_FALLBACK) |
+| `api_probe.py` | Deep API tester over the app-model (per-host baseline; PUBLIC/AUTH/BLOCKED_SHELL/METHOD_*) + coverage ledger |
 | `pipeline_plan.py` | Chunked work plan from lead boards (auto/authz/ai lanes + next command) |
 | `skill_registry.py` | Skill/knowledge lifecycle: routing-label coverage, gap + dead-knowledge report, RAG index, lifecycle audit |
 | `js_analyzer.py` | Offline JS-bundle analysis — endpoints, params, secrets (cloud/SaaS/Auth/CI/JWT/keys), client sinks, source maps (`analyze <file\|dir\|->`) |

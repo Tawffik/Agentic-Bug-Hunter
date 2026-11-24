@@ -115,6 +115,23 @@ def _has_report_draft(findings_dirs: list[str], target: str) -> bool:
     return False
 
 
+def _load_coverage(findings_dirs: list[str], target: str) -> dict | None:
+    """Merge api_probe coverage.json files for a target (tested/total)."""
+    best = None
+    for base in findings_dirs:
+        root = os.path.join(base, target)
+        for path in glob.glob(os.path.join(root, "**", "coverage.json"), recursive=True):
+            try:
+                d = json.load(open(path, errors="replace"))
+            except (OSError, ValueError):
+                continue
+            if d.get("schema") != "api-coverage/1":
+                continue
+            if best is None or d.get("tested", 0) > best.get("tested", 0):
+                best = d
+    return best
+
+
 def _counts(leads: list[dict]) -> dict:
     c = {"new": 0, "investigating": 0, "killed": 0, "parked": 0, "reported": 0}
     for ld in leads:
@@ -147,6 +164,7 @@ def analyze(target: str, *, leads: list[dict] | None = None,
     validations = _load_validations(findings_dirs, target)
     ready = [v for v in validations if _is_report_ready(v)]
     report_draft = _has_report_draft(findings_dirs, target)
+    coverage = _load_coverage(findings_dirs, target)
 
     causes: list[dict] = []
     actions: list[str] = []
@@ -198,6 +216,17 @@ def analyze(target: str, *, leads: list[dict] | None = None,
         })
         actions.append("Run /chain on the oracle-confirmed leads to reach reportable impact")
 
+    if coverage and coverage.get("total") and not ready \
+            and coverage.get("pct", 0) < 0.5:
+        causes.append({
+            "code": "untested_surface", "severity": "info",
+            "count": coverage["total"] - coverage["tested"],
+            "detail": f"api endpoints tested {coverage['tested']}/{coverage['total']} "
+                      f"({coverage.get('pct',0)*100:.1f}%) — 'no bugs' may mean 'untested'",
+        })
+        actions.append("Raise coverage: python3 -m tools.api_probe --target "
+                       f"{target} --recon-dir recon/{target} --max-endpoints <N>")
+
     if counts["killed"] > 0 and counts["new"] == 0 and not ready:
         causes.append({
             "code": "hardened", "severity": "info", "count": counts["killed"],
@@ -243,6 +272,7 @@ def analyze(target: str, *, leads: list[dict] | None = None,
         "validations": len(validations),
         "report_ready": len(ready),
         "report_draft": report_draft,
+        "coverage": coverage,
         "causes": causes,
         "next_actions": actions,
     }

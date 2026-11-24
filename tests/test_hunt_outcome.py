@@ -108,3 +108,14 @@ def test_cli_json_and_exit_codes(tmp_path, capsys):
     rc2 = main(["ghost", "--leads-dir", str(empty),
                 "--findings-dir", str(tmp_path / "none")])
     assert rc2 == 2
+
+
+def test_untested_surface_cause_from_coverage(tmp_path):
+    findings = str(tmp_path)
+    d = os.path.join(findings, "t", "api_probe")
+    os.makedirs(d, exist_ok=True)
+    json.dump({"schema": "api-coverage/1", "target": "t", "tested": 3, "total": 100,
+               "pct": 0.03, "by_verdict": {"PUBLIC": 3}}, open(os.path.join(d, "coverage.json"), "w"))
+    out = analyze("t", leads=[_lead("killed")], findings_dirs=[findings])
+    assert out["coverage"]["total"] == 100
+    assert any(c["code"] == "untested_surface" for c in out["causes"])
