@@ -18,7 +18,7 @@ from tools.verifiers.base import VerifyResult, skipped
 from tools.verifiers import (
     redirect, sensitive_file, auth_bypass, sqli, idor, oob, xss,
     cors, mass_assignment, ssti, graphql_idor, ssrf, llm_exfil,
-    business_logic, cache_poison,
+    business_logic, cache_poison, ssi,
 )
 
 # canonical class -> verify callable
@@ -40,6 +40,7 @@ REGISTRY = {
     "llm-exfil": llm_exfil.verify,
     "business-logic": business_logic.verify,
     "cache-poisoning": cache_poison.verify,
+    "ssi": ssi.verify,
 }
 
 # alias -> canonical class (lowercased, punctuation-insensitive match applied)
@@ -107,6 +108,10 @@ _ALIASES = {
     "cache poisoning": "cache-poisoning",
     "web cache poisoning": "cache-poisoning",
     "cache deception": "cache-poisoning",
+    "ssi injection": "ssi",
+    "server-side includes": "ssi",
+    "server side include": "ssi",
+    "server-side include injection": "ssi",
 }
 
 

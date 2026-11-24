@@ -215,3 +215,39 @@ def test_saml_verify_requires_callback_then_confirms():
     r2 = oob.verify({"vuln_class": "saml", "oob_payloads": p,
                      "oob_interactions": [{"full-id": m, "protocol": "dns"}]})
     assert r2.confirmed is True
+
+
+def test_ssi_verifier_confirms_execution_rejects_reflection():
+    import re, threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlparse, parse_qs
+    from tools.verifiers.ssi import verify
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def do_GET(self):  # noqa: N802
+            q = parse_qs(urlparse(self.path).query)
+            val = (q.get("q") or [""])[0]
+            if self.path.startswith("/vuln"):
+                m = re.search(r'<!--#exec cmd="printf ([A-Za-z0-9]+)"-->', val)
+                body = (m.group(1) if m else val).encode()  # SSI evaluates the exec
+            else:
+                body = val.encode()  # safe: reflects the literal directive
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        vuln = verify({"vuln_class": "ssi", "url": base + "/vuln?q=1", "param": "q"})
+        safe = verify({"vuln_class": "ssi", "url": base + "/safe?q=1", "param": "q"})
+    finally:
+        srv.shutdown()
+    assert vuln.confirmed is True
+    assert safe.confirmed is False
+    assert "reflected" in (safe.oracle or "").lower()
