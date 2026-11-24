@@ -108,3 +108,13 @@ def test_installer_help_does_not_install():
     assert "--with-pro" in proc.stdout
     assert "Homebrew not found" not in proc.stdout
     assert "Installing" not in proc.stdout
+
+
+def test_browser_capture_api_fields():
+    from dataclasses import asdict
+    from tools.browser_capture import RequestRecord
+    r = RequestRecord("POST", "https://h/api/signature", "xhr",
+                      post_data='{"tag":"x"}', api_headers={"anti-content": "abc"})
+    d = asdict(r)
+    assert d["post_data"] == '{"tag":"x"}'
+    assert d["api_headers"]["anti-content"] == "abc"
