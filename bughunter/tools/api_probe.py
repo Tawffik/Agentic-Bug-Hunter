@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import secrets
 import sys
 import time
@@ -44,6 +45,28 @@ from tools.verifiers.base import fetch  # noqa: E402
 SIGNAL = {"PUBLIC", "AUTHZ_DELTA", "METHOD_PUT", "METHOD_DELETE", "SERVER_ERROR"}
 
 
+_API_RE = re.compile(r"(/api/|/v\d+/|/graphql|/rest/|/upload|/auth)", re.I)
+_NONAPI_RE = re.compile(r"(\.(png|jpe?g|gif|webp|svg|css|js|woff2?|ttf|eot|ico|map)$"
+                        r"|-g-\d+\.html$|/assets/|/static/|/upload_aimg|/upload-static)", re.I)
+
+
+def is_api_endpoint(key: str) -> bool:
+    path = key.split(" ", 1)[1] if " " in key else key
+    return bool(_API_RE.search(path)) and not bool(_NONAPI_RE.search(path))
+
+
+def _is_html_shell(content_type: str, body: bytes) -> bool:
+    """True for a bot-management / JS-challenge page served on an API path.
+
+    Temu (and similar) answer *any* path with an obfuscated `_0x…` challenge HTML
+    (HTTP 200, text/html). Without this, that shell is mis-read as PUBLIC.
+    """
+    if "text/html" not in (content_type or "").lower():
+        return False
+    b = (body or b"")[:4000].lower()
+    return b"<script" in b and (b"_0x" in b or b"captcha" in b or b"challenge" in b)
+
+
 def endpoint_url(base: str, key: str) -> str:
     path = key.split(" ", 1)[1] if " " in key else key
     if path.startswith("http"):
@@ -52,10 +75,12 @@ def endpoint_url(base: str, key: str) -> str:
 
 
 def classify(anon_status, anon_len, base_status, base_len, auth_status=None,
-             allow=None) -> str:
+             allow=None, html_shell=False) -> str:
     """Pure classifier (unit-tested)."""
     if anon_status is None:
         return "ERROR"
+    if html_shell:
+        return "BLOCKED_SHELL"
     # bot-management / SPA catch-all: same as the nonexistent-path baseline.
     # Only for a *substantial* baseline body (>=200B) so a tiny catch-all cannot
     # swallow every small 200 response into BLOCKED_SHELL.
@@ -112,9 +137,12 @@ def build_coverage(target: str, tested: int, total: int, verdicts: dict) -> dict
 
 def run(target: str, recon_dir: str, *, max_endpoints: int = 200,
         identity_headers: dict | None = None, scope_checker=None,
-        out_dir: str | None = None, delay: float = 0.05) -> dict:
+        out_dir: str | None = None, delay: float = 0.05,
+        api_only: bool = False) -> dict:
     model = app_model.build(target, recon_dir=recon_dir)
     eps = model["endpoints"]
+    if api_only:
+        eps = [e for e in eps if is_api_endpoint(e["key"])]
     total = len(eps)
     out_dir = out_dir or os.path.join(_REPO, "findings", target, "api_probe")
     os.makedirs(out_dir, exist_ok=True)
@@ -142,7 +170,11 @@ def run(target: str, recon_dir: str, *, max_endpoints: int = 200,
             exa, _ = fetch(url, headers=identity_headers, scope_checker=scope_checker,
                            timeout=8, note="api identity")
             auth_status = exa.status
-        verdict = classify(ex.status, len(body), bs, bl, auth_status, _allow_from(opts))
+        ct = (ex.response_headers.get("Content-Type")
+              or ex.response_headers.get("content-type") or "")
+        shell = _is_html_shell(ct, body) and is_api_endpoint(e["key"])
+        verdict = classify(ex.status, len(body), bs, bl, auth_status,
+                           _allow_from(opts), html_shell=shell)
         verdicts[verdict] = verdicts.get(verdict, 0) + 1
         rows.append({"key": e["key"], "url": url, "anon": ex.status,
                      "base": bs, "auth": auth_status, "verdict": verdict})
@@ -166,6 +198,8 @@ def main(argv=None) -> int:
     p.add_argument("--max-endpoints", type=int, default=200)
     p.add_argument("--identity", help="auth file ({\"headers\":[...]} or {\"cookie\":...})")
     p.add_argument("--scope-domain", action="append", default=[])
+    p.add_argument("--api-only", action="store_true",
+                   help="only API/auth/upload endpoints (skip product/content/static)")
     p.add_argument("--out-dir")
     p.add_argument("--json", action="store_true")
     args = p.parse_args(argv)
@@ -181,7 +215,8 @@ def main(argv=None) -> int:
         scope_checker = ScopeChecker(args.scope_domain)
 
     res = run(args.target, args.recon_dir, max_endpoints=args.max_endpoints,
-              identity_headers=identity, scope_checker=scope_checker, out_dir=args.out_dir)
+              identity_headers=identity, scope_checker=scope_checker,
+              out_dir=args.out_dir, api_only=args.api_only)
     cov = res["coverage"]
     if args.json:
         print(json.dumps(res, indent=2))

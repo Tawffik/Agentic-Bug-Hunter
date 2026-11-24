@@ -72,3 +72,21 @@ def test_run_classifies_and_writes_coverage(tmp_path):
     assert v.get("AUTH_REQUIRED", 0) >= 1   # /private
     assert res["coverage"]["tested"] == 3
     assert (tmp_path / "out" / "coverage.json").is_file()
+
+
+def test_is_api_endpoint_filter():
+    from tools.api_probe import is_api_endpoint
+    assert is_api_endpoint("GET /api/orders/1")
+    assert is_api_endpoint("POST /v2/users")
+    assert is_api_endpoint("GET /graphql")
+    assert not is_api_endpoint("GET /some-product-g-601099708851693.html")
+    assert not is_api_endpoint("GET /upload_aimg/a.png")
+    assert not is_api_endpoint("GET /assets/app.js")
+
+
+def test_html_shell_detection():
+    from tools.api_probe import _is_html_shell, classify
+    assert _is_html_shell("text/html", b"<html><script>function _0x24b9(){}") is True
+    assert _is_html_shell("application/json", b'{"ok":true}') is False
+    # an HTML challenge on an API path is BLOCKED_SHELL, never PUBLIC
+    assert classify(200, 500, 404, 10, html_shell=True) == "BLOCKED_SHELL"
