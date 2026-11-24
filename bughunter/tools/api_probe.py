@@ -109,6 +109,20 @@ def classify(anon_status, anon_len, base_status, base_len, auth_status=None,
     return "OTHER"
 
 
+_ERR_ENVELOPE = re.compile(
+    rb'"success"\s*:\s*false|"error_code"\s*:\s*[1-9]|"errorcode"\s*:\s*[1-9]|'
+    rb'"error(_msg|msg)?"\s*:\s*"[^"]+"|not\s+logged\s+in|unauthoriz|'
+    rb'forbidden|login\s+required|invalid\s+(token|session)|permission\s+error',
+    re.I)
+
+
+def body_is_error(status, body: bytes) -> bool:
+    """A 2xx with an error/auth envelope is NOT a public surface (temu FPs)."""
+    if status is None or not (200 <= status < 300):
+        return False
+    return bool(_ERR_ENVELOPE.search(body or b""))
+
+
 def _host(url: str) -> str:
     from urllib.parse import urlsplit
     p = urlsplit(url)
@@ -175,6 +189,8 @@ def run(target: str, recon_dir: str, *, max_endpoints: int = 200,
         shell = _is_html_shell(ct, body) and is_api_endpoint(e["key"])
         verdict = classify(ex.status, len(body), bs, bl, auth_status,
                            _allow_from(opts), html_shell=shell)
+        if verdict == "PUBLIC" and body_is_error(ex.status, body):
+            verdict = "ERROR_2XX"
         verdicts[verdict] = verdicts.get(verdict, 0) + 1
         rows.append({"key": e["key"], "url": url, "anon": ex.status,
                      "base": bs, "auth": auth_status, "verdict": verdict})

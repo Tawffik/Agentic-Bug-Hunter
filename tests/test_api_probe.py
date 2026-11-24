@@ -90,3 +90,39 @@ def test_html_shell_detection():
     assert _is_html_shell("application/json", b'{"ok":true}') is False
     # an HTML challenge on an API path is BLOCKED_SHELL, never PUBLIC
     assert classify(200, 500, 404, 10, html_shell=True) == "BLOCKED_SHELL"
+
+
+def test_2xx_error_envelope_is_not_public():
+    from tools.api_probe import body_is_error, classify
+    assert body_is_error(200, b'{"success":false,"error_msg":"nope"}') is True
+    assert body_is_error(200, b'{"error_code":40001}') is True
+    assert body_is_error(200, b'{"success":true,"result":[]}') is False
+    assert body_is_error(404, b'{"error":"x"}') is False
+
+
+def test_run_reclassifies_2xx_error_envelope(tmp_path):
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from tools.api_probe import run
+
+    class E(BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def do_GET(self):
+            body = b'{"success":false,"error_code":40001,"error_msg":"auth"}'
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), E)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    host = f"http://127.0.0.1:{srv.server_address[1]}"
+    rd = tmp_path / "recon"
+    (rd / "urls").mkdir(parents=True)
+    (rd / "urls" / "all.txt").write_text(f"{host}/api/x\n")
+    res = run("t.example", str(rd), max_endpoints=5, out_dir=str(tmp_path / "out"))
+    srv.shutdown()
+    assert res["rows"][0]["verdict"] == "ERROR_2XX"
