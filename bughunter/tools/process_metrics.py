@@ -27,8 +27,7 @@ def _is_report_ready(v: dict) -> bool:
         from tools.validate_core import is_report_ready
         return bool(is_report_ready(v))
     except Exception:  # noqa: BLE001
-        return v.get("status") == "validated_finding" and bool(
-            (v.get("verifier") or {}).get("confirmed"))
+        return False  # fail closed: if the gate cannot load, nothing counts as report-ready
 
 
 def _rate(num: int, den: int) -> float:

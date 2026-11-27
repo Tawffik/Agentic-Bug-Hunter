@@ -248,3 +248,21 @@ def test_report_gate_tolerates_array_validation(tmp_path):
     ready, note = b._report_gate(str(tmp_path))
     assert ready is False and "NO_REPORTS" in note
 
+
+
+def test_report_gate_fails_closed_when_validator_cannot_load(tmp_path, monkeypatch):
+    import sys
+    monkeypatch.delenv("BBHUNT_ALLOW_UNVALIDATED_REPORT", raising=False)
+    monkeypatch.setitem(sys.modules, "tools.validate_core", None)  # import raises
+    b = _bare_brain()
+    ready, note = b._report_gate(str(tmp_path))
+    assert ready is False and "NO_REPORTS" in note
+
+
+def test_report_gate_manual_override_still_works_when_validator_missing(tmp_path, monkeypatch):
+    import sys
+    monkeypatch.setenv("BBHUNT_ALLOW_UNVALIDATED_REPORT", "1")
+    monkeypatch.setitem(sys.modules, "tools.validate_core", None)
+    b = _bare_brain()
+    ready, _ = b._report_gate(str(tmp_path))
+    assert ready is True

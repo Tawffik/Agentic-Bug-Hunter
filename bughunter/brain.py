@@ -1775,11 +1775,14 @@ Do NOT fabricate hypothetical chains using invented endpoints or made-up evidenc
 
         try:
             from tools.validate_core import is_report_ready
-        except Exception as exc:  # noqa: BLE001 - if the gate can't load, fail open LOUDLY
-            print(f"[!] report gate unavailable ({exc}) — allowing report for manual "
-                  f"review. Fix tools.validate_core to restore deterministic gating.",
+        except Exception as exc:  # noqa: BLE001 - if the gate can't load, fail CLOSED
+            print(f"[!] report gate unavailable ({exc}) — blocking report. "
+                  f"Fix tools.validate_core to restore deterministic gating "
+                  f"(or set BBHUNT_ALLOW_UNVALIDATED_REPORT=1 for manual review).",
                   file=sys.stderr)
-            return True, ""
+            if os.environ.get("BBHUNT_ALLOW_UNVALIDATED_REPORT") == "1":
+                return True, ""
+            return False, "NO_REPORTS\nReport gate blocked: validator could not be loaded."
 
         val_files = _glob.glob(os.path.join(findings_dir, "**", "validation.json"),
                                recursive=True)
