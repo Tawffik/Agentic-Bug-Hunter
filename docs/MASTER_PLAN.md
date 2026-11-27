@@ -29,7 +29,9 @@ human can turn into paid findings.
 | `bug-bounty-tips-skills` (333) | **Merge** | Import as `knowledge/tips/` in Agentic; keep a generated index |
 | `bug-bounty-tips-playbook` | **Merge/redirect** | Fold into Agentic docs |
 | `zero-track-showcase` | **Keep — portfolio** | Sanitized public architecture showcase |
-| `exposure-intelligence`, `security-research-agent*` | **Freeze/merge later** | Only if they become the same product |
+| `security-research-agent` | **Core control plane (revised 2026-11-28)** | Measured: 443 tests pass; has ScopeGuard, evidence graph, skeptic/referee. Validation/decision spine for the unified harness. ABH stays the front end. |
+| `security-research-agent-lite` | **Archive** | Duplicate of the core |
+| `exposure-intelligence` | **Freeze/merge later** | Signal feed; merge only if it becomes the same product |
 | `My-app-`, `furniture-commerce-os`, `ai-agent-security-study`, `llm-security-guard`, `chathub-minimal` | **De-prioritize** | Portfolio/learning, not bounty output |
 
 **Rule:** no new repository until the existing four are consolidated and actively used.
