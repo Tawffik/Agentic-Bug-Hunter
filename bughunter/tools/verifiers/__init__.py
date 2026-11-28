@@ -139,12 +139,43 @@ def verify_finding(finding: dict, scope_checker=None) -> VerifyResult:
     if not canon:
         return skipped(str(raw) or "unknown", f"no verifier registered for class {raw!r}")
     fn = REGISTRY[canon]
+    sealing = _maybe_enable_sealing()
     # oob.verify reads vuln_class off the finding; make sure it is canonical.
     enriched = dict(finding)
     enriched.setdefault("vuln_class", canon)
     if canon in ("ssrf", "xxe", "rce", "log4shell"):
         enriched["vuln_class"] = canon
-    return fn(enriched, scope_checker=scope_checker)
+    result = fn(enriched, scope_checker=scope_checker)
+    if sealing:
+        _append_control(result, enriched, scope_checker)
+    return result
+
+
+def _maybe_enable_sealing() -> bool:
+    """Opt-in: ZT_SEAL=1 activates the CaptureSealer (key from ZT_SEAL_KEY_FILE) once."""
+    import os
+    from tools.verifiers import base
+    if os.environ.get("ZT_SEAL") != "1":
+        return base._SEALER is not None
+    if base._SEALER is None:
+        from tools.verifiers.seal import CaptureSealer
+        base.set_sealer(CaptureSealer.from_env())
+    return True
+
+
+def _append_control(result, finding: dict, scope_checker) -> None:
+    """Capture a sealed role="control" request (same origin, random nonexistent path)
+    so a downstream differential gate has a baseline. Same scope checker, single GET."""
+    import secrets
+    from urllib.parse import urlparse
+    from tools.verifiers import base
+    url = finding.get("url") or ""
+    pu = urlparse(url)
+    if not pu.scheme or not pu.netloc or not isinstance(getattr(result, "trace", None), list):
+        return
+    ex, _ = base.fetch(f"{pu.scheme}://{pu.netloc}/zt-control-{secrets.token_hex(4)}",
+                       scope_checker=scope_checker, note="control baseline", role="control")
+    result.trace.append(ex)
 
 
 __all__ = ["verify_finding", "REGISTRY", "normalize_class", "VerifyResult"]
