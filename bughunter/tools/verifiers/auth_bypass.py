@@ -31,7 +31,7 @@ def verify(finding: dict, scope_checker=None) -> VerifyResult:
         )
 
     # Deliberately send NO auth material: this is the unauthenticated attacker.
-    ex, body = fetch(url, scope_checker=scope_checker, note="anon forced-browse")
+    ex, body = fetch(url, scope_checker=scope_checker, note="anon forced-browse", role="test")
     trace = [ex]
 
     if ex.status != 200:

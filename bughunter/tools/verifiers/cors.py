@@ -38,7 +38,7 @@ def verify(finding: dict, scope_checker=None) -> VerifyResult:
     headers["Origin"] = attacker
 
     ex, _ = fetch(url, headers=headers, scope_checker=scope_checker,
-                  note="cors credentialed-reflection probe")
+                  note="cors credentialed-reflection probe", role="test")
     trace = [ex]
 
     if ex.status is None:

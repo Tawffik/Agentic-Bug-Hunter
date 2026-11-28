@@ -52,7 +52,7 @@ def verify(finding: dict, scope_checker=None) -> VerifyResult:
     trace: list[HttpExchange] = []
 
     ex_a, body_a = fetch(url, method="POST", headers=a_headers, data=payload,
-                         scope_checker=scope_checker, note="gql attacker queries victim id")
+                         scope_checker=scope_checker, note="gql attacker queries victim id", role="test")
     trace.append(ex_a)
     text_a = body_a.decode("utf-8", "replace")
     if ex_a.status != 200 or str(victim_marker) not in text_a:
@@ -61,7 +61,7 @@ def verify(finding: dict, scope_checker=None) -> VerifyResult:
 
     anon_headers = {"Content-Type": "application/json"}
     ex_n, body_n = fetch(url, method="POST", headers=anon_headers, data=payload,
-                         scope_checker=scope_checker, note="gql anon control")
+                         scope_checker=scope_checker, note="gql anon control", role="control")
     trace.append(ex_n)
     if ex_n.status == 200 and str(victim_marker) in body_n.decode("utf-8", "replace"):
         return rejected(VULN_CLASS,

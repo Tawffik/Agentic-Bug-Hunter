@@ -45,7 +45,7 @@ def verify(finding: dict, scope_checker=None) -> VerifyResult:
     raw_seen = False
     for name, payload in payloads:
         ex, body = fetch(set_param(url, param, payload), scope_checker=scope_checker,
-                         note=f"ssti {name} probe")
+                         note=f"ssti {name} probe", role="test")
         trace.append(ex)
         text = body.decode("utf-8", "replace")
         if payload in text:

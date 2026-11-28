@@ -43,9 +43,9 @@ def verify(finding: dict, scope_checker=None) -> VerifyResult:
         breaker = str(finding.get("breaker_payload") or "'")
         benign = str(finding.get("benign_value") or "1")
         ex_b, body_b = fetch(set_param(url, param, breaker), scope_checker=scope_checker,
-                             note="sqli error breaker")
+                             note="sqli error breaker", role="test")
         ex_n, body_n = fetch(set_param(url, param, benign), scope_checker=scope_checker,
-                             note="sqli benign baseline")
+                             note="sqli benign baseline", role="control")
         trace += [ex_b, ex_n]
         in_breaker = str(sig) in body_b.decode("utf-8", "replace")
         in_benign = str(sig) in body_n.decode("utf-8", "replace")
@@ -70,9 +70,9 @@ def verify(finding: dict, scope_checker=None) -> VerifyResult:
     base_ms: list[float] = []
     for _ in range(trials):
         ex_s, _ = fetch(set_param(url, param, str(sleep_payload)), scope_checker=scope_checker,
-                        timeout=sleep_seconds * 3 + 10, note="sqli sleep trial")
+                        timeout=sleep_seconds * 3 + 10, note="sqli sleep trial", role="test")
         ex_b, _ = fetch(set_param(url, param, baseline_payload), scope_checker=scope_checker,
-                        note="sqli baseline trial")
+                        note="sqli baseline trial", role="control")
         trace += [ex_s, ex_b]
         if ex_s.status is not None:
             sleep_ms.append(ex_s.elapsed_ms)

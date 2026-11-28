@@ -28,7 +28,7 @@ def verify(finding: dict, scope_checker=None) -> VerifyResult:
     payload = str(finding.get("payload") or f"https://{attacker}/")
     test_url = set_param(url, param, payload) if param else url
 
-    ex, _ = fetch(test_url, scope_checker=scope_checker, note="open-redirect probe")
+    ex, _ = fetch(test_url, scope_checker=scope_checker, note="open-redirect probe", role="test")
     trace = [ex]
 
     if ex.status not in (301, 302, 303, 307, 308):

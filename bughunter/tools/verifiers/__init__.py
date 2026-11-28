@@ -169,6 +169,8 @@ def _append_control(result, finding: dict, scope_checker) -> None:
     import secrets
     from urllib.parse import urlparse
     from tools.verifiers import base
+    if any(getattr(e, "role", "") == "control" for e in result.trace):
+        return                      # the verifier already captured its own control (idor, sqli, ssrf, gql)
     url = finding.get("url") or ""
     pu = urlparse(url)
     if not pu.scheme or not pu.netloc or not isinstance(getattr(result, "trace", None), list):

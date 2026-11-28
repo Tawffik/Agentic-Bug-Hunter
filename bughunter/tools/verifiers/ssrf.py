@@ -42,13 +42,13 @@ def verify(finding: dict, scope_checker=None) -> VerifyResult:
 
     trace: list[HttpExchange] = []
     ex_t, body_t = fetch(set_param(url, param, str(target)), scope_checker=scope_checker,
-                         note="ssrf in-band internal target")
+                         note="ssrf in-band internal target", role="test")
     trace.append(ex_t)
     hit = str(marker) in body_t.decode("utf-8", "replace")
 
     control = str(finding.get("control_target") or "https://example.com/")
     ex_c, body_c = fetch(set_param(url, param, control), scope_checker=scope_checker,
-                         note="ssrf benign control")
+                         note="ssrf benign control", role="control")
     trace.append(ex_c)
     in_control = str(marker) in body_c.decode("utf-8", "replace")
 
