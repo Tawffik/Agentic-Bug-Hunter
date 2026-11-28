@@ -30,6 +30,20 @@ except ImportError:
 
 USER_AGENT = "agentic-bug-hunter/verifier"
 
+_SEALER = None  # opt-in: set_sealer(CaptureSealer.from_env()) stamps every fetched exchange
+
+
+def set_sealer(sealer) -> None:
+    """Activate (or with None, deactivate) capture sealing for `fetch`."""
+    global _SEALER
+    _SEALER = sealer
+
+
+def _stamp(ex: "HttpExchange", role: str) -> "HttpExchange":
+    if _SEALER is not None:
+        _SEALER.stamp(ex, role)
+    return ex
+
 
 @dataclass
 class HttpExchange:
@@ -43,6 +57,11 @@ class HttpExchange:
     response_snippet: str
     elapsed_ms: float
     note: str = ""
+    # Filled only when a CaptureSealer is active (see verifiers/seal.py). Empty otherwise.
+    content: str = ""
+    sha256: str = ""
+    role: str = ""
+    seal: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -114,6 +133,7 @@ def fetch(
     scope_checker=None,
     note: str = "",
     max_body: int = 65536,
+    role: str = "",
 ) -> tuple[HttpExchange, bytes]:
     """Single-hop fetch (no redirect following) returning a trace entry + body.
 
@@ -127,7 +147,7 @@ def fetch(
     if scope_checker is not None and not scope_checker.is_in_scope(url):
         ex = HttpExchange(method, url, None, headers, {}, "", 0.0,
                           note or "blocked: out of scope")
-        return ex, b""
+        return _stamp(ex, role), b""
 
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     opener = _opener(_SSL_CTX)
@@ -155,12 +175,12 @@ def fetch(
         elapsed = (time.perf_counter() - start) * 1000
         ex = HttpExchange(method, url, None, headers, {}, "", elapsed,
                           note or f"{type(exc).__name__}: {exc}")
-        return ex, b""
+        return _stamp(ex, role), b""
 
     elapsed = (time.perf_counter() - start) * 1000
     snippet = body[:2048].decode("utf-8", "replace")
     ex = HttpExchange(method, url, status, headers, resp_headers, snippet, elapsed, note)
-    return ex, body
+    return _stamp(ex, role), body
 
 
 def set_param(url: str, param: str, value: str) -> str:
