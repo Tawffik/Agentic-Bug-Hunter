@@ -30,6 +30,52 @@ except ImportError:
 
 USER_AGENT = "agentic-bug-hunter/verifier"
 
+class HostPacer:
+    """Per-host minimum spacing between requests (rate_per_min per host). Opt-in via set_pacer()
+    or env ZT_RATE_PER_MIN. clock/sleep are injectable so tests never really sleep.
+    Best effort: it paces calls that go through fetch(), nothing else."""
+
+    def __init__(self, rate_per_min: float, clock=time.monotonic, sleep=time.sleep):
+        self.gap = 60.0 / rate_per_min if rate_per_min and rate_per_min > 0 else 0.0
+        self._clock, self._sleep, self._next = clock, sleep, {}
+        self.waited = 0.0
+
+    def wait(self, host: str) -> float:
+        if not self.gap:
+            return 0.0
+        now = self._clock()
+        due = self._next.get(host, now)
+        delay = max(0.0, due - now)
+        if delay:
+            self._sleep(delay)
+            self.waited += delay
+        self._next[host] = max(now, due) + self.gap
+        return delay
+
+
+_PACER = None
+
+
+def set_pacer(pacer) -> None:
+    """Activate (or with None, deactivate) per-host pacing for `fetch`."""
+    global _PACER
+    _PACER = pacer
+
+
+def _pace(url: str) -> None:
+    global _PACER
+    if _PACER is None:
+        import os
+        try:
+            rate = float(os.environ.get("ZT_RATE_PER_MIN", "") or 0)
+        except ValueError:
+            rate = 0
+        if rate > 0:
+            _PACER = HostPacer(rate)
+    if _PACER is not None:
+        _PACER.wait((urlparse(url).hostname or "").lower())
+
+
 _SEALER = None  # opt-in: set_sealer(CaptureSealer.from_env()) stamps every fetched exchange
 
 
@@ -149,6 +195,7 @@ def fetch(
                           note or "blocked: out of scope")
         return _stamp(ex, role), b""
 
+    _pace(url)
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     opener = _opener(_SSL_CTX)
     start = time.perf_counter()
