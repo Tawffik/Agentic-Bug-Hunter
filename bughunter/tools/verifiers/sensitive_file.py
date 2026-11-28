@@ -36,7 +36,7 @@ def verify(finding: dict, scope_checker=None) -> VerifyResult:
         return skipped(VULN_CLASS, "no url in finding")
 
     markers = finding.get("markers") or _DEFAULT_MARKERS
-    ex, body = fetch(url, scope_checker=scope_checker, note="sensitive-file probe")
+    ex, body = fetch(url, scope_checker=scope_checker, note="sensitive-file probe", role="test")
     trace = [ex]
 
     if ex.status != 200:
